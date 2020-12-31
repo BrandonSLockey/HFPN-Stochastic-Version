@@ -1,5 +1,5 @@
-from PD_HFPN_parameters import *
-from PD_HFPN_initial_tokens import *
+from PD_sHFPN_parameters import *
+from PD_sHFPN_initial_tokens import *
 
 # Cholesterol homeostasis firing conditions
 fc_t_LDLR_endocyto = lambda a : a["p_ApoEchol_extra"] > 1

@@ -1,5 +1,5 @@
-from PD_HFPN_parameters import *
-from PD_HFPN_inputs import mp_ApoEchol, mp_27OHchol
+from PD_sHFPN_parameters import *
+from PD_sHFPN_inputs import mp_ApoEchol, mp_27OHchol
 
 # Cholesterol homeostasis intial token values
 # it_p_chol_LE = chol_LE_threshold

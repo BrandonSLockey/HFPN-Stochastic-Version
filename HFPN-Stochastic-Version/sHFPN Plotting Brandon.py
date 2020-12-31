@@ -13,9 +13,9 @@ import numpy as np
 # Only run this cell once to avoid confusion with directories
 # Point this to the directory where HFPN.py is relative to your working directory
 cwd = os.getcwd() # Get current working directory
-root_folder = os.sep + "PN_Alzheimers_Parkinsons"
+root_folder = os.sep + "HFPN-Stochastic-Version"
 # Move to 'utils' from current directory position
-sys.path.insert(0, cwd[:(cwd.index(root_folder)+len(root_folder))] + os.sep + "HFPN model" + os.sep + "utils" + os.sep)
+sys.path.insert(0, cwd[:(cwd.index(root_folder)+len(root_folder))] + os.sep + "HFPN-Stochastic-Version" + os.sep)
 from visualisation import Analysis
 
 
@@ -23,7 +23,7 @@ from visualisation import Analysis
 
 analysis = {}
 #analysis['HFPN_Healthy_6x10e6'] = Analysis.load_from_file('HFPN_Healthy_6x10e6')
-analysis['HFPN_LRRK2_6x10e6'] = Analysis.load_from_file('HFPN_LRRK2_6x10e6')
+analysis['test'] = Analysis.load_from_file('test')
 #analysis['HFPN_DJ1_6x10e6'] = Analysis.load_from_file('HFPN_DJ1_6x10e6')
 # analysis['HFPN_VPS35_6x10e6'] = Analysis.load_from_file('HFPN_VPS35_6x10e6')
 
@@ -43,7 +43,7 @@ analysis['HFPN_LRRK2_6x10e6'] = Analysis.load_from_file('HFPN_LRRK2_6x10e6')
 # analysis['DNL'] = Analysis.load_from_file('pd_DNL_ds_smallertimestep')
 # analysis['LAMP2A'] = Analysis.load_from_file('pd_LAMP2A_ds_smallertimestep')
 
-desired_plotting_steps = 6000000
+desired_plotting_steps = 100000
 
 # In[3]:
 
@@ -71,7 +71,7 @@ def create_plot(analysis, input_place_list, place_labels, mutation_list, mutatio
     
     ax.legend()
     Analysis.standardise_plot(ax, title = plot_title, xlabel = "Time (s)",ylabel = "Molecule count")
-    plt.xlim([0,50]) #x axis range in seconds
+    plt.xlim([0,100]) #x axis range in seconds
     #plt.ylim([0,7.5e9]) #y axis range in tokens
     
     #DASHED LINES
@@ -198,11 +198,11 @@ def create_bar_chart(analysis, places_a, places_a_labels, places_b, places_b_lab
 
 
 create_plot(analysis, 
-            input_place_list = ['p_ApoEchol_EE'], 
+            input_place_list = ['p_chol_mito'], 
             place_labels = [""], 
-            mutation_list = ['HFPN_LRRK2_6x10e6'], 
-            mutation_labels = ['HFPN_LRRK2_6x10e6'],
-            plot_title = 'PD - p_ApoEchol_EE')
+            mutation_list = ['test'], 
+            mutation_labels = ['test'],
+            plot_title = 'PD - p_chol_mito')
 
 # create_plot(analysis, 
 #             input_place_list = ['p_chol_LE'], 
