@@ -146,7 +146,6 @@ class ContinuousTransition:
         input_place_tokens_dictionary = {}
         for cs in self.consumption_speeds:
             input_place_tokens_dictionary[cs.consumption_place.place_id] = cs.consumption_place.tokens 
-        print(input_place_tokens_dictionary)
         return input_place_tokens_dictionary
 
     def reset(self):
@@ -167,7 +166,7 @@ class ContinuousTransition:
             # Calculate number of tokens that will be consumed or produced from firing
             #randomizer = 
             randomized_value=random.gauss(1,self.stochastic_parameters[0])
-            print(randomized_value)
+            #print(randomized_value)
             for cs in self.consumption_speeds:
                 cs.calculate_firing_tokens(time_step, randomized_value)
 
@@ -203,9 +202,10 @@ class DiscreteTransition(ContinuousTransition):
 
         # Initialize everything from the super class
         super(DiscreteTransition, self).__init__(transition_id, label, firing_condition, consumption_speeds, production_speeds,stochastic_parameters)
-
         self.delay = delay
+        self.delay_original = delay
         self.delay_counter = 0 # Counter for consecutive no. of steps where firing condition still holds true
+        self.delay_list = [] # create list for analysis later
 
 
     def fire(self, time_step):
@@ -214,15 +214,20 @@ class DiscreteTransition(ContinuousTransition):
 
         if self.firing_condition(input_place_tokens) == True:
 
-            if self.delay_counter == int(self.delay/time_step):
+            if self.delay_counter >= int(self.delay/time_step):
                 # fire with a time_step of 1, as discrete transition tokens should be transferred in their entirety
                 super().fire(1)
+                self.delay_list.append(self.delay_counter)
                 self.delay_counter = 0
+                self.delay = random.gauss(self.delay_original,self.delay_original*self.stochastic_parameters[1])
+                
+    
             else:
                 self.delay_counter += 1
         else:
             # Reset firing condition
             self.delay_counter = 0
+            
 
 
 class HFPN:
@@ -545,7 +550,7 @@ class HFPN:
             neg_token_truth_value = [token < 0 for token in tokens]
             neg_place_ids = place_ids[neg_token_truth_value]
             neg_place_tokens = np.array(tokens)[neg_token_truth_value]
-            print(f"Warning: negative token count of {neg_place_tokens} in {neg_place_ids}.")
+            #print(f"Warning: negative token count of {neg_place_tokens} in {neg_place_ids}.") #BSL:Temporarily suppress warnings
         
         return tokens, firings
         
@@ -569,8 +574,11 @@ class HFPN:
         single_run_firings = np.zeros((int(number_time_steps/storage_interval)+1, len(self.transitions)))
         single_run_firings[0] = [trans.firings for trans in self.transitions.values()]
 
+                
         for t in range(number_time_steps):
             tokens, firings = self.run_single_step()
+            if t % 10000 == 0:
+                print("We are now at step:", t,flush=True)
             
             # store current values at regular intervals
             if t % storage_interval == 0:
