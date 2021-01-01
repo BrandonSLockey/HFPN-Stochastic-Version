@@ -425,7 +425,7 @@ def main():
                         consumption_coefficients = [1], 
                         output_place_ids = ['p_on3'],         
                         production_coefficients = [1],
-                        stochastic_parameters = [CaSD,DelaySD],
+                        stochastic_parameters = [CaSD,0],
                         delay=0) 
     pn.add_transition_with_speed_function(
                         transition_id = 't_D',
@@ -682,7 +682,7 @@ def main():
     analysis = Analysis(pn)
     execution_time = datetime.now()-start_time
     print('\n\ntime to execute:', execution_time)
-    
+    print(pn.transitions['t_B'].delay_list)
     # Save the network
     Analysis.store_to_file(analysis, run_save_name)
 
