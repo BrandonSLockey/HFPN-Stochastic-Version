@@ -8,6 +8,7 @@ import os
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
+
 #from scipy.signal import convolve
 #get_ipython().run_line_magic('matplotlib', 'qt')
 # Only run this cell once to avoid confusion with directories
@@ -20,10 +21,18 @@ from visualisation import Analysis
 
 
 # In[2]:
+##############################################################################
+################Input File Name and Plotting Steps############################
+##############################################################################
+File1 = '1e6_SD0_1_DelaySD_0_1'
+desired_plotting_steps = 1000000
 
+##############################################################################
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~End - BSL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+##############################################################################   
 analysis = {}
 #analysis['HFPN_Healthy_6x10e6'] = Analysis.load_from_file('HFPN_Healthy_6x10e6')
-analysis['test'] = Analysis.load_from_file('test')
+analysis[File1] = Analysis.load_from_file(File1)
 #analysis['HFPN_DJ1_6x10e6'] = Analysis.load_from_file('HFPN_DJ1_6x10e6')
 # analysis['HFPN_VPS35_6x10e6'] = Analysis.load_from_file('HFPN_VPS35_6x10e6')
 
@@ -43,7 +52,7 @@ analysis['test'] = Analysis.load_from_file('test')
 # analysis['DNL'] = Analysis.load_from_file('pd_DNL_ds_smallertimestep')
 # analysis['LAMP2A'] = Analysis.load_from_file('pd_LAMP2A_ds_smallertimestep')
 
-desired_plotting_steps = 100000
+
 
 # In[3]:
 
@@ -57,28 +66,35 @@ def create_plot(analysis, input_place_list, place_labels, mutation_list, mutatio
 
     fig,ax=plt.subplots()
     linestep = 0.3
-    line_width = 3
+    line_width = 2.5
     
     for i, mutation in enumerate(mutation_list):
         for place, place_label in zip(input_place_list, place_labels):
-            data = analysis[mutation].mean_token_history_for_places([place])[0:desired_plotting_steps+1]
+            data = analysis[mutation].mean_token_history_for_places([place])[0:desired_plotting_steps+1] #mutation is the file_name
            # print(data[100000]) #units in time_step
 
             if place_label == "":
-                ax.plot(t, data, label = mutation_labels[i], linewidth = line_width- i*linestep)
+                ax.plot(t, data, label = mutation_labels[i], linewidth = line_width- i*linestep, color="black")
             else:
-                ax.plot(t, data, label = mutation_labels[i]+' - '+place_label, linewidth = line_width- i*linestep)
+                ax.plot(t, data, label = mutation_labels[i]+' - '+place_label, linewidth = line_width- i*linestep, color="black")
     
     ax.legend()
     Analysis.standardise_plot(ax, title = plot_title, xlabel = "Time (s)",ylabel = "Molecule count")
-    plt.xlim([0,100]) #x axis range in seconds
-    #plt.ylim([0,7.5e9]) #y axis range in tokens
+    
+##############################################################################
+############## OTHER PLOT PARAMETERS YOU WANT#################################
+##############################################################################
+    plt.xlim([0,20]) #x axis range in seconds
+    #plt.ylim([3.7e9,3.791e9]) #y axis range in tokens
     
     #DASHED LINES
     # plt.axvline(x=1500, linestyle='--', color ='black')
     # plt.axvline(x=1550, linestyle='--', color ='black')
     #plt.axhline(y=80000, linestyle='--', color ='black', label = "p_ROS_mito Threshold = 80k")
     #plt.legend()
+##############################################################################
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~End - BSL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+##############################################################################    
     plt.show()
 
 def plot_stacked_bars(ax, legend, all_data, xs, labels, width):
@@ -134,7 +150,110 @@ def create_bar_chart(analysis, places_a, places_a_labels, places_b, places_b_lab
 
     plt.legend(fontsize=14, loc='upper right', bbox_to_anchor=(1.3, 1))
     plt.show()
+    
+##############################################################################
+################Calcium Relevant Graphs - BSL#################################
+##############################################################################
 
+def create_histogram(analysis, bins):
+    plt.hist(analysis[File1].delay_list_t_B, bins=bins, edgecolor='black', linewidth=1.2)
+    print("NOTE, these are t_B transitions only")
+    
+    
+def calculate_mean_of_delay(analysis):
+    list_1 = analysis[File1].delay_list_t_A
+    the_mean_t_A = np.mean(list_1)
+    print("Mean of delay_list t_A:", the_mean_t_A)
+    list_2 = analysis[File1].delay_list_t_B
+    the_mean_t_B = np.mean(list_2)
+    print("Mean of delay_list t_B:", the_mean_t_B)
+    list_3 = analysis[File1].delay_list_t_D
+    the_mean_t_D = np.mean(list_3)
+    print("Mean of delay_list t_D:", the_mean_t_D)
+
+    
+def calculate_TRUE_calcium_stochasticity_for_p_on4():
+    """
+    This can take a long time since the list is huge.
+    """
+    data = analysis[File1].mean_token_history_for_places(['p_on4'])[0:desired_plotting_steps+1]
+    #data is in a 2 dimensional array for
+    list_of_lists = data.tolist()
+    normal_list = [item for sublist in list_of_lists for item in sublist]
+
+    list_2 = []
+
+    count = 0
+
+    for index,number in enumerate(normal_list): 
+        if number == 0:
+            count = count+1
+        if number ==1 and normal_list[index-1]==0:
+            list_2.append(int(count))
+            count = 0
+        if number == 0 and index == (len(normal_list)-1): #So situations where we reach the end of the list and we are stuck with a zero are still counted.
+            list_2.append(int(count))
+
+    #print(list_2)
+    print("Mean Delay over Whole Run for p_on_4:", np.mean(list_2), "timesteps")
+    
+def calculate_TRUE_calcium_stochasticity_for_p_Ca_extra():
+    """
+    This can take a long time since the list is huge.
+    """
+    data = analysis[File1].mean_token_history_for_places(['p_Ca_extra'])[0:desired_plotting_steps+1]
+    #data is in a 2 dimensional array for
+    list_of_lists = data.tolist()
+    normal_list = [item for sublist in list_of_lists for item in sublist]
+
+    list_2 = []
+
+    count = 0
+
+    for index,number in enumerate(normal_list): 
+        if number == 0:
+            count = count+1
+        if number ==1 and normal_list[index-1]==0:
+            list_2.append(int(count))
+            count = 0
+        if number == 0 and index == (len(normal_list)-1): #So situations where we reach the end of the list and we are stuck with a zero are still counted.
+            list_2.append(int(count))
+
+    #print(list_2)
+    print("Mean Delay over Whole Run for p_Ca_extra:", np.mean(list_2), "timesteps")
+    
+def calculate_TRUE_calcium_stochasticity_for_p_on3():
+    """
+    This can take a long time since the list is huge.
+    """
+    data = analysis[File1].mean_token_history_for_places(['p_on3'])[0:desired_plotting_steps+1]
+    #data is in a 2 dimensional array for
+    list_of_lists = data.tolist()
+    normal_list = [item for sublist in list_of_lists for item in sublist]
+
+    list_2 = []
+
+    count = 0
+
+    for index,number in enumerate(normal_list): 
+        if number == 0:
+            count = count+1
+        if number ==1 and normal_list[index-1]==0:
+            list_2.append(int(count))
+            count = 0
+        if number == 0 and index == (len(normal_list)-1): #So situations where we reach the end of the list and we are stuck with a zero are still counted.
+            list_2.append(int(count))
+
+    #print(list_2)
+    print("Mean Delay over Whole Run for p_on3:", np.mean(list_2), "timesteps")
+    
+##############################################################################
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~End - BSL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+##############################################################################   
+
+calculate_TRUE_calcium_stochasticity_for_p_on4()
+calculate_TRUE_calcium_stochasticity_for_p_Ca_extra()
+calculate_TRUE_calcium_stochasticity_for_p_on3()
 
 # # Bar charts
 
@@ -197,12 +316,17 @@ def create_bar_chart(analysis, places_a, places_a_labels, places_b, places_b_lab
 #             plot_title = 'PD - p_cas3')
 
 
+
 create_plot(analysis, 
-            input_place_list = ['p_chol_mito'], 
+            input_place_list = ['p_on4'], 
             place_labels = [""], 
-            mutation_list = ['test'], 
-            mutation_labels = ['test'],
-            plot_title = 'PD - p_chol_mito')
+            mutation_list = [File1], 
+            mutation_labels = [File1],
+            plot_title = 'PD - p_on4')
+
+create_histogram(analysis, 20)
+
+calculate_mean_of_delay(analysis)
 
 # create_plot(analysis, 
 #             input_place_list = ['p_chol_LE'], 
