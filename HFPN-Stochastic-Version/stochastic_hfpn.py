@@ -69,12 +69,9 @@ class ConsumptionSpeed: # The new input arc
             input_place_tokens_dictionary[ip.place_id] = ip.tokens 
         return input_place_tokens_dictionary
 
+    #BSL:
     def calculate_firing_tokens(self, time_step, stochastic_multiplier):
         self.firing_tokens = self.consumption_function(self.get_input_place_tokens()) * time_step*stochastic_multiplier
-        #I can just have it at 1, with standard deviation, and multiply consumption and production by randomized 1.
-        #print(self.firing_tokens, "consumption firing_tokens")
-        #New argument called Type, if type = stochastic, *randomizer
-        #self.firing_tokens = random.gauss(self.firing_tokens, self.firing_tokens*SD)
    
 
     def perform_firing(self):
@@ -216,8 +213,8 @@ class DiscreteTransition(ContinuousTransition):
 
             if self.delay_counter >= int(self.delay/time_step):
                 # fire with a time_step of 1, as discrete transition tokens should be transferred in their entirety
-                super().fire(1)
-                self.delay_list.append(self.delay_counter)
+                super().fire(1) #BSL: Means you are calling fire() from the Parent Class ContinuousTransition
+                self.delay_list.append(self.delay_counter) #append to this list for later analysis
                 self.delay_counter = 0
                 self.delay = random.gauss(self.delay_original,self.delay_original*self.stochastic_parameters[1])
                 
@@ -227,6 +224,7 @@ class DiscreteTransition(ContinuousTransition):
         else:
             # Reset firing condition
             self.delay_counter = 0
+            
             
 
 
@@ -579,7 +577,7 @@ class HFPN:
             tokens, firings = self.run_single_step()
             if t % 10000 == 0:
                 print("We are now at step:", t,flush=True)
-            
+           
             # store current values at regular intervals
             if t % storage_interval == 0:
                 single_run_tokens[int(t/storage_interval)+1] = tokens
@@ -699,6 +697,7 @@ if __name__ == '__main__':
     #                                     production_coefficients = [1],
     #                                     vmax_scaling_function = lambda a : 1)
 
-    pn.run_many_times(1,10, -1)
+    pn.run_many_times(1,100, -1)
+    print(pn.transitions['t_b'].label)
     print('shape of token_storage:', pn.token_storage.shape)
     print('time array:', pn.time_array)
