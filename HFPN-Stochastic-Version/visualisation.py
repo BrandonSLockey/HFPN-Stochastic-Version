@@ -32,6 +32,11 @@ class Analysis:
         self.time_array = hfpn.time_array[::step]
         self.place_dict = self.place_number_dict_maker()
         self.transition_dict = self.transition_dict_maker()
+        self.delay_list_t_A = hfpn.transitions['t_A'].delay_list 
+        self.delay_list_t_B = hfpn.transitions['t_B'].delay_list 
+        self.delay_list_t_D = hfpn.transitions['t_D'].delay_list 
+        
+        
      
 
     @staticmethod
@@ -175,7 +180,7 @@ class Analysis:
             places = [places]
 
         # Take the mean token count over all runs
-        mean_run_tokens = np.mean(self.token_storage, axis = 0)
+        mean_run_tokens = np.mean(self.token_storage, axis = 0) #axis 0 means along the row, you are taking the mean for every separate RUN, but in most cases, you are only doing 1 Run.
         #print(mean_run_tokens)
         # Returns a truth table of which places to plot
         truth_values = [place in places for place in self.place_ids]
