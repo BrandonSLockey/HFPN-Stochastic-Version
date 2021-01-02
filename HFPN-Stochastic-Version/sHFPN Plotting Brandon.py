@@ -24,8 +24,8 @@ from visualisation import Analysis
 ##############################################################################
 ################Input File Name and Plotting Steps############################
 ##############################################################################
-File1 = '1e6_SD0_1_DelaySD_0_1'
-desired_plotting_steps = 1000000
+File1 = '6e6_sHFPN_Healthy_SD_01_DelaySD_01'
+desired_plotting_steps = 6000000
 
 ##############################################################################
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~End - BSL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -84,8 +84,8 @@ def create_plot(analysis, input_place_list, place_labels, mutation_list, mutatio
 ##############################################################################
 ############## OTHER PLOT PARAMETERS YOU WANT#################################
 ##############################################################################
-    plt.xlim([0,20]) #x axis range in seconds
-    #plt.ylim([3.7e9,3.791e9]) #y axis range in tokens
+    # plt.xlim([0,6000]) #x axis range in seconds
+    # plt.ylim([3.7e9,4e9]) #y axis range in tokens
     
     #DASHED LINES
     # plt.axvline(x=1500, linestyle='--', color ='black')
@@ -163,13 +163,17 @@ def create_histogram(analysis, bins):
 def calculate_mean_of_delay(analysis):
     list_1 = analysis[File1].delay_list_t_A
     the_mean_t_A = np.mean(list_1)
-    print("Mean of delay_list t_A:", the_mean_t_A)
+    SD_t_A = np.std(list_1)
+    print("Mean of delay_list t_A:", the_mean_t_A, "SD:", 100*SD_t_A/the_mean_t_A, "percent", len(list_1), "Counts")
     list_2 = analysis[File1].delay_list_t_B
     the_mean_t_B = np.mean(list_2)
-    print("Mean of delay_list t_B:", the_mean_t_B)
+    SD_t_B = np.std(list_2)
+    print("Mean of delay_list t_B:", the_mean_t_B, "SD:", 100*SD_t_B/the_mean_t_B, "percent", len(list_2), "Counts")
     list_3 = analysis[File1].delay_list_t_D
     the_mean_t_D = np.mean(list_3)
-    print("Mean of delay_list t_D:", the_mean_t_D)
+    SD_t_C = np.std(list_3)
+    print("Mean of delay_list t_D:", the_mean_t_D, "SD:", 100*SD_t_C/the_mean_t_D, "percent", len(list_3), "Counts")
+
 
     
 def calculate_TRUE_calcium_stochasticity_for_p_on4():
@@ -177,7 +181,7 @@ def calculate_TRUE_calcium_stochasticity_for_p_on4():
     This can take a long time since the list is huge.
     """
     data = analysis[File1].mean_token_history_for_places(['p_on4'])[0:desired_plotting_steps+1]
-    #data is in a 2 dimensional array for
+    #data is in a 2 dimensional array form
     list_of_lists = data.tolist()
     normal_list = [item for sublist in list_of_lists for item in sublist]
 
@@ -193,16 +197,22 @@ def calculate_TRUE_calcium_stochasticity_for_p_on4():
             count = 0
         if number == 0 and index == (len(normal_list)-1): #So situations where we reach the end of the list and we are stuck with a zero are still counted.
             list_2.append(int(count))
+    #Cut_off_the very last element of the list for safety reasons, to deal with potential truncated zero-runs lowering the mean.
+    list_2.pop()
 
-    #print(list_2)
-    print("Mean Delay over Whole Run for p_on_4:", np.mean(list_2), "timesteps")
+    #list_2 is the new created list. 
+    mean1 = np.mean(list_2)
+    std1 = np.std(list_2)
+    print("Mean Delay over Whole Run for p_on4:", mean1, "timesteps", len(list_2), "counts")
+    print("SD over Whole Run for p_on4:", std1, "or", 100*std1/mean1, "percent")
+    #print("The very last element was: ", list_2[len(list_2)-1])
     
 def calculate_TRUE_calcium_stochasticity_for_p_Ca_extra():
     """
     This can take a long time since the list is huge.
     """
     data = analysis[File1].mean_token_history_for_places(['p_Ca_extra'])[0:desired_plotting_steps+1]
-    #data is in a 2 dimensional array for
+    #data is in a 2 dimensional array form
     list_of_lists = data.tolist()
     normal_list = [item for sublist in list_of_lists for item in sublist]
 
@@ -218,16 +228,21 @@ def calculate_TRUE_calcium_stochasticity_for_p_Ca_extra():
             count = 0
         if number == 0 and index == (len(normal_list)-1): #So situations where we reach the end of the list and we are stuck with a zero are still counted.
             list_2.append(int(count))
+    #Cut_off_the very last element of the list for safety reasons
+    list_2.pop()
 
-    #print(list_2)
-    print("Mean Delay over Whole Run for p_Ca_extra:", np.mean(list_2), "timesteps")
+    #list_2 is the new created list. 
+    mean1 = np.mean(list_2)
+    std1 = np.std(list_2)
+    print("Mean Delay over Whole Run for p_Ca_extra:", mean1, "timesteps", len(list_2), "counts")
+    print("SD over Whole Run for p_Ca_extra:", std1, "or", 100*std1/mean1, "percent")
     
 def calculate_TRUE_calcium_stochasticity_for_p_on3():
     """
     This can take a long time since the list is huge.
     """
     data = analysis[File1].mean_token_history_for_places(['p_on3'])[0:desired_plotting_steps+1]
-    #data is in a 2 dimensional array for
+    #data is in a 2 dimensional array form
     list_of_lists = data.tolist()
     normal_list = [item for sublist in list_of_lists for item in sublist]
 
@@ -243,17 +258,42 @@ def calculate_TRUE_calcium_stochasticity_for_p_on3():
             count = 0
         if number == 0 and index == (len(normal_list)-1): #So situations where we reach the end of the list and we are stuck with a zero are still counted.
             list_2.append(int(count))
+    #Cut_off_the very last element of the list for safety reasons
+    list_2.pop()
 
-    #print(list_2)
-    print("Mean Delay over Whole Run for p_on3:", np.mean(list_2), "timesteps")
+    #list_2 is the new created list. 
+    mean1 = np.mean(list_2)
+    std1 = np.std(list_2)
+    print("Mean Delay over Whole Run for p_on3:", mean1, "timesteps", len(list_2), "counts")
+    print("SD over Whole Run for p_on3:", std1, "or", 100*std1/mean1, "percent")
     
 ##############################################################################
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~End - BSL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-##############################################################################   
+##############################################################################  
+
+ 
+##############################################################################
+################Plotting Commands - BSL#######################################
+##############################################################################
 
 calculate_TRUE_calcium_stochasticity_for_p_on4()
 calculate_TRUE_calcium_stochasticity_for_p_Ca_extra()
 calculate_TRUE_calcium_stochasticity_for_p_on3()
+
+# create_plot(analysis, 
+#             input_place_list = ['p_tau'], 
+#             place_labels = [""], 
+#             mutation_list = [File1], 
+#             mutation_labels = [File1],
+#             plot_title = 'PD - p_tau')
+
+# create_histogram(analysis, 20)
+
+calculate_mean_of_delay(analysis)
+
+##############################################################################
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~End - BSL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+##############################################################################  
 
 # # Bar charts
 
@@ -317,16 +357,7 @@ calculate_TRUE_calcium_stochasticity_for_p_on3()
 
 
 
-create_plot(analysis, 
-            input_place_list = ['p_on4'], 
-            place_labels = [""], 
-            mutation_list = [File1], 
-            mutation_labels = [File1],
-            plot_title = 'PD - p_on4')
 
-create_histogram(analysis, 20)
-
-calculate_mean_of_delay(analysis)
 
 # create_plot(analysis, 
 #             input_place_list = ['p_chol_LE'], 
