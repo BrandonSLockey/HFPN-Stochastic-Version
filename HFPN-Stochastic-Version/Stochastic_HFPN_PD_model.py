@@ -683,9 +683,15 @@ def main():
     execution_time = datetime.now()-start_time
     print('\n\ntime to execute:', execution_time)
     # Save the network
+    
+    start_time = datetime.now()    
+    print("")
+    print("Compiling Data, this will take ~same time as execution time...")
+    Print(start_time)
     Analysis.store_to_file(analysis, run_save_name)
-
     print('Network saved to : "' + run_save_name+'.pkl"')
+    execution_time = datetime.now()-start_time
+    print('\n\ntime taken to compile:', execution_time)
     
 if __name__ == "__main__":
     main()
