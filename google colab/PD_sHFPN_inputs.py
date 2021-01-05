@@ -16,18 +16,18 @@ mp_ApoEchol=1 #1 or 2
 
 # Number of runs and timesteps
 number_runs = 1
-number_time_steps = 10000000
+number_time_steps = 6000000
 time_step_size = 0.001
 
 #To run model without Stochasticity, Set SD to 0.
 
-cholSD = 0.1 # cholesterol module
-SD = 0.1
-DelaySD = 0
+cholSD = 0 # cholesterol module
+SD = 0
+DelaySD = 0.2
 
 
 
 CaSD = 0 #CaSD = 0 or breaks.
 
 # Output file name
-run_save_name = '10e6_sHFPN_Healthy_SD_01_DelaySD_0_RUN_2'
+run_save_name = '6e6_sHFPN_Healthy_SD_0_DelaySD_02'

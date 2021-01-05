@@ -108,7 +108,7 @@ def main():
                     consumption_coefficients	 = [0,0,0],
                     output_place_ids			 = ["p_ApoEchol_EE"],
                     production_coefficients		 = [1],
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # # Cleavage of cholesteryl esters
     pn.add_transition_with_speed_function(
@@ -120,7 +120,7 @@ def main():
                     consumption_coefficients	 = [1],
                     output_place_ids			 = ["p_chol_LE"],
                     production_coefficients		 = [354],
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Transport Cholesterol from LE to ER
     pn.add_transition_with_speed_function(
@@ -132,7 +132,7 @@ def main():
                     consumption_coefficients	 = [1],
                     output_place_ids			 = ["p_chol_ER"],
                     production_coefficients		 = [1],
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Transport Cholesterol from LE to mito
     pn.add_transition_with_speed_function(
@@ -144,7 +144,7 @@ def main():
                     consumption_coefficients	 = [1],
                     output_place_ids			 = ["p_chol_mito"],
                     production_coefficients		 = [1],
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Transport Cholesterol from LE to PM
     pn.add_transition_with_speed_function(
@@ -156,7 +156,7 @@ def main():
                     consumption_coefficients	 = [1],
                     output_place_ids			 = ["p_chol_PM"],
                     production_coefficients		 = [1],
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Transport Cholesterol from PM to ER
     pn.add_transition_with_speed_function(
@@ -168,7 +168,7 @@ def main():
                     consumption_coefficients	 = [1],
                     output_place_ids			 = ["p_chol_ER"],
                     production_coefficients		 = [1],
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Transport Cholesterol from ER to PM
     pn.add_transition_with_speed_function(
@@ -180,7 +180,7 @@ def main():
                     consumption_coefficients	 = [1],
                     output_place_ids			 = ["p_chol_PM"],
                     production_coefficients		 = [1],
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Transport Cholesterol from ER to mito
     pn.add_transition_with_speed_function(
@@ -192,7 +192,7 @@ def main():
                     consumption_coefficients	 = [1],
                     output_place_ids			 = ["p_chol_mito"],
                     production_coefficients		 = [1],
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Metabolisation of chol by CYP27A1
     pn.add_transition_with_michaelis_menten(
@@ -206,7 +206,7 @@ def main():
                     output_place_ids			 = ["p_27OHchol_intra"],
                     production_coefficients		 = [1],
                     vmax_scaling_function		 = lambda a : chol_mp,
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Metabolism of chol by CYP11A1
     pn.add_transition_with_michaelis_menten(
@@ -220,7 +220,7 @@ def main():
                     output_place_ids			 = ["p_preg"],
                     production_coefficients		 = [1],
                     vmax_scaling_function		 = lambda a : chol_mp,
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Metabolisation of 27OHchol by CYP7B1
     pn.add_transition_with_michaelis_menten(
@@ -234,7 +234,7 @@ def main():
                     output_place_ids			 = ["p_7HOCA"],
                     production_coefficients		 = [1],
                     vmax_scaling_function		 = lambda a : chol_mp,
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Endocytosis of 27OHchol
     pn.add_transition_with_speed_function(
@@ -246,7 +246,7 @@ def main():
                     consumption_coefficients	 = [1],
                     output_place_ids			 = ["p_27OHchol_intra", "p_27OHchol_extra"],
                     production_coefficients		 = [1,1],
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Metabolisation of chol by CYP46A1
     pn.add_transition_with_michaelis_menten(
@@ -260,7 +260,7 @@ def main():
                     output_place_ids			 = ["p_24OHchol_intra"],
                     production_coefficients		 = [1],
                     vmax_scaling_function		 = lambda a : chol_mp,
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Exocytosis of 24OHchol
     pn.add_transition_with_speed_function(
@@ -272,7 +272,7 @@ def main():
                     consumption_coefficients	 = [1],
                     output_place_ids			 = ["p_24OHchol_extra"],
                     production_coefficients		 = [1],
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
     # Transport of Chol into ECM
     pn.add_transition_with_speed_function(
@@ -284,7 +284,7 @@ def main():
                     consumption_coefficients	 = [1,0],
                     output_place_ids			 = [],
                     production_coefficients		 = [],
-                    stochastic_parameters = [SD])
+                    stochastic_parameters = [cholSD])
 
 
     # PD specific
@@ -682,7 +682,6 @@ def main():
     analysis = Analysis(pn)
     execution_time = datetime.now()-start_time
     print('\n\ntime to execute:', execution_time)
-    print(pn.transitions['t_B'].delay_list)
     # Save the network
     Analysis.store_to_file(analysis, run_save_name)
 

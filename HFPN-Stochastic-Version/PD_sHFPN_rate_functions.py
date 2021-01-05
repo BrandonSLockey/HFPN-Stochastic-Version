@@ -6,7 +6,7 @@ from PD_sHFPN_inputs import *
 # rate_constant * a['p_H2']**2 * a['p_O2']**1
 r_t_chol_trans_ER_PM = lambda a :chol_mp*  k_t_chol_trans_ER_PM * a["p_chol_ER"]
 r_t_27OHchol_endocyto = lambda a : mp_27OHchol* chol_mp* k_t_27OHchol_endocyto 
-r_t_LDLR_endocyto = lambda a : chol_mp* (((vmax_t_LDLR_endocyto * min([1, max([0.3,(m_t_LDLR_endocyto * (a["p_chol_ER"]/it_p_chol_ER) + n_t_LDLR_endocyto)])]) * a["p_ApoEchol_extra"]/(Km_t_LDLR_endocyto + a["p_ApoEchol_extra"])) ) * (1+4*(a['p_LB']>LB_threshold)))
+r_t_LDLR_endocyto = lambda a : chol_mp* (((vmax_t_LDLR_endocyto * min([1, max([0.3,(m_t_LDLR_endocyto * (a["p_chol_ER"]/it_p_chol_ER) + n_t_LDLR_endocyto)])]) * a["p_ApoEchol_extra"]/(Km_t_LDLR_endocyto + a["p_ApoEchol_extra"])) ) * (1+4*(a['p_LB']>LB_threshold))) #BSL: Endocytosis is always multiplied by a number between 0.3 and 1
 r_t_ApoEchol_cleav = lambda a : chol_mp* (vmax_t_ApoEchol_cleav * a["p_ApoEchol_EE"]* 227)/(Km_t_ApoEchol_cleav + a["p_ApoEchol_EE"] * 227)
 r_t_chol_LE_upreg = lambda a : chol_mp* 9.8*1e6
 r_t_chol_trans_ER_mito = lambda a :chol_mp* k_t_chol_trans_ER_mito * a["p_chol_ER"] 

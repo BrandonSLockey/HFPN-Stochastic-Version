@@ -28,14 +28,14 @@ analysis = {}
 ##############################################################################
 start_time = datetime.now()
 
-File1 = '6e6_sHFPN_Healthy_SD_01_DelaySD_01'
-File2 = '6e6_sHFPN_Healthy_SD_01_DelaySD_0'
-#File3 = ''
+# File1 = '6e6_sHFPN_Healthy_SD_01_DelaySD_01'
+# File2 = '6e6_sHFPN_Healthy_SD_01_DelaySD_0'
+File3 = '6e6_sHFPN_Healthy_SD_02_DelaySD_0'
 desired_plotting_steps = 6000000
 
-analysis[File1] = Analysis.load_from_file(File1)
-analysis[File2] = Analysis.load_from_file(File2)
-#analysis[File3] = Analysis.load_from_file(File3)
+# analysis[File1] = Analysis.load_from_file(File1)
+# analysis[File2] = Analysis.load_from_file(File2)
+analysis[File3] = Analysis.load_from_file(File3)
 
 execution_time = datetime.now()-start_time
 print('\n\nLoad-in Time:', execution_time)
@@ -76,8 +76,8 @@ def create_plot(analysis, input_place_list, place_labels, mutation_list, mutatio
 ##############################################################################
 ############## OTHER PLOT PARAMETERS YOU WANT#################################
 ##############################################################################
-    # plt.xlim([0,4500]) #x axis range in seconds
-    # plt.ylim([0,200]) #y axis range in tokens
+    plt.xlim([0,4500]) #x axis range in seconds
+    plt.ylim([0,100]) #y axis range in tokens
     
     #DASHED LINES
     # plt.axvline(x=1500, linestyle='--', color ='black')
@@ -242,17 +242,18 @@ start_time = datetime.now()
 # calculate_TRUE_calcium_stochasticity(File1)
 # calculate_TRUE_calcium_stochasticity(File2)
 
-# create_plot(analysis, 
-#             input_place_list = ['p_27OHchol_intra'], 
-#             place_labels = [""], 
-#             mutation_list = [File1], 
-#             mutation_labels = [File1],
-#             plot_title = 'PD - p_27OHchol_intra')
+create_plot(analysis, 
+            input_place_list = ['p_SNCA_olig'], 
+            place_labels = [""], 
+            mutation_list = [File3], 
+            mutation_labels = [File3],
+            plot_title = 'PD - p_SNCA_olig')
+
 
 # create_histogram(analysis, 20)
 
-calculate_mean_of_delay(analysis, File1)
-calculate_mean_of_delay(analysis, File2)
+# calculate_mean_of_delay(analysis, File1)
+# calculate_mean_of_delay(analysis, File2)
 
 execution_time = datetime.now()-start_time
 print('\n\nPlotting Time:', execution_time)
