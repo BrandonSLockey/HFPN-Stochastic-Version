@@ -1,5 +1,6 @@
 import numpy as np
 import pickle 
+import dill
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import os
@@ -35,6 +36,7 @@ class Analysis:
         self.delay_list_t_A = hfpn.transitions['t_A'].delay_list 
         self.delay_list_t_B = hfpn.transitions['t_B'].delay_list 
         self.delay_list_t_D = hfpn.transitions['t_D'].delay_list 
+        self.transitions = hfpn.transitions # we will access all the fired tokens from this in plotting later
         
         
      
@@ -47,7 +49,7 @@ class Analysis:
                 filename (str): name of file, without extension
         """
         with open(f"{SAVED_RUNS_DIRECTORY}{filename}.pkl", 'wb') as filehandler:
-            pickle.dump(analysis_instance, filehandler)
+            dill.dump(analysis_instance, filehandler)
 
     @staticmethod
     def load_from_file(filename):
@@ -60,7 +62,7 @@ class Analysis:
                 Instance of the Analysis class 
         """
         with open(f"{SAVED_RUNS_DIRECTORY}{filename}.pkl", 'rb') as filehandler:
-            analysis_instance = pickle.load(filehandler)
+            analysis_instance = dill.load(filehandler)
             
         return analysis_instance
 
@@ -237,7 +239,7 @@ if __name__ == '__main__':
     pn.add_place(0, place_id="p_I2", label="Inhibitor 2", continuous=True)
 
     alpha = 0.5
-
+    SD= 0
     pn.add_transition(  transition_id = 't_1',
                         label = 'Example transition',
                         input_place_ids = ['p_H2', 'p_O2', 'p_I'],
@@ -246,7 +248,8 @@ if __name__ == '__main__':
                                                        lambda a : a['p_H2'] * alpha * 1,
                                                        lambda a: 0],
                         output_place_ids = ['p_H2O'],
-                        production_speed_functions = [lambda a : a['p_H2'] * alpha * 2]
+                        production_speed_functions = [lambda a : a['p_H2'] * alpha * 2],
+                        stochastic_parameters=[SD]
     )
 
     pn.add_transition(  transition_id = 't_2',
@@ -257,7 +260,8 @@ if __name__ == '__main__':
                                                        lambda a : a['p_H2'] * alpha * 1,
                                                        lambda a: 0],
                         output_place_ids = ['p_H2O'],
-                        production_speed_functions = [lambda a : a['p_H2'] * alpha * 2]
+                        production_speed_functions = [lambda a : a['p_H2'] * alpha * 2],
+                        stochastic_parameters=[SD]
     )
 
     pn.add_transition(  transition_id = 't_3',
@@ -268,7 +272,8 @@ if __name__ == '__main__':
                                                        lambda a : a['p_H2'] * alpha * 1,
                                                        lambda a: 0],
                         output_place_ids = ['p_H2O'],
-                        production_speed_functions = [lambda a : a['p_H2'] * alpha * 2]
+                        production_speed_functions = [lambda a : a['p_H2'] * alpha * 2],
+                        stochastic_parameters=[SD]
     )
 
     pn.add_transition(  transition_id = 't_4',
@@ -279,11 +284,12 @@ if __name__ == '__main__':
                                                        lambda a : a['p_H2'] * alpha * 1,
                                                        lambda a: 0],
                         output_place_ids = ['p_H2O'],
-                        production_speed_functions = [lambda a : a['p_H2'] * alpha * 2]
+                        production_speed_functions = [lambda a : a['p_H2'] * alpha * 2],
+                        stochastic_parameters=[SD]
     )
 
 
-    pn.run_many_times(1, 100000)
+    pn.run_many_times(1, 1000)
     analysis = Analysis(pn)
 
     analysis.mean_run_tokens_over_time(['p_O2', 'p_H2O'], 
