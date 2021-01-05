@@ -76,6 +76,9 @@ class ConsumptionSpeed: # The new input arc
 
     def perform_firing(self):
         self.consumption_place.tokens -= self.firing_tokens
+   #BSL:         
+    def return_consumed_fired_tokens(self): #maybe can improve by specifying storage intervals...
+        return self.firing_tokens
 
 
 class ProductionSpeed: # The new output arc
@@ -113,6 +116,9 @@ class ProductionSpeed: # The new output arc
 
     def perform_firing(self):
         self.production_place.tokens += self.firing_tokens 
+   #BSL: 
+    def return_produced_fired_tokens(self):
+        return self.firing_tokens
 
 class ContinuousTransition:
     """A continuous transition contains (i) a firing condition, usually expressed in terms of the input concentrations,
@@ -134,6 +140,8 @@ class ContinuousTransition:
         self.production_speeds = production_speeds
         self.stochastic_parameters = stochastic_parameters
         self.firings = 0
+        self.list_of_consumed_tokens = []
+        self.list_of_produced_tokens = []
         
     #BSL:
     def __str__(self):
@@ -169,6 +177,10 @@ class ContinuousTransition:
 
             for ps in self.production_speeds:
                 ps.calculate_firing_tokens(time_step, randomized_value)
+            #BSL:
+            #store produced tokens PER TRANSITION for later analysis #this is wrong if more than one thing produced I think
+            #self.list_of_consumed_tokens.append(return_consumed_fired_tokens())
+                self.list_of_produced_tokens.append(ps.return_produced_fired_tokens())
 
             # store least non-zero transfer count
             token_transfers = [s.firing_tokens for s in self.consumption_speeds if s.firing_tokens != 0] + \
@@ -176,12 +188,16 @@ class ContinuousTransition:
             if len(token_transfers) == 0: 
                 token_transfers.append(0)
 
-            # Execute the actual firing by looping through all ConsumptionSpeed and ProductionSpeed instances
+            
+
+            # Execute the actual firing by looping through all ConsumptionSpeed and ProductionSpeed instances            
             for cs in self.consumption_speeds:
                 cs.perform_firing()
 
             for ps in self.production_speeds:
                 ps.perform_firing()
+            
+            
 
             # Increment number of firings by 1
             self.firings += 1
