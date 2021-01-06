@@ -156,6 +156,8 @@ class ContinuousTransition:
     def reset(self):
         """Reset firing count for each transiton to 0 after each run."""
         self.firings = 0
+    def reset_list_of_produced_tokens(self):
+        self.list_of_produced_tokens = []        
 
     def fire(self, time_step):
         """The function first checks whether the firing condition is satisfied. If it is, it first
@@ -201,6 +203,10 @@ class ContinuousTransition:
 
             # Increment number of firings by 1
             self.firings += 1
+        if self.firing_condition(input_place_tokens) == False:
+            for ps in self.production_speeds:
+                self.list_of_produced_tokens.append(0)
+            
 
             
 class DiscreteTransition(ContinuousTransition):
@@ -554,6 +560,11 @@ class HFPN:
         # Store tokens weights for each place at specific time step 
         tokens = [place.tokens for place in self.places.values()]
 
+        #Store list_of_tokens_transferred_for_each_transition_per_timestep
+        #tokens_transitions = [t.list_of_produced_tokens for t in self.transitions.values()]
+        list_of_tokens_transferred_for_each_transition_per_timestep =[]
+        for t in self.transitions.values():
+            list_of_tokens_transferred_for_each_transition_per_timestep.append(t.list_of_produced_tokens)
         # Store cumulative number of firings for each transition at specific time step
         firings = [t.firings for t in self.transitions.values()]
 
@@ -565,8 +576,9 @@ class HFPN:
             neg_place_ids = place_ids[neg_token_truth_value]
             neg_place_tokens = np.array(tokens)[neg_token_truth_value]
             #print(f"Warning: negative token count of {neg_place_tokens} in {neg_place_ids}.") #BSL:Temporarily suppress warnings
-        
-        return tokens, firings
+        for t in random_order_transitions:
+            t.reset_list_of_produced_tokens()
+        return tokens, firings, list_of_tokens_transferred_for_each_transition_per_timestep
         
 
     def run(self, number_time_steps, storage_interval=1):
@@ -588,9 +600,10 @@ class HFPN:
         single_run_firings = np.zeros((int(number_time_steps/storage_interval)+1, len(self.transitions)))
         single_run_firings[0] = [trans.firings for trans in self.transitions.values()]
 
-                
+        
+        list_of_list_of_tokens_transferred_for_each_transition_per_timestep = []
         for t in range(number_time_steps):
-            tokens, firings = self.run_single_step()
+            tokens, firings,list_of_tokens_transferred_for_each_transition_per_timestep  = self.run_single_step()
             if t % 10000 == 0:
                 print("We are now at step:", t,flush=True)
            
@@ -598,11 +611,13 @@ class HFPN:
             if t % storage_interval == 0:
                 single_run_tokens[int(t/storage_interval)+1] = tokens
                 single_run_firings[int(t/storage_interval)+1] = firings
+                list_of_list_of_tokens_transferred_for_each_transition_per_timestep.append(list_of_tokens_transferred_for_each_transition_per_timestep)
+                
 
         # Determine how many times transition fired in single run
         single_run_total_firings = single_run_firings[-1,:]
         
-        return single_run_tokens, single_run_total_firings
+        return single_run_tokens, single_run_total_firings, list_of_list_of_tokens_transferred_for_each_transition_per_timestep
 
 
     def run_many_times(self, number_runs, number_time_steps, storage_interval=1):
@@ -631,10 +646,10 @@ class HFPN:
 
         # First dimension = run number, second dimension = transition
         self.firings_storage = np.zeros((number_runs, len(self.transitions)))
-       
+     
 
         for i in range(number_runs):
-            self.token_storage[i], self.firings_storage[i] = self.run(number_time_steps, storage_interval)
+            self.token_storage[i], self.firings_storage[i], self.list_of_list_of_tokens_transferred_for_each_transition_per_timestep = self.run(number_time_steps, storage_interval)
             self.reset_network()
 
         # Store mean number of firings for each transition across all runs
