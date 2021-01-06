@@ -1,6 +1,5 @@
 import numpy as np
 import pickle 
-import dill
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import os
@@ -36,7 +35,7 @@ class Analysis:
         self.delay_list_t_A = hfpn.transitions['t_A'].delay_list 
         self.delay_list_t_B = hfpn.transitions['t_B'].delay_list 
         self.delay_list_t_D = hfpn.transitions['t_D'].delay_list 
-        self.transitions = hfpn.transitions # we will access all the fired tokens from this in plotting later
+        self.list_of_list_of_tokens_transferred_for_each_transition_per_timestep = hfpn.list_of_list_of_tokens_transferred_for_each_transition_per_timestep # we will access all the fired tokens from this in plotting later
         
         
      
@@ -49,7 +48,7 @@ class Analysis:
                 filename (str): name of file, without extension
         """
         with open(f"{SAVED_RUNS_DIRECTORY}{filename}.pkl", 'wb') as filehandler:
-            dill.dump(analysis_instance, filehandler)
+            pickle.dump(analysis_instance, filehandler)
 
     @staticmethod
     def load_from_file(filename):
@@ -62,7 +61,7 @@ class Analysis:
                 Instance of the Analysis class 
         """
         with open(f"{SAVED_RUNS_DIRECTORY}{filename}.pkl", 'rb') as filehandler:
-            analysis_instance = dill.load(filehandler)
+            analysis_instance = pickle.load(filehandler)
             
         return analysis_instance
 
@@ -189,6 +188,24 @@ class Analysis:
         #print(mean_run_tokens[:,truth_values]) brandoggy
         return mean_run_tokens[:,truth_values]
 
+    def mean_token_history_for_transition_rates(self, transitions):
+        """ Returns the mean number of tokens for the listed places.
+
+            Args:
+                transition_id (list): list of transition ids defining which token counts should be plotted
+        """    
+        if type(transitions) == str:
+            transitions = [transitions]
+
+        # Take the mean token count over all runs
+        mean_run_tokens = np.mean(self.token_rates_storage, axis = 0) #axis 0 means along the row, you are taking the mean for every separate RUN, but in most cases, you are only doing 1 Run.
+        #print(mean_run_tokens)
+        # Returns a truth table of which places to plot
+        truth_values = [transition in transitions for transition in self.transition_ids]
+        #print(mean_run_tokens[:,truth_values]) brandoggy
+        return mean_run_tokens[:,truth_values]
+    
+    
     def sum_tokens(self, places):
         return np.sum(self.mean_token_history_for_places(places), axis=1)
 
