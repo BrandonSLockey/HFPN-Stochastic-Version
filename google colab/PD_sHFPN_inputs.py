@@ -1,6 +1,6 @@
 #MUTATIONS (BINARY)
 it_p_GBA1 = 0
-it_p_LRRK2_mut = 0
+it_p_LRRK2_mut = 1
 it_p_VPS35 = 0
 it_p_DJ1 = 0
 
@@ -16,18 +16,18 @@ mp_ApoEchol=1 #1 or 2
 
 # Number of runs and timesteps
 number_runs = 1
-number_time_steps = 6000000
+number_time_steps = 100000
 time_step_size = 0.001
 
 #To run model without Stochasticity, Set SD to 0.
 
 cholSD = 0 # cholesterol module
 SD = 0
-DelaySD = 0.2
+DelaySD = 0
 
 
 
 CaSD = 0 #CaSD = 0 or breaks.
 
 # Output file name
-run_save_name = '6e6_sHFPN_Healthy_SD_0_DelaySD_02'
+run_save_name = 'test_for_rate_from_transitions'
