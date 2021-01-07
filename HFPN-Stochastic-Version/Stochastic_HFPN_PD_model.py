@@ -695,7 +695,7 @@ def main():
     print("")
     print('Network saved to : "' + run_save_name+'.pkl"')
     execution_time = datetime.now()-start_time
-    print('\n\ntime Pickling Time:', execution_time)
+    print('\n\nPickling Time:', execution_time)
     
 if __name__ == "__main__":
     main()
