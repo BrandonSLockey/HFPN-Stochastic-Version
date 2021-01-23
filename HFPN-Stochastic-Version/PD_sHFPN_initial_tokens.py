@@ -18,7 +18,7 @@ it_p_SNCA_act_extra = 113
 it_p_SNCAApoEchol_extra = 0
 it_p_SNCAApoEchol_intra = 0
 #varying
-it_p_ApoEchol_extra = 1.60*1e6 *mp_ApoEchol
+it_p_ApoEchol_extra = 1.60*1e6 *mp_ApoEchol 
 it_p_27OHchol_intra = 3.06*1e7 *mp_27OHchol
 
 # Calcium homeostasis intial token values
