@@ -295,7 +295,7 @@ print('\n\nPlotting Time:', execution_time)
 
 # In[4]:
 create_plot(analysis, 
-            input_place_list = ['p_chol_mito'], 
+            input_place_list = ['p_Ab_elon'], 
             place_labels = [""], 
             mutation_list = [File3], 
             mutation_labels = [File3],

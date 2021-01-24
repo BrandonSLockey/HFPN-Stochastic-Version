@@ -42,28 +42,31 @@ def main():
     pn.add_place(it_p_preg,place_id="p_preg", label="Pregnenolon", continuous=True)
     
     ## Tau Places
-    pn.add_place(it_p_GSK3b_inact, 'p_GSK3b_inact', 'Inactive GSK3 beta kinase')
-    pn.add_place(it_p_GSK3b_act, 'p_GSK3b_act', 'Active GSK3 beta kinase')
-    pn.add_place(it_p_tauP, 'p_tauP', 'Phosphorylated tau')
-    pn.add_place(it_p_tau, 'p_tau', 'Unphosphorylated tau (microtubule)')
+    pn.add_place(it_p_GSK3b_inact, 'p_GSK3b_inact', 'Inactive GSK3 beta kinase', continuous = True)
+    pn.add_place(it_p_GSK3b_act, 'p_GSK3b_act', 'Active GSK3 beta kinase', continuous = True)
+    pn.add_place(it_p_tauP, 'p_tauP', 'Phosphorylated tau', continuous = True)
+    pn.add_place(it_p_tau, 'p_tau', 'Unphosphorylated tau (microtubule)', continuous = True)
 
 
     ## AB Places
-    pn.add_place(it_p_asec, 'p_asec', 'Alpha secretase')
-    pn.add_place(it_p_APP_pm, 'p_APP_pm', 'APP (plasma membrane)') # input
-    pn.add_place(it_p_sAPPa, 'p_sAPPa', 'Soluble APP alpha')
-    pn.add_place(it_p_CTF83, 'p_CTF83', 'CTF83')
-    pn.add_place(it_p_APP_endo, 'p_APP_endo', 'APP (endosome)')
-    pn.add_place(it_p_bsec, 'p_bsec', 'Beta secretase')
-    pn.add_place(it_p_sAPPb, 'p_sAPPb', 'Soluble APP beta')
-    pn.add_place(it_p_CTF99, 'p_CTF99', 'CTF99')
-    pn.add_place(it_p_gsec, 'p_gsec', 'Gamma secretase')
-    pn.add_place(it_p_AICD, 'p_AICD', 'AICD')
-    pn.add_place(it_p_Ab, 'p_Ab', 'Amyloid beta peptide')
-    pn.add_place(it_p_ApoE, 'p_ApoE', 'ApoE genotype') # gene, risk factor in AD
-    pn.add_place(it_p_age, 'p_age', 'Age risk factor') # 80 years old, risk factor in AD for BACE1 activity increase
+    pn.add_place(it_p_asec, 'p_asec', 'Alpha secretase', continuous = True)
+    pn.add_place(it_p_APP_pm, 'p_APP_pm', 'APP (plasma membrane)', continuous = True) # input
+    pn.add_place(it_p_sAPPa, 'p_sAPPa', 'Soluble APP alpha', continuous = True)
+    pn.add_place(it_p_CTF83, 'p_CTF83', 'CTF83', continuous = True)
+    pn.add_place(it_p_APP_endo, 'p_APP_endo', 'APP (endosome)', continuous = True)
+    pn.add_place(it_p_bsec, 'p_bsec', 'Beta secretase', continuous = True)
+    pn.add_place(it_p_sAPPb, 'p_sAPPb', 'Soluble APP beta', continuous = True)
+    pn.add_place(it_p_CTF99, 'p_CTF99', 'CTF99', continuous = True)
+    pn.add_place(it_p_gsec, 'p_gsec', 'Gamma secretase', continuous = True)
+    pn.add_place(it_p_AICD, 'p_AICD', 'AICD', continuous = True)
+    pn.add_place(it_p_Ab, 'p_Ab', 'Amyloid beta peptide', continuous = True)
+    pn.add_place(it_p_ApoE, 'p_ApoE', 'ApoE genotype', continuous = True) # gene, risk factor in AD
+    pn.add_place(it_p_age, 'p_age', 'Age risk factor', continuous = True) # 80 years old, risk factor in AD for BACE1 activity increase
 
-
+    ##AB aggregation places
+    pn.add_place(it_p_Ab_elon, place_id="p_Ab_elon", label="Elongating Ab", continuous = True)
+    pn.add_place(it_p_Ab_olig, place_id="p_Ab_olig", label="Ab oligomer", continuous = True)
+    pn.add_place(it_p_Ab_fib, place_id="p_Ab_fib", label="Ab fibril", continuous = True)
  # ER retraction and collapse
 
     # Monomeric RTN3 (cycling between axonal and perinuclear regions)
@@ -491,8 +494,39 @@ def main():
                     production_coefficients = [],
                     stochastic_parameters = [SD])# TODO - fix ratio
 
+##AB aggregation module
+  ##AB Aggregation transitions
+    
+    pn.add_transition_with_speed_function(transition_id = 't_Ab_elon',
+                        label                = "Ab elongation step",
+                        input_place_ids       = ['p_Ab'],
+                        firing_condition = fc_t_Ab_elon,
+                        reaction_speed_function = r_t_Ab_elon,
+                        consumption_coefficients  = [1], 
+                        output_place_ids       = ['p_Ab_elon'],
+                        production_coefficients = [1],
+                        stochastic_parameters = [SD])
+    
+    pn.add_transition_with_speed_function(transition_id = 't_Ab_agg',
+                        label                = "Ab aggregation",
+                        input_place_ids       = ['p_Ab_elon'],
+                        firing_condition = fc_t_Ab_agg,
+                        reaction_speed_function = r_t_Ab_agg,
+                        consumption_coefficients  = [12.4], 
+                        output_place_ids       = ['p_Ab_olig'],
+                        production_coefficients = [1],
+                        stochastic_parameters = [SD])
 
-   
+    pn.add_transition_with_speed_function(transition_id = 't_Ab_fib',
+                        label                = "Ab fibrillation",
+                        input_place_ids       = ['p_Ab_olig'],
+                        firing_condition = fc_t_Ab_fib,
+                        reaction_speed_function = r_t_Ab_fib,
+                        consumption_coefficients  = [4], 
+                        output_place_ids       = ['p_Ab_fib'],
+                        production_coefficients = [1],
+                        stochastic_parameters = [SD])
+    
     
     
 
