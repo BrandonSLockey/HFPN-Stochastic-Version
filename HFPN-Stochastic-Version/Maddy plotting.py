@@ -76,7 +76,7 @@ def create_plot(analysis, input_place_list, place_labels, mutation_list, mutatio
 ##############################################################################
 ############## OTHER PLOT PARAMETERS YOU WANT#################################
 ##############################################################################
-    plt.xlim([0,10]) #x axis range in seconds
+    # plt.xlim([0,10]) #x axis range in seconds
     # plt.ylim([0,10000]) #y axis range in tokens
     
     #DASHED LINES
@@ -242,12 +242,12 @@ start_time = datetime.now()
 # calculate_TRUE_calcium_stochasticity(File1)
 # calculate_TRUE_calcium_stochasticity(File2)
 
-create_plot(analysis, 
-            input_place_list = ['p_SNCA_olig'], 
-            place_labels = [""], 
-            mutation_list = [File3], 
-            mutation_labels = [File3],
-            plot_title = 'PD - p_SNCA_olig')
+# create_plot(analysis, 
+#             input_place_list = [''], 
+#             place_labels = [""], 
+#             mutation_list = [File3], 
+#             mutation_labels = [File3],
+#             plot_title = '')
 
 
 # create_histogram(analysis, 20)
@@ -299,7 +299,7 @@ create_plot(analysis,
             place_labels = [""], 
             mutation_list = [File3], 
             mutation_labels = [File3],
-            plot_title = 'PD - p_chol_mito')
+            plot_title = 'AD - p_chol_mito')
 
 
 # create_plot(analysis, 

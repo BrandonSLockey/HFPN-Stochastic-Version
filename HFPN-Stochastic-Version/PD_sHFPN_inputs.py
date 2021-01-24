@@ -16,7 +16,7 @@ mp_ApoEchol=1 #1 or 2
 
 # Number of runs and timesteps
 number_runs = 1
-number_time_steps = 6000000
+number_time_steps = 10000
 time_step_size = 0.001
 
 #To run model without Stochasticity, Set SD to 0.
@@ -30,4 +30,4 @@ DelaySD = 0
 CaSD = 0 #CaSD = 0 or breaks.
 
 # Output file name
-run_save_name = '6e6_sHFPN_Healthy_SD_01_DelaySD_0_run3_storestransitiondata'
+run_save_name = 'test'
