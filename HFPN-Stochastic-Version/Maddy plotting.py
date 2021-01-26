@@ -30,8 +30,8 @@ start_time = datetime.now()
 
 # File1 = '6e6_sHFPN_Healthy_SD_01_DelaySD_01'
 # File2 = '6e6_sHFPN_Healthy_SD_01_DelaySD_0'
-File3 = 'test'
-desired_plotting_steps = 10000
+File3 = 'doubledisease_1M_SD10'
+desired_plotting_steps = 1000000
 
 # analysis[File1] = Analysis.load_from_file(File1)
 # analysis[File2] = Analysis.load_from_file(File2)
@@ -295,11 +295,11 @@ print('\n\nPlotting Time:', execution_time)
 
 # In[4]:
 create_plot(analysis, 
-            input_place_list = ['p_Ab_elon'], 
+            input_place_list = ['p_Ab_olig'], 
             place_labels = [""], 
             mutation_list = [File3], 
             mutation_labels = [File3],
-            plot_title = 'AD - p_chol_mito')
+            plot_title = 'Ab o')
 
 
 # create_plot(analysis, 

@@ -70,6 +70,7 @@ r_t_gsec_exp = lambda a : Abeta_multiplier * k_t_gsec_exp # need to incorporate 
 r_t_gsec_degr = lambda a : Abeta_multiplier * k_t_gsec_degr * a['p_gsec']
 
 r_t_Ab_degr = lambda a : Abeta_multiplier * k_t_Ab_degr * a['p_Ab']
+r_t_Ab_phag = lambda a : Abeta_multiplier * 2000
 
 r_t_Ab_elon = lambda a: Abeta_multiplier * Vmax_t_Ab_elon * a['p_Ab'] / (Km_t_Ab_elon + a['p_Ab'])
 

@@ -130,7 +130,7 @@ Km_t_CTF99_gsec_cleav = 169223
 kcat_t_CTF99_gsec_cleav = 0.00167
 
 
-Km_t_Ab_elon = 23456894
+Km_t_Ab_elon = 17343360
 Vmax_t_Ab_elon = 1.108
 
 k_t_Ab_agg2 = 4.817e-8

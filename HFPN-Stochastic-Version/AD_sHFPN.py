@@ -494,6 +494,17 @@ def main():
                     production_coefficients = [],
                     stochastic_parameters = [SD])# TODO - fix ratio
 
+    # pn.add_transition_with_speed_function(
+    #                 transition_id				 = 't_Ab_phag',
+    #                 label						 = 'Ab phagocytosis',
+    #                 input_place_ids				 = ['p_Ab'], 
+    #                 firing_condition			 = fc_t_Ab_degr,
+    #                 reaction_speed_function		 = r_t_Ab_phag,
+    #                 consumption_coefficients	 = [1], 
+    #                 output_place_ids = [],
+    #                 production_coefficients = [],
+    #                 stochastic_parameters = [SD])# TODO - fix ratio
+
 ##AB aggregation module
   ##AB Aggregation transitions
     
