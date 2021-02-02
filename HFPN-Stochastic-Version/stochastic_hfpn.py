@@ -2,6 +2,7 @@
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 MAX_LABEL_CHARACTERS = 50
@@ -146,7 +147,7 @@ class ContinuousTransition:
     """A continuous transition contains (i) a firing condition, usually expressed in terms of the input concentrations,
        (ii) the collection of all consumption speeds, and (iii) the collection of all production speeds."""
 
-    def __init__(self, transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters, consumption_coefficients, production_coefficients):
+    def __init__(self, transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters, consumption_coefficients, output_place_ids,production_coefficients):
         """
             Args:
                 transition_id (str): unique identifier of a transition
@@ -167,6 +168,7 @@ class ContinuousTransition:
         self.consumption_coefficients = consumption_coefficients #BSL
         self.production_coefficients = production_coefficients
         self.counter_thing = 0
+        self.output_place_ids = output_place_ids
         
     #BSL:
     def __str__(self):
@@ -199,7 +201,6 @@ class ContinuousTransition:
             #calculated tokens list
             #randomizer
             randomized_value=random.gauss(1,self.stochastic_parameters[0])
-            #print(randomized_value)
             for cs in self.consumption_speeds:
                 cs.calculate_firing_tokens(time_step, randomized_value)
             
@@ -210,6 +211,7 @@ class ContinuousTransition:
             if any(check_flag): #skips this block if no flags
                 calculated_tokens_list = np.array([])
                 for cs in self.consumption_speeds:
+                    #print(cs.firing_tokens, "pre-FIRING TOKENS")#DEBUGGING
                     if cs.flag == 0:
                         calculated_tokens_list = np.append(np.nan)
                     if cs.flag >0: #if flagged, then Empty place contents and fire tokens = limiting factor
@@ -245,7 +247,7 @@ class ContinuousTransition:
                 #Perform Firing
                     
                 for cs in self.consumption_speeds:
-                    print(cs.get_input_place_tokens(),"Before Firing")
+                    # print(cs.get_input_place_tokens(),"Before Firing") #DEBUGGING
                     cs.perform_firing()
     
                 for ps in self.production_speeds:
@@ -254,19 +256,20 @@ class ContinuousTransition:
                     
                 for cs in self.consumption_speeds: #important to reset flag 
                     cs.reset_flag()
-                #debugging
-                for cs in self.consumption_speeds:
-                    print(self.transition_id, consuming_tokens, "consumingTokens")
-                    print(self.consumption_coefficients, "consumption_coefficients")
-                    print(cs.get_input_place_tokens(), "after firing")
-                for ps in self.production_speeds:
-                    print(self.production_coefficients, "production_coefficients")
-                    print(ps.get_input_place_tokens())
-                    print(ps.production_place.tokens, "production Place tokens")
-                    print(ps.return_produced_fired_tokens(), "produced fired tokens")
+                #debugging chunk start
+                # for cs in self.consumption_speeds:
+                #     print(self.transition_id, consuming_tokens, "consumingTokens")
+                #     print(self.consumption_coefficients, "consumption_coefficients")
+                #     print(cs.get_input_place_tokens(), "after firing")
+                # for ps in self.production_speeds:
+                #     print(self.production_coefficients, "production_coefficients")
+                #     print(ps.get_input_place_tokens())
+                #     print(ps.production_place.tokens, "production Place tokens")
+                #     print(ps.return_produced_fired_tokens(), "produced fired tokens")
+                #     print(randomized_value, "Randomized Value")
                 self.counter_thing +=1
-                print(self.counter_thing, "counter")
-                    
+                #print(self.counter_thing, "flag counter for", self.transition_id)
+                #debugging end
             else: #if check flag is a list of pure zeros, then this block of code should get executed.
                 
                 for ps in self.production_speeds:
@@ -297,6 +300,7 @@ class ContinuousTransition:
             # Increment number of firings by 1
             self.firings += 1
         #this is so that we know the rate is zero, if the transition doesn't fire in rate analytics. We need to change this to a numpy array. #need to also do the same for list_of_consumed_tokens when we get to it.
+        #If there are two output places, then 2 zeros are appended into the list.
         if self.firing_condition(input_place_tokens) == False:
             for ps in self.production_speeds:
                 self.list_of_produced_tokens.append(0)
@@ -305,7 +309,7 @@ class ContinuousTransition:
             
 class DiscreteTransition(ContinuousTransition):
 
-    def __init__(self, transition_id, label, firing_condition, consumption_speeds, production_speeds,stochastic_parameters, delay, consumption_coefficients, production_coefficients):
+    def __init__(self, transition_id, label, firing_condition, consumption_speeds, production_speeds,stochastic_parameters, delay, consumption_coefficients, output_place_ids, production_coefficients):
         """In addition to the arguments specified in the super class ContinuousTransition, a delay function must 
            be specified for a discrete transition.
 
@@ -314,7 +318,7 @@ class DiscreteTransition(ContinuousTransition):
         """
 
         # Initialize everything from the super class
-        super(DiscreteTransition, self).__init__(transition_id, label, firing_condition, consumption_speeds, production_speeds,stochastic_parameters, consumption_coefficients, production_coefficients)
+        super(DiscreteTransition, self).__init__(transition_id, label, firing_condition, consumption_speeds, production_speeds,stochastic_parameters, consumption_coefficients,output_place_ids,  production_coefficients)
         self.delay = delay
         self.delay_original = delay
         self.delay_counter = 0 # Counter for consecutive no. of steps where firing condition still holds true
@@ -337,10 +341,13 @@ class DiscreteTransition(ContinuousTransition):
     
             else:
                 self.delay_counter += 1
+                for ps in self.production_speeds:
+                    self.list_of_produced_tokens.append(0)                
         else:
             # Reset firing condition
             self.delay_counter = 0
-            
+            for ps in self.production_speeds:
+                self.list_of_produced_tokens.append(0)                
             
 
 
@@ -449,14 +456,14 @@ class HFPN:
 
 
             if delay == -1: # user wants continous transition as delay is not specified
-                transition = ContinuousTransition(transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters, consumption_coefficients, production_coefficients)
+                transition = ContinuousTransition(transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters, consumption_coefficients,output_place_ids, production_coefficients)
                 # Check if continuous transition  is linked to discrete output place, which is not allowed.
                 output_places = self.places_from_keys(output_place_ids)
                 for op in output_places:
                     if op.continuous == False:
                         raise ValueError(f"A continuous transition ({transition_id}) cannot be linked to a discrete output place ({op.place_id}).")             
             else:         
-                transition = DiscreteTransition(transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters, delay, consumption_coefficients, production_coefficients)
+                transition = DiscreteTransition(transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters, delay, consumption_coefficients,output_place_ids, production_coefficients)
             self.transitions[transition_id] = transition
     
         
@@ -662,8 +669,12 @@ class HFPN:
         #Store list_of_tokens_transferred_for_each_transition_per_timestep
         #tokens_transitions = [t.list_of_produced_tokens for t in self.transitions.values()]
         list_of_tokens_transferred_for_each_transition_per_timestep =[]
+        #BSL: This is how you maintain the order for the panda dataframe
         for t in self.transitions.values():
             list_of_tokens_transferred_for_each_transition_per_timestep.append(t.list_of_produced_tokens)
+            
+ 
+        
         # Store cumulative number of firings for each transition at specific time step
         firings = [t.firings for t in self.transitions.values()]
 
@@ -700,25 +711,50 @@ class HFPN:
                 
         single_run_firings = np.zeros((int(number_time_steps/storage_interval)+1, len(self.transitions)))
         single_run_firings[0] = [trans.firings for trans in self.transitions.values()]
+        
+        ##Make dataframe for rate analytics here
+        list_of_column_names = []
+        transition_count = 0 
+        for global_trans_index, trans in enumerate(self.transitions.values()):
+            #print(global_trans_index, trans.transition_id, trans.production_coefficients) #debugging
+            for specific_trans_index, output_place_id in enumerate(trans.output_place_ids):
+                transition_count = transition_count + 1
+                list_of_column_names.append(trans.transition_id+" "+ output_place_id)
+        
+        #print(list_of_column_names)
+        #print(transition_count)
+        df_for_rate_analytics = pd.DataFrame(columns=list_of_column_names, index=np.arange(0,number_time_steps+1))
+
+                
+            
+            
+            #for specific_trans_index, production_coefficients in enumerate(trans.)
+
+  
 
         
-        list_of_list_of_tokens_transferred_for_each_transition_per_timestep = []
         for t in range(number_time_steps):
             tokens, firings,list_of_tokens_transferred_for_each_transition_per_timestep  = self.run_single_step()
+            
             if t % 10000 == 0:
                 print("We are now at step:", t,flush=True)
            
             # store current values at regular intervals
             if t % storage_interval == 0:
+                #BSL: produce a flat list to input into pandas dataframe for later.
+                flattened_list = [item for sublist in list_of_tokens_transferred_for_each_transition_per_timestep for item in sublist]   
+                #print(len(flattened_list))#DEBUGGING
+                
                 single_run_tokens[int(t/storage_interval)+1] = tokens
                 single_run_firings[int(t/storage_interval)+1] = firings
-                list_of_list_of_tokens_transferred_for_each_transition_per_timestep.append(list_of_tokens_transferred_for_each_transition_per_timestep)
+                df_for_rate_analytics.loc[t+1:t+1,:] = flattened_list
+                #print(df_for_rate_analytics)
                 
 
         # Determine how many times transition fired in single run
         single_run_total_firings = single_run_firings[-1,:]
         
-        return single_run_tokens, single_run_total_firings, list_of_list_of_tokens_transferred_for_each_transition_per_timestep
+        return single_run_tokens, single_run_total_firings, df_for_rate_analytics
 
 
     def run_many_times(self, number_runs, number_time_steps, storage_interval=1):
@@ -748,9 +784,9 @@ class HFPN:
         # First dimension = run number, second dimension = transition
         self.firings_storage = np.zeros((number_runs, len(self.transitions)))
      
-
+#storing it for visualisation
         for i in range(number_runs):
-            self.token_storage[i], self.firings_storage[i], self.list_of_list_of_tokens_transferred_for_each_transition_per_timestep = self.run(number_time_steps, storage_interval)
+            self.token_storage[i], self.firings_storage[i], self.df_for_rate_analytics = self.run(number_time_steps, storage_interval)
             self.reset_network()
 
         # Store mean number of firings for each transition across all runs
@@ -830,8 +866,9 @@ if __name__ == '__main__':
     #                                     vmax_scaling_function = lambda a : 1)
 
 
-    pn.run_many_times(1,100, -1)
-    print(pn.transitions['t_b'].label)
-    print('shape of token_storage:', pn.token_storage.shape)
-    print('time array:', pn.time_array)
-    print(pn.token_storage)
+    pn.run_many_times(1,5, -1)
+   # print(pn.transitions['t_b'].label)
+    #print('shape of token_storage:', pn.token_storage.shape)
+    #print('time array:', pn.time_array)
+    #print(pn.token_storage)
+    print(pn.list_of_list_of_tokens_transferred_for_each_transition_per_timestep)
