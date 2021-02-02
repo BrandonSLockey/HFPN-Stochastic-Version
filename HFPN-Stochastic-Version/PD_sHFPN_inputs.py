@@ -16,7 +16,7 @@ mp_ApoEchol=1 #1 or 2
 
 # Number of runs and timesteps
 number_runs = 1
-number_time_steps = 10000
+number_time_steps = 100
 time_step_size = 0.001
 
 #To run model without Stochasticity, Set SD to 0.
@@ -24,6 +24,8 @@ time_step_size = 0.001
 cholSD = 0.1 # cholesterol module
 SD = 0.1
 DelaySD = 0.1
+
+collect_rate_analytics = "yes"
 
 
 
