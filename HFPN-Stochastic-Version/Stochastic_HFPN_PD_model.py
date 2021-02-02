@@ -678,6 +678,18 @@ def main():
                         production_coefficients = [1],# tune later when data are incorporated
                         stochastic_parameters = [SD]) 
     
+    #TESTING ADDED TRANSITION FOR DEBUGGING PURPOSES
+    # pn.add_transition_with_speed_function(#50
+    #                     transition_id = 'testing',
+    #                     label = 'debugging purposes',
+    #                     input_place_ids = ['p_RTN3_HMW_auto', 'p_RTN3_HMW_dys1', 'p_tau'], 
+    #                     firing_condition = lambda a: True, 
+    #                     reaction_speed_function = r_t_RTN3_dys_lyso,
+    #                     consumption_coefficients = [1, 0, 0],
+    #                     output_place_ids = ['p_RTN3_HMW_dys2', 'p_RTN3_HMW_lyso'],
+    #                     production_coefficients = [1, 0],# tune later when data are incorporated
+    #                     stochastic_parameters = [SD]) 
+    
     # Run the network
     start_time = datetime.now()
     pn.run_many_times(number_runs=number_runs, number_time_steps=number_time_steps)
