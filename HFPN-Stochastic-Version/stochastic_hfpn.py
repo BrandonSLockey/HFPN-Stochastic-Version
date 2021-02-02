@@ -147,7 +147,7 @@ class ContinuousTransition:
     """A continuous transition contains (i) a firing condition, usually expressed in terms of the input concentrations,
        (ii) the collection of all consumption speeds, and (iii) the collection of all production speeds."""
 
-    def __init__(self, transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters, consumption_coefficients, output_place_ids,production_coefficients):
+    def __init__(self, transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters,collect_rate_analytics, consumption_coefficients, output_place_ids,production_coefficients):
         """
             Args:
                 transition_id (str): unique identifier of a transition
@@ -162,6 +162,7 @@ class ContinuousTransition:
         self.consumption_speeds = consumption_speeds
         self.production_speeds = production_speeds
         self.stochastic_parameters = stochastic_parameters
+        self.collect_rate_analytics = collect_rate_analytics
         self.firings = 0
         self.list_of_consumed_tokens = []
         self.list_of_produced_tokens = []
@@ -252,7 +253,8 @@ class ContinuousTransition:
     
                 for ps in self.production_speeds:
                     ps.perform_firing()
-                    self.list_of_produced_tokens.append(ps.return_produced_fired_tokens())
+                    if self.collect_rate_analytics == "yes":
+                        self.list_of_produced_tokens.append(ps.return_produced_fired_tokens())
                     
                 for cs in self.consumption_speeds: #important to reset flag 
                     cs.reset_flag()
@@ -293,7 +295,8 @@ class ContinuousTransition:
                 #BSL:
                 #store produced tokens PER TRANSITION for later analysis #this is wrong if more than one thing produced I think
                 #self.list_of_consumed_tokens.append(return_consumed_fired_tokens())
-                    self.list_of_produced_tokens.append(ps.return_produced_fired_tokens())
+                    if self.collect_rate_analytics == "yes":
+                        self.list_of_produced_tokens.append(ps.return_produced_fired_tokens())
             
             
 
@@ -303,13 +306,14 @@ class ContinuousTransition:
         #If there are two output places, then 2 zeros are appended into the list.
         if self.firing_condition(input_place_tokens) == False:
             for ps in self.production_speeds:
-                self.list_of_produced_tokens.append(0)
+                if self.collect_rate_analytics =="yes":
+                    self.list_of_produced_tokens.append(0)
             
 
             
 class DiscreteTransition(ContinuousTransition):
 
-    def __init__(self, transition_id, label, firing_condition, consumption_speeds, production_speeds,stochastic_parameters, delay, consumption_coefficients, output_place_ids, production_coefficients):
+    def __init__(self, transition_id, label, firing_condition, consumption_speeds, production_speeds,stochastic_parameters,collect_rate_analytics, delay, consumption_coefficients, output_place_ids, production_coefficients):
         """In addition to the arguments specified in the super class ContinuousTransition, a delay function must 
            be specified for a discrete transition.
 
@@ -318,7 +322,7 @@ class DiscreteTransition(ContinuousTransition):
         """
 
         # Initialize everything from the super class
-        super(DiscreteTransition, self).__init__(transition_id, label, firing_condition, consumption_speeds, production_speeds,stochastic_parameters, consumption_coefficients,output_place_ids,  production_coefficients)
+        super(DiscreteTransition, self).__init__(transition_id, label, firing_condition, consumption_speeds, production_speeds,stochastic_parameters,collect_rate_analytics, consumption_coefficients,output_place_ids,  production_coefficients)
         self.delay = delay
         self.delay_original = delay
         self.delay_counter = 0 # Counter for consecutive no. of steps where firing condition still holds true
@@ -342,12 +346,14 @@ class DiscreteTransition(ContinuousTransition):
             else:
                 self.delay_counter += 1
                 for ps in self.production_speeds:
-                    self.list_of_produced_tokens.append(0)                
+                    if self.collect_rate_analytics=="yes":
+                        self.list_of_produced_tokens.append(0)                
         else:
             # Reset firing condition
             self.delay_counter = 0
             for ps in self.production_speeds:
-                self.list_of_produced_tokens.append(0)                
+                if self.collect_rate_analytics=="yes":
+                    self.list_of_produced_tokens.append(0)                
             
 
 
@@ -404,6 +410,7 @@ class HFPN:
                         output_place_ids,
                         production_speed_functions,
                         stochastic_parameters,
+                        collect_rate_analytics,
                         consumption_coefficients,
                         production_coefficients,
                         delay = -1):
@@ -456,16 +463,16 @@ class HFPN:
 
 
             if delay == -1: # user wants continous transition as delay is not specified
-                transition = ContinuousTransition(transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters, consumption_coefficients,output_place_ids, production_coefficients)
+                transition = ContinuousTransition(transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters,collect_rate_analytics, consumption_coefficients,output_place_ids, production_coefficients)
                 # Check if continuous transition  is linked to discrete output place, which is not allowed.
                 output_places = self.places_from_keys(output_place_ids)
                 for op in output_places:
                     if op.continuous == False:
                         raise ValueError(f"A continuous transition ({transition_id}) cannot be linked to a discrete output place ({op.place_id}).")             
             else:         
-                transition = DiscreteTransition(transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters, delay, consumption_coefficients,output_place_ids, production_coefficients)
+                transition = DiscreteTransition(transition_id, label, firing_condition, consumption_speeds, production_speeds, stochastic_parameters,collect_rate_analytics, delay, consumption_coefficients,output_place_ids, production_coefficients)
             self.transitions[transition_id] = transition
-    
+
         
     def add_transition_with_speed_function( self,
                         transition_id,
@@ -477,6 +484,7 @@ class HFPN:
                         output_place_ids,
                         production_coefficients,
                         stochastic_parameters,
+                        collect_rate_analytics,
                         delay = -1):
         """Add transition to HFPN wherein all consumption/production speeds are defined as proportional to a given reaction_speed_function.
 
@@ -511,6 +519,7 @@ class HFPN:
             stochastic_parameters=stochastic_parameters,
             consumption_coefficients = consumption_coefficients,
             production_coefficients = production_coefficients,
+            collect_rate_analytics=collect_rate_analytics,
             delay = delay)
 
     def add_transition_with_mass_action( self,
@@ -523,6 +532,7 @@ class HFPN:
                         output_place_ids,
                         production_coefficients,
                         stochastic_parameters,
+                        collect_rate_analytics,
                         delay = -1):
 
         """Adds a transition to the HFPN where all firing rates are defined based on mass action.
@@ -551,6 +561,7 @@ class HFPN:
             output_place_ids = output_place_ids,
             production_coefficients = production_coefficients,
             stochastic_parameters = stochastic_parameters,
+            collect_rate_analytics = collect_rate_analytics,
             delay = delay)
 
 
@@ -565,6 +576,7 @@ class HFPN:
                                                 output_place_ids,
                                                 production_coefficients,
                                                 stochastic_parameters,
+                                                collect_rate_analytics,
                                                 vmax_scaling_function = (lambda a : 1)):
         """Adds a transition to the HFPN where firing rates are defined based on Michaelis Menten.
 
@@ -595,7 +607,8 @@ class HFPN:
             consumption_coefficients = consumption_coefficients,
             output_place_ids = output_place_ids,
             production_coefficients = production_coefficients,
-            stochastic_parameters = stochastic_parameters)
+            stochastic_parameters = stochastic_parameters,
+            collect_rate_analytics= collect_rate_analytics)
 
 
     
@@ -719,7 +732,8 @@ class HFPN:
             #print(global_trans_index, trans.transition_id, trans.production_coefficients) #debugging
             for specific_trans_index, output_place_id in enumerate(trans.output_place_ids):
                 transition_count = transition_count + 1
-                list_of_column_names.append(trans.transition_id+" "+ output_place_id)
+                if trans.collect_rate_analytics=="yes":
+                    list_of_column_names.append(trans.transition_id+" "+ output_place_id)
         
         #print(list_of_column_names)
         #print(transition_count)
