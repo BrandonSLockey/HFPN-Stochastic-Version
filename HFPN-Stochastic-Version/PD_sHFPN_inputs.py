@@ -25,9 +25,7 @@ cholSD = 0.1 # cholesterol module
 SD = 0.1
 DelaySD = 0.1
 
-collect_rate_analytics = "yes"
-
-
+collect_rate_analytics = ["no","yes"] #first element consumption rate analytics, second element production rate analytics. i.e. ["no", "yes"], means don't collect consumption rate, but collect production rate analytics.
 
 CaSD = 0 #CaSD = 0 or breaks.
 
