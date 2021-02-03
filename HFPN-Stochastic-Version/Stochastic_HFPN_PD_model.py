@@ -299,7 +299,7 @@ def main():
                     output_place_ids			 = [],
                     production_coefficients		 = [],
                     stochastic_parameters = [cholSD],
-                    collect_rate_analytics = collect_rate_analytics)
+                    collect_rate_analytics = ["yes", "no"])
 
 
     # PD specific
@@ -427,7 +427,7 @@ def main():
                         output_place_ids = ['p_Ca_extra'],         
                         production_coefficients = [1],
                         stochastic_parameters = [CaSD,DelaySD],
-                        collect_rate_analytics = "no",
+                        collect_rate_analytics = ["no","no"],
                         delay=0.5) 
     
     pn.add_transition_with_speed_function( #26
@@ -440,7 +440,7 @@ def main():
                         output_place_ids = ['p_on2'],         
                         production_coefficients = [1],
                         stochastic_parameters = [CaSD,DelaySD],
-                        collect_rate_analytics = "no",
+                        collect_rate_analytics = ["no","no"],
                         delay=0.5) 
     pn.add_transition_with_speed_function( #27
                         transition_id = 't_C',
@@ -452,7 +452,7 @@ def main():
                         output_place_ids = ['p_on3'],         
                         production_coefficients = [1],
                         stochastic_parameters = [CaSD,0],
-                        collect_rate_analytics = "no",
+                        collect_rate_analytics = ["no","no"],
                         delay=0) 
     pn.add_transition_with_speed_function( #28
                         transition_id = 't_D',
@@ -464,7 +464,7 @@ def main():
                         output_place_ids = ['p_on4'],         
                         production_coefficients = [1],
                         stochastic_parameters = [CaSD,DelaySD],
-                        collect_rate_analytics = "no",
+                        collect_rate_analytics = ["no","no"],
                         delay=0.5)
     
     # Link to energy metabolism in that it needs ATP replenishment
