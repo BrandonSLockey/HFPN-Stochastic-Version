@@ -73,7 +73,7 @@ r_t_Ab_degr = lambda a : Abeta_multiplier * k_t_Ab_degr * a['p_Ab']
 # r_t_Ab_phag = lambda a : Abeta_multiplier * (0.0000194-(0.00000555*a['p_age'])) * a['p_Ab'] #phagocytosis is 2% slower in aged case]
 r_t_Ab_phag = lambda a : Abeta_multiplier * (0.0000194-(0.00000555*it_p_age)) * a['p_Ab'] #phagocytosis is 2% slower in aged case]
 
-r_t_Abfib_phag = lambda a : a['p_Ab_fib'] * Abeta_multiplier * (0.0002 - (1e-6 * a['p_age']) - (1.5e-6 *  a['p_CD33'] * a['p_Ab']/it_p_Ab)) 
+r_t_Abfib_phag = lambda a : a['p_Ab_fib'] * Abeta_multiplier * (0.0002 - (1e-6 * it_p_age) - (1.5e-6 *  it_p_CD33 * a['p_Ab']/it_p_Ab)) 
 #currently tuning this. rate needs to depend on age, but also on CD33 status. However CD33 activity is also dependent on the levels of Ab
 
 r_t_Ab_elon = lambda a: Abeta_multiplier * Vmax_t_Ab_elon * a['p_Ab'] / (Km_t_Ab_elon + a['p_Ab'])
@@ -86,7 +86,7 @@ r_t_Ab_fib = lambda a : 1000
 ##AB Michealis Menten Rate Functions
 
 vmax_scaling_t_APP_asec_cleav = lambda a : Abeta_multiplier * a['p_asec']
-vmax_scaling_t_APP_bsec_cleav = lambda a : Abeta_multiplier * a['p_bsec'] * (mchol_t_APP_bsec_cleav * a['p_chol_PM'] + nchol_t_APP_bsec_cleav) * (1 + a['p_age'] * age_t_APP_bsec_cleav)
+vmax_scaling_t_APP_bsec_cleav = lambda a : Abeta_multiplier * a['p_bsec'] * (mchol_t_APP_bsec_cleav * a['p_chol_PM'] + nchol_t_APP_bsec_cleav) * (1 + it_p_age * age_t_APP_bsec_cleav)
 vmax_scaling_t_CTF99_gsec_cleav = lambda a : Abeta_multiplier * a['p_gsec']
 
 
