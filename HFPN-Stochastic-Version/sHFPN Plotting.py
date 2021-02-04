@@ -32,6 +32,7 @@ start_time = datetime.now()
 # File2 = '6e6_sHFPN_Healthy_SD_01_DelaySD_0'
 File3 = '6MSD10healthy'
 desired_plotting_steps = 1000
+window_size = 50
 
 # analysis[File1] = Analysis.load_from_file(File1)
 # analysis[File2] = Analysis.load_from_file(File2)
@@ -69,12 +70,12 @@ def create_plot(analysis, input_place_list, place_labels, mutation_list, mutatio
         for place, place_label in zip(input_place_list, place_labels):
             data = analysis[mutation].mean_token_history_for_places([place])[0:desired_plotting_steps+1] #mutation is the file_name
             #print(data[200000]) #units in time_step
-            # y = data[:,0]
+            y = data[:,0]
 
             if place_label == "":
                 ax.plot(t, data, label = mutation_labels[i]+' - '+place_label, linewidth = line_width- i*linestep, color="dimgrey")
-                # y_av = movingaverage(y, 100000)
-                # ax.plot(t, y_av, label = 'rolling average', linewidth = line_width- i*linestep, color = "r")
+                y_av = movingaverage(y, window_size)
+                ax.plot(t[window_size:desired_plotting_steps-window_size], y_av[window_size:desired_plotting_steps-window_size], label = 'rolling average', linewidth = line_width- i*linestep, color = "r")
             else:
                 ax.plot(t, data, label = mutation_labels[i]+' - '+place_label, linewidth = line_width- i*linestep, color="black")
     
@@ -303,7 +304,7 @@ print('\n\nPlotting Time:', execution_time)
 
 # In[4]:
 create_plot(analysis, 
-            input_place_list = ['p_Ab_elon'], 
+            input_place_list = ['p_Ab'], 
             place_labels = [""], 
             mutation_list = [File3], 
             mutation_labels = [File3],
