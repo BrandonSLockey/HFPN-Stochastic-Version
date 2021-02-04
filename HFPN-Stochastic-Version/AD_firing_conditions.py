@@ -54,9 +54,13 @@ fc_t_APP_bsec_cleav = lambda a : True
 fc_CTF99_gsec_cleav = lambda a : True
 
 
-fc_t_Ab_elon = lambda a : a['p_Ab'] > it_p_Ab*1.05
-fc_t_Ab_agg = lambda a : a['p_Ab_elon'] > 12.4
-fc_t_Ab_fib = lambda a : a['p_Ab_olig'] > 4
+fc_t_Ab_elon = lambda a : a['p_Ab'] > 1
+fc_t_Ab_agg = lambda a : a['p_Ab_elon'] >= 12.4
+fc_t_Ab_fib = lambda a : a['p_Ab_olig'] >= 4
+fc_t_Ab_frag = lambda a : a['p_Ab_fib'] >= 1
+fc_t_Ab_phag = lambda a : a['p_Ab'] > 1
+fc_t_Abfib_phag = lambda a : a['p_Ab_fib'] > 0
+
 
 
 # Tau Pathology
