@@ -30,8 +30,8 @@ start_time = datetime.now()
 
 # File1 = '6e6_sHFPN_Healthy_SD_01_DelaySD_01'
 # File2 = '6e6_sHFPN_Healthy_SD_01_DelaySD_0'
-File3 = 'test'
-desired_plotting_steps = 10000
+File3 = '6e6_sHFPN_Healthy_SD_02_DelaySD_0'
+desired_plotting_steps = 6000000
 
 # analysis[File1] = Analysis.load_from_file(File1)
 # analysis[File2] = Analysis.load_from_file(File2)
@@ -52,6 +52,11 @@ print("")
 def smoothen(array, filter_size):
     filt=np.ones(filter_size)/filter_size
     return convolve(array[:-(filter_size-1),0],filt)
+
+
+def movingaverage(interval, window_size):
+    window= np.ones(int(window_size))/float(window_size)
+    return np.convolve(interval, window, 'same')
     
 def create_plot(analysis, input_place_list, place_labels, mutation_list, mutation_labels, plot_title):
     t=np.arange(0,(desired_plotting_steps/1000)+0.001,0.001) #
@@ -64,9 +69,12 @@ def create_plot(analysis, input_place_list, place_labels, mutation_list, mutatio
         for place, place_label in zip(input_place_list, place_labels):
             data = analysis[mutation].mean_token_history_for_places([place])[0:desired_plotting_steps+1] #mutation is the file_name
             #print(data[200000]) #units in time_step
+            y = data[:,0]
 
             if place_label == "":
-                ax.plot(t, data, label = mutation_labels[i], linewidth = line_width- i*linestep, color="black")
+                ax.plot(t, data, label = mutation_labels[i], linewidth = line_width- i*linestep, color="dimgrey")
+                y_av = movingaverage(y, 100000)
+                ax.plot(t, y_av, label = 'rolling average', linewidth = line_width- i*linestep, color = "r")
             else:
                 ax.plot(t, data, label = mutation_labels[i]+' - '+place_label, linewidth = line_width- i*linestep, color="black")
     
@@ -76,8 +84,8 @@ def create_plot(analysis, input_place_list, place_labels, mutation_list, mutatio
 ##############################################################################
 ############## OTHER PLOT PARAMETERS YOU WANT#################################
 ##############################################################################
-    plt.xlim([0,10]) #x axis range in seconds
-    # plt.ylim([0,10000]) #y axis range in tokens
+    # plt.xlim([0,4500]) #x axis range in seconds
+    plt.ylim(min(y), max(y))
     
     #DASHED LINES
     # plt.axvline(x=1500, linestyle='--', color ='black')
@@ -294,12 +302,12 @@ print('\n\nPlotting Time:', execution_time)
 # ## Energy metabolism 
 
 # In[4]:
-create_plot(analysis, 
-            input_place_list = ['p_chol_mito'], 
-            place_labels = [""], 
-            mutation_list = [File3], 
-            mutation_labels = [File3],
-            plot_title = 'PD - p_chol_mito')
+# create_plot(analysis, 
+#             input_place_list = ['p_chol_mito'], 
+#             place_labels = [""], 
+#             mutation_list = ['HFPN_Healthy_6x10e6'], 
+#             mutation_labels = ['HFPN_Healthy_6x10e6'],
+#             plot_title = 'PD - p_chol_mito')
 
 
 # create_plot(analysis, 

@@ -38,8 +38,9 @@ it_p_CTF99 = 1930 #
 it_p_gsec = 3.37e6
 it_p_AICD = 0 # sink
 it_p_Ab = 34048 # 
-it_p_ApoE = 1 # 0 if healthy/non-risk genotype, 1 for ApoE4 risk factor allele
-it_p_age = 1# 0 if young/no age risk factor, 1 representing 80 years of age risk factor (affects BACE1 activity)
+it_p_ApoE = 0 # 0 if healthy/non-risk genotype, 1 for ApoE4 risk factor allele
+it_p_age = 0# 0 if young/no age risk factor, 1 representing 80 years of age risk factor (affects BACE1 activity)
+it_p_CD33 = 0 #1 for CD33 mutation which causes overexpression/activity
 
 it_p_Ab_elon = 0
 it_p_Ab_olig = 0

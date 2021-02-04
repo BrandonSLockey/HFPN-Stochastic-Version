@@ -260,6 +260,21 @@ def main():
                         output_arc_weights = [1],
                         distribution_type = ["grf", 0, r_t_Ab_fib, fc_t_Ab_fib])
 
+     pn.add_transition(transition_id = 't_Ab_frag',
+                        label                = "Ab fragmentation",
+                        input_place_ids       = ['p_Ab_fib'],
+                        input_arc_weights  = [1], 
+                        output_place_ids       = ['p_Ab_olig', 'p_Ab'],
+                        output_arc_weights = [3,12.4],
+                        distribution_type = ["grf", SD, r_t_Ab_frag, fc_t_Ab_frag])
+    
+    pn.add_transition(transition_id = 't_Abfib_phag',
+                        label                = "Ab fibril phagocytosis",
+                        input_place_ids       = ['p_Ab_fib'],
+                        input_arc_weights  = [1], 
+                        output_place_ids       = [],
+                        output_arc_weights = [],
+                        distribution_type = ["grf", SD, r_t_Abfib_phag, fc_t_Abfib_frag])
     #Tau pathology
 
     #Tau pathology transitions

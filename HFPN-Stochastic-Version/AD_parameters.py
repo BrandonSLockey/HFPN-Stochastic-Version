@@ -133,8 +133,6 @@ kcat_t_CTF99_gsec_cleav = 0.00167
 Km_t_Ab_elon = 17343360
 Vmax_t_Ab_elon = 1.108
 
-k_t_Ab_agg2 = 4.817e-8
-
 # Tau Pathology
 k_t_actv_GSK3b = 8.33e-3
 m_t_act_GSK3b = 4.07e-7 # TODO: tune this, increase m to increase effect
