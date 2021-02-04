@@ -1,6 +1,6 @@
 '''Parameters'''
 
-from initial_tokens import *
+from AD_initial_tokens import *
 
 # multiplicative rate factors for increasing rates of slow modules
 Abeta_multiplier = 100

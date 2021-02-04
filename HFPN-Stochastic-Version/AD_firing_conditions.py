@@ -1,8 +1,8 @@
 '''Firing Conditions'''
 
-from initial_tokens import *
-from parameters import *
-from rate_functions import *
+from AD_initial_tokens import *
+from AD_parameters import *
+from AD_rate_functions import *
 
 # Cholesterol homeostasis
 fc_t_LDLR_endocyto = lambda a : a["p_ApoEchol_extra"] > 1
