@@ -32,9 +32,9 @@ class Analysis:
         self.time_array = hfpn.time_array[::step]
         self.place_dict = self.place_number_dict_maker()
         self.transition_dict = self.transition_dict_maker()
-        self.delay_list_t_A = hfpn.transitions['t_A'].delay_list 
-        self.delay_list_t_B = hfpn.transitions['t_B'].delay_list 
-        self.delay_list_t_D = hfpn.transitions['t_D'].delay_list 
+        # self.delay_list_t_A = hfpn.transitions['t_A'].delay_list 
+        # self.delay_list_t_B = hfpn.transitions['t_B'].delay_list 
+        # self.delay_list_t_D = hfpn.transitions['t_D'].delay_list 
         self.df_for_rate_analytics_prod = hfpn.df_for_rate_analytics_prod # we will access all the fired tokens from this in plotting later
         self.df_for_rate_analytics_cons=hfpn.df_for_rate_analytics_cons
         
