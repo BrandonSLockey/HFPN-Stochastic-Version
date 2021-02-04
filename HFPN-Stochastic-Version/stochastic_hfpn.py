@@ -196,7 +196,6 @@ class ContinuousTransition:
            calculates the amount tokens that will be transferred/produced from/to each place. Finally,
            this transfer is actually performed.
         """
-        
         input_place_tokens = self.get_input_place_tokens()
 
         # Check if the firing condition of the transition is satisfied
@@ -215,8 +214,13 @@ class ContinuousTransition:
               check_flag = np.append(check_flag, cs.flag) #delete check_flag and u will see negative values appearing
             if any(check_flag): #skips this block if no flags
                 calculated_tokens_list = np.array([])
+                print("")#DEBUGGING
+                print(self.transition_id) #DEBUGGING   
+                print("")#DEBUGGING
                 for cs in self.consumption_speeds:
-                    #print(cs.firing_tokens, "pre-FIRING TOKENS")#DEBUGGING
+                    print("")#DEBUGGING
+                    print(cs.firing_tokens, "pre-correction FIRING TOKENS")#DEBUGGING
+                    print("")#DEBUGGING
                     if cs.flag == 0:
                         calculated_tokens_list = np.append(calculated_tokens_list, np.nan)
                     if cs.flag >0: #if flagged, then Empty place contents and fire tokens = limiting factor
@@ -252,30 +256,29 @@ class ContinuousTransition:
                 #Perform Firing
                     
                 for cs in self.consumption_speeds:
-                    # print(cs.get_input_place_tokens(),"Before Firing") #DEBUGGING
+                    print(cs.get_input_place_tokens(),"input place tokens Before Firing post correction") #DEBUGGING
                     cs.perform_firing()
                     if self.collect_rate_analytics[0]=="yes":
                         self.list_of_consumed_tokens.append(cs.return_consumed_fired_tokens())
     
                 for ps in self.production_speeds:
+                    print(ps.production_place.tokens,"production_place tokens before firing") #DEBUGGING
                     ps.perform_firing()
                     if self.collect_rate_analytics[1] == "yes":
                         self.list_of_produced_tokens.append(ps.return_produced_fired_tokens())
-                    
+
                 for cs in self.consumption_speeds: #important to reset flag 
                     cs.reset_flag()
                 #debugging chunk start
-                # for cs in self.consumption_speeds:
-                #     print(cs.flag)
-                #     print(self.transition_id, consuming_tokens, "consumingTokens")
-                #     print(self.consumption_coefficients, "consumption_coefficients")
-                #     print(cs.get_input_place_tokens(), "after firing")
-                # for ps in self.production_speeds:
-                #     print(self.production_coefficients, "production_coefficients")
-                #     print(ps.get_input_place_tokens())
-                #     print(ps.production_place.tokens, "production Place tokens")
-                #     print(ps.return_produced_fired_tokens(), "produced fired tokens")
-                #     print(randomized_value, "Randomized Value")
+                print(self.transition_id, consuming_tokens, "consumingTokens")
+                print(self.consumption_coefficients, "consumption_coefficients")
+                print(self.production_coefficients, "production_coefficients")
+                print(self.consumption_speeds[0].get_input_place_tokens(), "after firing post correction")
+                for index,ps in enumerate(self.production_speeds):
+                    print(ps.production_place.tokens, "production Place tokens after firing", index+1)
+                    print(ps.return_produced_fired_tokens(), "produced fired tokens", index+1)
+                    print("")#DEBUGGING
+                    #print(randomized_value, "Randomized Value")
                 self.counter_thing +=1
                 #print(self.counter_thing, "flag counter for", self.transition_id)
                 #debugging end
