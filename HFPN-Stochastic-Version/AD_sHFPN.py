@@ -61,7 +61,9 @@ def main():
     pn.add_place(it_p_AICD, 'p_AICD', 'AICD', continuous = True)
     pn.add_place(it_p_Ab, 'p_Ab', 'Amyloid beta peptide', continuous = True)
     pn.add_place(it_p_ApoE, 'p_ApoE', 'ApoE genotype', continuous = True) # gene, risk factor in AD
-    pn.add_place(it_p_age, 'p_age', 'Age risk factor', continuous = True) # 80 years old, risk factor in AD for BACE1 activity increase
+    pn.add_place(it_p_age, 'p_age', 'Age risk factor', continuous = True)
+    pn.add_place(it_p_CD33, 'p_CD33', 'CD33 mutation', continuous = True) # 80 years old, risk factor in AD for BACE1 activity increase
+# 80 years old, risk factor in AD for BACE1 activity increase
 
     ##AB aggregation places
     pn.add_place(it_p_Ab_elon, place_id="p_Ab_elon", label="Elongating Ab", continuous = True)
@@ -235,7 +237,7 @@ def main():
                     output_place_ids			 = ["p_7HOCA"],
                     production_coefficients		 = [1],
                     vmax_scaling_function		 = vmax_scaling_t_CYP7B1_metab,
-                    stochastic_parameters = [cholSD].
+                    stochastic_parameters = [cholSD],
                     collect_rate_analytics = collect_rate_analytics)
 
     # Endocytosis of 27OHchol

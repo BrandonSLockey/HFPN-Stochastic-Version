@@ -1,7 +1,7 @@
 '''Rate functions'''
 
-from parameters import *
-from initial_tokens import *
+from AD_parameters import *
+from AD_initial_tokens import *
 
 function = lambda f, g : lambda a : f(a) * g(a)
 
