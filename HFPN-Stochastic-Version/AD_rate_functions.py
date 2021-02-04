@@ -70,7 +70,8 @@ r_t_gsec_exp = lambda a : Abeta_multiplier * k_t_gsec_exp # need to incorporate 
 r_t_gsec_degr = lambda a : Abeta_multiplier * k_t_gsec_degr * a['p_gsec']
 
 r_t_Ab_degr = lambda a : Abeta_multiplier * k_t_Ab_degr * a['p_Ab']
-r_t_Ab_phag = lambda a : Abeta_multiplier * (0.0000194-(0.00000555*a['p_age'])) * a['p_Ab'] #phagocytosis is 2% slower in aged case]
+# r_t_Ab_phag = lambda a : Abeta_multiplier * (0.0000194-(0.00000555*a['p_age'])) * a['p_Ab'] #phagocytosis is 2% slower in aged case]
+r_t_Ab_phag = lambda a : Abeta_multiplier * (0.0000194-(0.00000555*it_p_age)) * a['p_Ab'] #phagocytosis is 2% slower in aged case]
 
 r_t_Abfib_phag = lambda a : a['p_Ab_fib'] * Abeta_multiplier * (0.0002 - (1e-6 * a['p_age']) - (1.5e-6 *  a['p_CD33'] * a['p_Ab']/it_p_Ab)) 
 #currently tuning this. rate needs to depend on age, but also on CD33 status. However CD33 activity is also dependent on the levels of Ab

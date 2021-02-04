@@ -875,16 +875,17 @@ if __name__ == '__main__':
     # )
 
     # 2. Using one shared reaction_speed_function for each species 
-    pn.add_transition_with_speed_function(
-                        transition_id = 't_b',
-                        label = 'Example transition b',
-                        input_place_ids = ['p_H2', 'p_O2', 'p_I'],
-                        firing_condition = lambda a : a['p_H2'] >= 0 or a['p_O2'] >= 0 and a['p_I'] <= 0.01,
-                        reaction_speed_function = lambda a : rate_constant * a['p_H2']**2 * a['p_O2']**1,
-                        consumption_coefficients = [20, 10, 0], 
-                        output_place_ids = ['p_H2O'],
-                        production_coefficients = [2],
-                        stochastic_parameters=[1])
+    # pn.add_transition_with_speed_function(
+    #                     transition_id = 't_b',
+    #                     label = 'Example transition b',
+    #                     input_place_ids = ['p_H2', 'p_O2', 'p_I'],
+    #                     firing_condition = lambda a : a['p_H2'] >= 0 or a['p_O2'] >= 0 and a['p_I'] <= 0.01,
+    #                     reaction_speed_function = lambda a : rate_constant * a['p_H2']**2 * a['p_O2']**1,
+    #                     consumption_coefficients = [20, 10, 0], 
+    #                     output_place_ids = ['p_H2O'],
+    #                     production_coefficients = [2],
+    #                     stochastic_parameters=[1],
+    #                     )
 
     # # 3. Using mass-action as the shared reaction_speed_function
     # pn.add_transition_with_mass_action(  transition_id = 't_c',
