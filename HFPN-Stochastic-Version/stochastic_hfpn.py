@@ -218,7 +218,7 @@ class ContinuousTransition:
                 for cs in self.consumption_speeds:
                     #print(cs.firing_tokens, "pre-FIRING TOKENS")#DEBUGGING
                     if cs.flag == 0:
-                        calculated_tokens_list = np.append(np.nan)
+                        calculated_tokens_list = np.append(calculated_tokens_list, np.nan)
                     if cs.flag >0: #if flagged, then Empty place contents and fire tokens = limiting factor
                         calculated_tokens_list = np.append(calculated_tokens_list,cs.return_consumption_place_tokens())
                 #divide calculated tokens by consumption coefficients to identify limiting factors from a list of multiple candidate limiting factors.     
@@ -266,6 +266,7 @@ class ContinuousTransition:
                     cs.reset_flag()
                 #debugging chunk start
                 # for cs in self.consumption_speeds:
+                #     print(cs.flag)
                 #     print(self.transition_id, consuming_tokens, "consumingTokens")
                 #     print(self.consumption_coefficients, "consumption_coefficients")
                 #     print(cs.get_input_place_tokens(), "after firing")
