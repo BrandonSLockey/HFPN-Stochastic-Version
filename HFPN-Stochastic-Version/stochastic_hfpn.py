@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
+
 MAX_LABEL_CHARACTERS = 50
 
 def check_label_length(label, limit = MAX_LABEL_CHARACTERS):
@@ -197,6 +198,9 @@ class ContinuousTransition:
            this transfer is actually performed.
         """
         input_place_tokens = self.get_input_place_tokens()
+        # if self.transition_id == "t_ETC":
+        #     print(input_place_tokens)
+            
 
         # Check if the firing condition of the transition is satisfied
         if self.firing_condition(input_place_tokens) == True:
@@ -214,13 +218,13 @@ class ContinuousTransition:
               check_flag = np.append(check_flag, cs.flag) #delete check_flag and u will see negative values appearing
             if any(check_flag): #skips this block if no flags
                 calculated_tokens_list = np.array([])
-                print("")#DEBUGGING
-                print(self.transition_id) #DEBUGGING   
-                print("")#DEBUGGING
+                # print("")#DEBUGGING
+                # print(self.transition_id) #DEBUGGING   
+                # print("")#DEBUGGING
                 for cs in self.consumption_speeds:
-                    print("")#DEBUGGING
-                    print(cs.firing_tokens, "pre-correction FIRING TOKENS")#DEBUGGING
-                    print("")#DEBUGGING
+                    # print("")#DEBUGGING
+                    # print(cs.firing_tokens, "pre-correction FIRING TOKENS")#DEBUGGING
+                    # print("")#DEBUGGING
                     if cs.flag == 0:
                         calculated_tokens_list = np.append(calculated_tokens_list, np.nan)
                     if cs.flag >0: #if flagged, then Empty place contents and fire tokens = limiting factor
@@ -256,13 +260,13 @@ class ContinuousTransition:
                 #Perform Firing
                     
                 for cs in self.consumption_speeds:
-                    print(cs.get_input_place_tokens(),"input place tokens Before Firing post correction") #DEBUGGING
+                    # print(cs.get_input_place_tokens(),"input place tokens Before Firing post correction") #DEBUGGING
                     cs.perform_firing()
                     if self.collect_rate_analytics[0]=="yes":
                         self.list_of_consumed_tokens.append(cs.return_consumed_fired_tokens())
     
                 for ps in self.production_speeds:
-                    print(ps.production_place.tokens,"production_place tokens before firing") #DEBUGGING
+                    # print(ps.production_place.tokens,"production_place tokens before firing") #DEBUGGING
                     ps.perform_firing()
                     if self.collect_rate_analytics[1] == "yes":
                         self.list_of_produced_tokens.append(ps.return_produced_fired_tokens())
@@ -270,14 +274,14 @@ class ContinuousTransition:
                 for cs in self.consumption_speeds: #important to reset flag 
                     cs.reset_flag()
                 #debugging chunk start
-                print(self.transition_id, consuming_tokens, "consumingTokens")
-                print(self.consumption_coefficients, "consumption_coefficients")
-                print(self.production_coefficients, "production_coefficients")
-                print(self.consumption_speeds[0].get_input_place_tokens(), "after firing post correction")
-                for index,ps in enumerate(self.production_speeds):
-                    print(ps.production_place.tokens, "production Place tokens after firing", index+1)
-                    print(ps.return_produced_fired_tokens(), "produced fired tokens", index+1)
-                    print("")#DEBUGGING
+                # print(self.transition_id, consuming_tokens, "consumingTokens")
+                # print(self.consumption_coefficients, "consumption_coefficients")
+                # print(self.production_coefficients, "production_coefficients")
+                # print(self.consumption_speeds[0].get_input_place_tokens(), "after firing post correction")
+                # for index,ps in enumerate(self.production_speeds):
+                    # print(ps.production_place.tokens, "production Place tokens after firing", index+1)
+                    # print(ps.return_produced_fired_tokens(), "produced fired tokens", index+1)
+                    # print("")#DEBUGGING
                     #print(randomized_value, "Randomized Value")
                 self.counter_thing +=1
                 #print(self.counter_thing, "flag counter for", self.transition_id)
@@ -342,20 +346,49 @@ class DiscreteTransition(ContinuousTransition):
         self.delay_original = delay
         self.delay_counter = 0 # Counter for consecutive no. of steps where firing condition still holds true
         self.delay_list = [] # create list for analysis later
+        
+        
+        input_place_tokens = self.get_input_place_tokens()
+        self.delay = self.calculate_lambda_f_delay(self.delay_original, input_place_tokens)
+
+    def calculate_lambda_f_delay(self, delay_original, input_place_tokens):
+        """Purpose is to check if delay is a lambda function or a float/integer, only used in initialisation to prevent error"""
+        truth = isinstance(delay_original, int)
+        truth2 = isinstance(delay_original, float)
+        
+        if int(truth) + int(truth2) == 0:
+            delay = self.delay_original(input_place_tokens)
+            self.delay_original
+            return delay
+            
+        else:
+            return delay_original
+            
+        
 
 
     def fire(self, time_step):
         """Check if the firing condition is satisfied during the delay."""
         input_place_tokens = self.get_input_place_tokens()
-
         if self.firing_condition(input_place_tokens) == True:
+            # if self.transition_id == "t_MDV_Generation_basal": #debugging
+            #     print(self.transition_id)
+            #     print(self.delay)
+            #     print(self.delay_counter)
+            #     print(int(self.delay/time_step))
 
             if self.delay_counter >= int(self.delay/time_step):
                 # fire with a time_step of 1, as discrete transition tokens should be transferred in their entirety
                 super().fire(1) #BSL: Means you are calling fire() from the Parent Class ContinuousTransition, from parent class fire, you should have appended consumed/produced tokens for rate analytics.
                 self.delay_list.append(self.delay_counter) #append to this list for later analysis
                 self.delay_counter = 0
-                self.delay = random.gauss(self.delay_original,self.delay_original*self.stochastic_parameters[1])
+                
+                if isinstance(self.delay_original, (int,float)):
+                    self.delay = random.gauss(self.delay_original,self.delay_original*self.stochastic_parameters[1])
+                else:
+                    value = self.delay_original(input_place_tokens)
+                    self.delay = random.gauss(value, value*self.stochastic_parameters[1])
+                    
                 
     
             else:
@@ -716,7 +749,7 @@ class HFPN:
         firings = [t.firings for t in self.transitions.values()]
 
         # Check if time step has resulted in negative token count and raise value error 
-        if any(token < 0 for token in tokens):
+        if any(token < -1 for token in tokens):
             # Array and list necessary to select using truth values
             place_ids = np.array(list(self.places.keys()))
             neg_token_truth_value = [token < 0 for token in tokens]
