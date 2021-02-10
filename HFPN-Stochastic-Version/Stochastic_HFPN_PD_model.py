@@ -1,5 +1,6 @@
 import os
 import sys
+import numpy as np
 
 from datetime import datetime
 
@@ -340,7 +341,7 @@ def main():
                         output_place_ids = ['p_Ca_cyto'],         
                         production_coefficients = [1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) # Need to review this 
+                        collect_rate_analytics = dont_collect) # Need to review this 
 
 
     pn.add_transition_with_speed_function( #19
@@ -353,7 +354,7 @@ def main():
                         output_place_ids = ['p_Ca_mito'],         
                         production_coefficients = [1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics)
+                        collect_rate_analytics = dont_collect)
 
     pn.add_transition_with_speed_function( #20
                         transition_id = 't_MAM',
@@ -365,7 +366,7 @@ def main():
                         output_place_ids = ['p_Ca_mito'],         
                         production_coefficients = [1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics)
+                        collect_rate_analytics = dont_collect)
 
     pn.add_transition_with_speed_function( #21
                         transition_id = 't_RyR_IP3R',
@@ -377,7 +378,7 @@ def main():
                         output_place_ids = ['p_Ca_cyto'],         
                         production_coefficients = [1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
 
     pn.add_transition_with_speed_function( #22
                         transition_id = 't_SERCA',
@@ -389,7 +390,7 @@ def main():
                         output_place_ids = ['p_Ca_ER','p_ADP'],         
                         production_coefficients = [1,1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) # Need to review this
+                        collect_rate_analytics = dont_collect) # Need to review this
 
     pn.add_transition_with_speed_function( #23
                         transition_id = 't_NCX_PMCA',
@@ -401,7 +402,7 @@ def main():
                         output_place_ids = [],         
                         production_coefficients = [],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics)
+                        collect_rate_analytics = dont_collect)
     
     pn.add_transition_with_speed_function( #24
                         transition_id = 't_mNCLX',
@@ -413,7 +414,7 @@ def main():
                         output_place_ids = ['p_Ca_cyto'],         
                         production_coefficients = [1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
 
     # # Discrete on/off-switches calcium pacemaking
 
@@ -478,7 +479,7 @@ def main():
                         output_place_ids = ['p_ADP'],         
                         production_coefficients = [1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
     
    # Lewy bodies pathology
     pn.add_transition_with_speed_function( #30
@@ -540,7 +541,7 @@ def main():
                         output_place_ids = ['p_ADP'],         
                         production_coefficients = [1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
     
     pn.add_transition_with_speed_function(#35
                         transition_id = 't_ROS_metab',
@@ -602,7 +603,7 @@ def main():
                         output_place_ids = [],         
                         production_coefficients = [],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
     
     # Late endosome pathology
     pn.add_transition_with_michaelis_menten(#40
@@ -617,7 +618,7 @@ def main():
                         production_coefficients = [1],
                         vmax_scaling_function = vmax_scaling_t_phos_tau,
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
 
     pn.add_transition_with_michaelis_menten(#41
                         transition_id = 't_dephos_tauP',
@@ -631,7 +632,7 @@ def main():
                         production_coefficients = [1],
                         vmax_scaling_function = vmax_scaling_t_dephos_tauP,
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
 
     pn.add_transition_with_speed_function(#42
                         transition_id = 't_RTN3_exp',
@@ -643,7 +644,7 @@ def main():
                         output_place_ids = ['p_RTN3_PN'],
                         production_coefficients = [1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
 
     pn.add_transition_with_speed_function(#43
                         transition_id = 't_LE_retro',
@@ -655,7 +656,7 @@ def main():
                         output_place_ids = ['p_ADP','p_RTN3_PN'],
                         production_coefficients = [ATPcons_t_LE_trans, 1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
 
     pn.add_transition_with_speed_function(#44
                         transition_id = 't_LE_antero',
@@ -667,7 +668,7 @@ def main():
                         output_place_ids = ['p_ADP','p_RTN3_axon'],
                         production_coefficients = [ATPcons_t_LE_trans, 1],# tune these coefficients based on PD
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics)  
+                        collect_rate_analytics = dont_collect)  
 
     pn.add_transition_with_speed_function(#45
                         transition_id = 't_RTN3_aggregation',
@@ -679,7 +680,7 @@ def main():
                         output_place_ids = ['p_RTN3_HMW_cyto'],
                         production_coefficients = [1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
 
     pn.add_transition_with_speed_function(#46
                         transition_id = 't_RTN3_auto',
@@ -691,7 +692,7 @@ def main():
                         output_place_ids = ['p_RTN3_HMW_auto'],
                         production_coefficients = [1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
 
     pn.add_transition_with_speed_function(#47
                         transition_id = 't_RTN3_lyso',
@@ -703,7 +704,7 @@ def main():
                         output_place_ids = ['p_RTN3_HMW_lyso'],
                         production_coefficients = [1],
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
 
     pn.add_transition_with_speed_function(#48
                         transition_id = 't_RTN3_dys_auto',
@@ -715,7 +716,7 @@ def main():
                         output_place_ids = ['p_RTN3_HMW_dys1'],
                         production_coefficients = [1],# tune later when data are incorporated
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics)  
+                        collect_rate_analytics = dont_collect)  
 
     pn.add_transition_with_speed_function(#49
                         transition_id = 't_RTN3_dys_lyso',
@@ -727,7 +728,21 @@ def main():
                         output_place_ids = ['p_RTN3_HMW_dys2'],
                         production_coefficients = [1],# tune later when data are incorporated
                         stochastic_parameters = [SD],
-                        collect_rate_analytics = collect_rate_analytics) 
+                        collect_rate_analytics = dont_collect) 
+    pn.add_transition_with_speed_function(#50
+                        transition_id = 't_MDV_Generation_basal',
+                        label = "Mitochondrially Derived Vesicles production",
+                        input_place_ids = ['p_chol_mito', 'p_ROS_mito'],
+                        firing_condition = lambda a: a['p_chol_mito']>100000,
+                        reaction_speed_function = lambda a: 0.0011088*a['p_chol_mito'],
+                        consumption_coefficients =[1,0],
+                        output_place_ids = ['p_chol_LE'],
+                        production_coefficients = [1],
+                        stochastic_parameters = [SD, DelaySD],
+                        collect_rate_analytics = collect_rate_analytics,
+                        delay = function_for_MDV_delay) #lambda a: (1/chol_mp)*min(60,max((-24.34*np.log(a['p_ROS_mito'])+309.126)), 20)) #switch: lambda a: 60*(a['p_ROS_mito'] < 80000)+30*(a['p_ROS_mito']>80000)) 
+                        
+                        
     
     #TESTING ADDED TRANSITION FOR DEBUGGING PURPOSES
     # pn.add_transition_with_speed_function(#50
