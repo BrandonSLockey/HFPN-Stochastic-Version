@@ -1,6 +1,6 @@
 #MUTATIONS (BINARY)
 it_p_GBA1 = 0
-it_p_LRRK2_mut = 0
+it_p_LRRK2_mut = 1
 it_p_VPS35 = 0
 it_p_DJ1 = 0
 
@@ -16,18 +16,20 @@ mp_ApoEchol=1 #1 or 2
 
 # Number of runs and timesteps
 number_runs = 1
-number_time_steps = 100
-time_step_size = 0.001
+number_time_steps = 300000
+time_step_size = 0.005
 
 #To run model without Stochasticity, Set SD to 0.
+
+#Should change SD to be sqrt(n) which is a better rule of thumb. maybe lambda function which takes number of place tokens, then you sqrt the SD.
 
 cholSD = 0.1 # cholesterol module
 SD = 0.1
 DelaySD = 0.1
 
-collect_rate_analytics = ["no","yes"] #first element consumption rate analytics, second element production rate analytics. i.e. ["no", "yes"], means don't collect consumption rate, but collect production rate analytics.
-
+collect_rate_analytics = ["yes","yes"] #first element consumption rate analytics, second element production rate analytics. i.e. ["no", "yes"], means don't collect consumption rate, but collect production rate analytics.
+dont_collect = ["no","no"]
 CaSD = 0 #CaSD = 0 or breaks.
 
 # Output file name
-run_save_name = 'test'
+run_save_name = 'tettst'
