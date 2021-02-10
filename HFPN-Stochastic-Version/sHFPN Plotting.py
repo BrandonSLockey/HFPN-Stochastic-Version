@@ -8,6 +8,7 @@ import os
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.signal import find_peaks_cwt
 from datetime import datetime
 
 #from scipy.signal import convolve
@@ -28,15 +29,20 @@ analysis = {}
 ##############################################################################
 start_time = datetime.now()
 
-# File1 = '6e6_sHFPN_Healthy_SD_01_DelaySD_01'
-# File2 = '6e6_sHFPN_Healthy_SD_01_DelaySD_0'
-File3 = '6MSD10healthy'
-desired_plotting_steps = 1000
-window_size = 50
+
+File1 = '6MSD10healthy'
+File2 = '6MSD10aged'
+File3 = '6MSD10agedCD33'
+test = 'healthytest'
+timestep = 0.001
+
+desired_plotting_steps = 100000
+window_size = 10000
 
 # analysis[File1] = Analysis.load_from_file(File1)
-# analysis[File2] = Analysis.load_from_file(File2)
-analysis[File3] = Analysis.load_from_file(File3)
+analysis[File2] = Analysis.load_from_file(File2)
+# analysis[File3] = Analysis.load_from_file(File3)
+analysis[test] = Analysis.load_from_file(test)
 
 execution_time = datetime.now()-start_time
 print('\n\nLoad-in Time:', execution_time)
@@ -65,17 +71,40 @@ def create_plot(analysis, input_place_list, place_labels, mutation_list, mutatio
     fig,ax=plt.subplots()
     linestep = 0.3
     line_width = 2.5
+    minima = []
+    timeseries = []
+    timeseries2 = []
+
     
     for i, mutation in enumerate(mutation_list):
         for place, place_label in zip(input_place_list, place_labels):
             data = analysis[mutation].mean_token_history_for_places([place])[0:desired_plotting_steps+1] #mutation is the file_name
             #print(data[200000]) #units in time_step
             y = data[:,0]
+            # ylist = y.tolist()
 
             if place_label == "":
                 ax.plot(t, data, label = mutation_labels[i]+' - '+place_label, linewidth = line_width- i*linestep, color="dimgrey")
-                y_av = movingaverage(y, window_size)
-                ax.plot(t[window_size:desired_plotting_steps-window_size], y_av[window_size:desired_plotting_steps-window_size], label = 'rolling average', linewidth = line_width- i*linestep, color = "r")
+                
+                # minimadata = y*-1
+                # peaks = find_peaks_cwt(minimadata, np.arange(1,10000))
+                # ax.plot(peaks*timestep, y[peaks], "x")
+          
+                for i in range(1, len(y)-1):
+                    if y[i-1] > y[i] and y[i+1] > y[i]:
+                        minima.append(y[i])
+                        # np.append(minima, y[i])
+                        timeseries.append(i)
+                        # np.append(timeseries, i)
+                        # print(minima)
+                for i in timeseries:
+                    timeseries2.append(i*timestep)
+                    
+                    
+        
+                # y_av = movingaverage(y, window_size)
+                # ax.plot(t[window_size:desired_plotting_steps-window_size], y_av[window_size:desired_plotting_steps-window_size], label = 'rolling average', linewidth = line_width- i*linestep, color = "r")
+                ax.plot(timeseries2, y[timeseries], color='green', marker='o', linestyle='dashed')
             else:
                 ax.plot(t, data, label = mutation_labels[i]+' - '+place_label, linewidth = line_width- i*linestep, color="black")
     
@@ -264,8 +293,7 @@ start_time = datetime.now()
 # calculate_mean_of_delay(analysis, File1)
 # calculate_mean_of_delay(analysis, File2)
 
-execution_time = datetime.now()-start_time
-print('\n\nPlotting Time:', execution_time)
+
 ##############################################################################
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~End - BSL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 ##############################################################################  
@@ -304,11 +332,14 @@ print('\n\nPlotting Time:', execution_time)
 
 # In[4]:
 create_plot(analysis, 
-            input_place_list = ['p_Ab'], 
+            input_place_list = ['p_Ab_fib'], 
             place_labels = [""], 
-            mutation_list = [File3], 
-            mutation_labels = [File3],
-            plot_title = 'PD - p_chol_mito')
+            mutation_list = [test], 
+            mutation_labels = [test],
+            plot_title = 'Ab fibrils')
+
+execution_time = datetime.now()-start_time
+print('\n\nPlotting Time:', execution_time)
 
 
 # create_plot(analysis, 

@@ -718,9 +718,9 @@ class HFPN:
             neg_token_truth_value = [token < 0 for token in tokens]
             neg_place_ids = place_ids[neg_token_truth_value]
             neg_place_tokens = np.array(tokens)[neg_token_truth_value]
-            print(f"Warning: negative token count of {neg_place_tokens} in {neg_place_ids}.") #BSL:Temporarily suppress warnings
-            self.counter += 1
-            print(self.counter, "counter")
+            # print(f"Warning: negative token count of {neg_place_tokens} in {neg_place_ids}.") #BSL:Temporarily suppress warnings
+            # self.counter += 1
+            # print(self.counter, "counter")
         for t in random_order_transitions:
             t.reset_list_of_consumed_tokens()
             t.reset_list_of_produced_tokens()

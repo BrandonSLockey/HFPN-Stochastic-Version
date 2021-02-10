@@ -587,10 +587,10 @@ def main():
     
     pn.add_transition_with_speed_function(transition_id = 't_Abfib_phag',
                         label                = "Ab fibril phagocytosis",
-                        input_place_ids       = ['p_Ab_fib'],
+                        input_place_ids       = ['p_Ab_fib', 'p_Ab'],
                         firing_condition = fc_t_Abfib_phag,
                         reaction_speed_function = r_t_Abfib_phag,
-                        consumption_coefficients  = [1], 
+                        consumption_coefficients  = [1, 0], 
                         output_place_ids       = [],
                         production_coefficients = [],
                         stochastic_parameters = [SD],
