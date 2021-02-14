@@ -16,7 +16,7 @@ mp_ApoEchol=1 #1 or 2
 
 # Number of runs and timesteps
 number_runs = 1
-number_time_steps = 300000
+number_time_steps = 20000
 time_step_size = 0.005
 
 #To run model without Stochasticity, Set SD to 0.
@@ -31,5 +31,7 @@ collect_rate_analytics = ["yes","yes"] #first element consumption rate analytics
 dont_collect = ["no","no"]
 CaSD = 0 #CaSD = 0 or breaks.
 
+#NOTE MDV DELAY FUNCTION NEEDS TO BE CORRECTED
+
 # Output file name
-run_save_name = 'tettst'
+run_save_name = 'dassda'
