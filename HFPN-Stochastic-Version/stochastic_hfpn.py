@@ -4,7 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
+import tkinter as tk
+from tkinter import ttk
+from functools import partial
+import math
+import time
 
 MAX_LABEL_CHARACTERS = 50
 
@@ -764,7 +768,7 @@ class HFPN:
         return tokens, firings, list_of_tokens_transferred_for_each_transition_per_timestep_prod, list_of_tokens_transferred_for_each_transition_per_timestep_cons
         
 
-    def run(self, number_time_steps, storage_interval=1):
+    def run(self, number_time_steps,frame_in_canvas, storage_interval=1):
         """Execute a run with a set amount of time-steps.
 
             Args:
@@ -807,15 +811,52 @@ class HFPN:
         
  
         df_for_rate_analytics_prod = pd.DataFrame(columns=list_of_column_names_production, index=np.arange(0,number_time_steps+1))
-
+        
+        
+        #GUI *****Redefine GUI Frames*****
+        # root=root
+        # main_frame=main_frame
+        # second_frame=second_frame
+        frame_in_canvas = frame_in_canvas
+        
+        #GUI *****Make buttons for place names*****
+        list_of_places_names1 = [] 
+        for key,value in self.places.items():
+            list_of_places_names1.append(key)
+        
+        
+        for index, place in enumerate(list_of_places_names1):
+            tk.Button(frame_in_canvas, text=place).grid(row=index+1, column=0, pady=10, padx=10)
+            
+        #GUI *****Make token buttons*****
+        
+        token_buttons_dict = {}
+        
+        
+        for index,value in enumerate(single_run_tokens[0]):
+            #dict keys should be the index
+            index_str = str(index)
+            if value > 1e6:
+                readable_value = "{:e}".format(value)
+            else:
+                readable_value = value
+            token_buttons_dict[index_str]=tk.Button(frame_in_canvas, text=str(readable_value))
+            token_buttons_dict[index_str].grid(row=index+1, column=1, pady=10,padx=10)
+            
+        
+        tokens_header_button = tk.Button(frame_in_canvas, text = "0")
+        tokens_header_button.grid(row=0, column=1)
+        place_header_button = tk.Button(frame_in_canvas, text="place").grid(row=0, column=0)
     
+       
+        
         
         for t in range(number_time_steps):
             tokens, firings,list_of_tokens_transferred_for_each_transition_per_timestep_prod, list_of_tokens_transferred_for_each_transition_per_timestep_cons  = self.run_single_step()
             
             if t % 10000 == 0:
                 print("We are now at step:", t,flush=True)
-           
+                
             # store current values at regular intervals
             if t % storage_interval == 0:
                 #BSL: produce a flat list to input into pandas dataframe for later.
@@ -829,7 +870,51 @@ class HFPN:
                 df_for_rate_analytics_cons.loc[t+1:t+1,:] = flattened_list_cons
                 
                 #print(df_for_rate_analytics)
+        # ***** GUI WIP ***** ===================
+        
+            if t % 10000 ==0:
+                tokens_header_button.config(text="Timestep: " + str(t))
+                for index,value in enumerate(single_run_tokens[t]):
+                    index_str = str(index)
+                    #significant_digits = 4 #for when i implement customization on the GUI to display SFs
+                    if value > 1e6:
+                        #value = round(value,significant_digits- int(math.floor(math.log10(abs(value)))) - 1)
+                        readable_value = "{:.3e}".format(value)
+                    else:
+                        readable_value = value
+                    token_buttons_dict[index_str].config(text=str(readable_value))
+                    #Button(second_frame, text=str(value)).grid(row=index+1, column=1, pady=10,padx=10)
                 
+                #root.update()
+
+                    
+
+           
+                # two = Label(root, text="Simulation Paused, exit window to continue", bg="blue", fg="white")
+                # two.pack(fill=X)
+
+
+
+                
+                
+                # GUI_tokens = single_run_tokens[t,]
+                # z = Label(root, text=list_of_place_names)
+       
+                # z.pack()
+                # a = Label(root, text=GUI_tokens)
+                # a.pack()
+                # b = Label(root, text="Firings for each Transition")
+                # b.pack()
+                # GUI_firings = single_run_firings[t,]
+                # c = Label(root, text=GUI_firings)
+                # c.pack()
+                # d = df_for_rate_analytics_prod
+                # e = Label(root, text = d)
+                # e.pack()
+                
+            
+             
+        # =====================================
 
         # Determine how many times transition fired in single run
         single_run_total_firings = single_run_firings[-1,:]
@@ -837,7 +922,7 @@ class HFPN:
         return single_run_tokens, single_run_total_firings, df_for_rate_analytics_prod,  df_for_rate_analytics_cons
 
 
-    def run_many_times(self, number_runs, number_time_steps, storage_interval=1):
+    def run_many_times(self, number_runs, number_time_steps, frame_in_canvas, storage_interval=1):
         """Runs multiple iterations of the HFPN.
         
             Args: 
@@ -846,6 +931,11 @@ class HFPN:
                 storage_interval (int): number of time-steps between tokens being stored, default = 1  
                                         (e.g. storage_interval = 2: tokens stored for every 2nd time-step)
         """
+        
+
+        
+        
+        
         if storage_interval == -1:
             storage_interval = max(1, int(number_time_steps/1000))
         
@@ -866,7 +956,7 @@ class HFPN:
      
 #storing it for visualisation
         for i in range(number_runs):
-            self.token_storage[i], self.firings_storage[i], self.df_for_rate_analytics_prod, self.df_for_rate_analytics_cons = self.run(number_time_steps, storage_interval)
+            self.token_storage[i], self.firings_storage[i], self.df_for_rate_analytics_prod, self.df_for_rate_analytics_cons = self.run(number_time_steps, frame_in_canvas, storage_interval)
             self.reset_network()
 
 
@@ -882,74 +972,77 @@ class HFPN:
         # Loop through transitions and reset number of firings
         for t in self.transitions.values():
             t.reset() 
+
+#    def GUI_plot(place_id, token_storage):
+        
             
    
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    # Initialize an empty Petri net
-    pn = HFPN(time_step=0.001, printout=True)
+#     # Initialize an empty Petri net
+#     pn = HFPN(time_step=0.001, printout=True)
 
-    # Add places for each chemical species
-    pn.add_place(initial_tokens=100, place_id="p_H2", label="Hydrogen", continuous=True)
-    pn.add_place(100, place_id="p_O2", label="Oxygen", continuous=True)
-    pn.add_place(0, place_id="p_H2O", label="Water", continuous=True)
-    pn.add_place(0, place_id="p_I", label="Inhibitor", continuous=True)
+#     # Add places for each chemical species
+#     pn.add_place(initial_tokens=100, place_id="p_H2", label="Hydrogen", continuous=True)
+#     pn.add_place(100, place_id="p_O2", label="Oxygen", continuous=True)
+#     pn.add_place(0, place_id="p_H2O", label="Water", continuous=True)
+#     pn.add_place(0, place_id="p_I", label="Inhibitor", continuous=True)
 
-    rate_constant = 0.001
+#     rate_constant = 0.001
 
-    ### Add the same transition in three different ways:
-    # 1. Directly using speed_functions
-    # pn.add_transition(  transition_id = 't_a',
-    #                     label = 'Example transition a',
-    #                     input_place_ids = ['p_H2', 'p_O2', 'p_I'],
-    #                     firing_condition = lambda a : (a['p_H2'] >= 0 or a['p_O2'] >= 0) and a['p_I'] <= 0.01,
-    #                     consumption_speed_functions = [lambda a : rate_constant * a['p_H2']**2 * a['p_O2']**1 * 2, 
-    #                                                    lambda a : rate_constant * a['p_H2']**2 * a['p_O2']**1 * 1,
-    #                                                    lambda a : 0],
-    #                     output_place_ids = ['p_H2O'],
-    #                     production_speed_functions = [lambda a : rate_constant * a['p_H2']**2 * a['p_O2']**1 * 2],
-    #                     delay = 0.00
-    # )
+#     ### Add the same transition in three different ways:
+#     # 1. Directly using speed_functions
+#     # pn.add_transition(  transition_id = 't_a',
+#     #                     label = 'Example transition a',
+#     #                     input_place_ids = ['p_H2', 'p_O2', 'p_I'],
+#     #                     firing_condition = lambda a : (a['p_H2'] >= 0 or a['p_O2'] >= 0) and a['p_I'] <= 0.01,
+#     #                     consumption_speed_functions = [lambda a : rate_constant * a['p_H2']**2 * a['p_O2']**1 * 2, 
+#     #                                                    lambda a : rate_constant * a['p_H2']**2 * a['p_O2']**1 * 1,
+#     #                                                    lambda a : 0],
+#     #                     output_place_ids = ['p_H2O'],
+#     #                     production_speed_functions = [lambda a : rate_constant * a['p_H2']**2 * a['p_O2']**1 * 2],
+#     #                     delay = 0.00
+#     # )
 
-    # 2. Using one shared reaction_speed_function for each species 
-    pn.add_transition_with_speed_function(
-                        transition_id = 't_b',
-                        label = 'Example transition b',
-                        input_place_ids = ['p_H2', 'p_O2', 'p_I'],
-                        firing_condition = lambda a : a['p_H2'] >= 0 or a['p_O2'] >= 0 and a['p_I'] <= 0.01,
-                        reaction_speed_function = lambda a : rate_constant * a['p_H2']**2 * a['p_O2']**1,
-                        consumption_coefficients = [20, 10, 0], 
-                        output_place_ids = ['p_H2O'],
-                        production_coefficients = [2],
-                        stochastic_parameters=[1])
+#     # 2. Using one shared reaction_speed_function for each species 
+#     pn.add_transition_with_speed_function(
+#                         transition_id = 't_b',
+#                         label = 'Example transition b',
+#                         input_place_ids = ['p_H2', 'p_O2', 'p_I'],
+#                         firing_condition = lambda a : a['p_H2'] >= 0 or a['p_O2'] >= 0 and a['p_I'] <= 0.01,
+#                         reaction_speed_function = lambda a : rate_constant * a['p_H2']**2 * a['p_O2']**1,
+#                         consumption_coefficients = [20, 10, 0], 
+#                         output_place_ids = ['p_H2O'],
+#                         production_coefficients = [2],
+#                         stochastic_parameters=[1])
 
-    # # 3. Using mass-action as the shared reaction_speed_function
-    # pn.add_transition_with_mass_action(  transition_id = 't_c',
-    #                     label = 'Example transition c',
-    #                     rate_constant = rate_constant,
-    #                     input_place_ids = ['p_H2', 'p_O2', 'p_I'],
-    #                     firing_condition = lambda a : a['p_H2'] >= 0 and a['p_O2'] >= 0 and a['p_I'] <= 0.01,
-    #                     consumption_coefficients = [2, 1, 0],
-    #                     output_place_ids = ['p_H2O'],
-    #                     production_coefficients = [2]
-    # )
+#     # # 3. Using mass-action as the shared reaction_speed_function
+#     # pn.add_transition_with_mass_action(  transition_id = 't_c',
+#     #                     label = 'Example transition c',
+#     #                     rate_constant = rate_constant,
+#     #                     input_place_ids = ['p_H2', 'p_O2', 'p_I'],
+#     #                     firing_condition = lambda a : a['p_H2'] >= 0 and a['p_O2'] >= 0 and a['p_I'] <= 0.01,
+#     #                     consumption_coefficients = [2, 1, 0],
+#     #                     output_place_ids = ['p_H2O'],
+#     #                     production_coefficients = [2]
+#     # )
 
-    # # Adding transition using Michaelis Menten
-    # pn.add_transition_with_michaelis_menten(transition_id = 't_michaelis_menten',
-    #                                     label = 'Michaelis Menten test',
-    #                                     Km = 1,
-    #                                     vmax = 1,
-    #                                     input_place_ids = ['p_H2', 'p_O2'],
-    #                                     substrate_id = 'p_H2',
-    #                                     consumption_coefficients = [1, 0],
-    #                                     output_place_ids = ['p_H2O'],
-    #                                     production_coefficients = [1],
-    #                                     vmax_scaling_function = lambda a : 1)
+#     # # Adding transition using Michaelis Menten
+#     # pn.add_transition_with_michaelis_menten(transition_id = 't_michaelis_menten',
+#     #                                     label = 'Michaelis Menten test',
+#     #                                     Km = 1,
+#     #                                     vmax = 1,
+#     #                                     input_place_ids = ['p_H2', 'p_O2'],
+#     #                                     substrate_id = 'p_H2',
+#     #                                     consumption_coefficients = [1, 0],
+#     #                                     output_place_ids = ['p_H2O'],
+#     #                                     production_coefficients = [1],
+#     #                                     vmax_scaling_function = lambda a : 1)
 
 
-    pn.run_many_times(1,5, -1)
-   # print(pn.transitions['t_b'].label)
-    #print('shape of token_storage:', pn.token_storage.shape)
-    #print('time array:', pn.time_array)
-    #print(pn.token_storage)
-    print(pn.list_of_list_of_tokens_transferred_for_each_transition_per_timestep)
+#     pn.run_many_times(1,5, -1)
+#    # print(pn.transitions['t_b'].label)
+#     #print('shape of token_storage:', pn.token_storage.shape)
+#     #print('time array:', pn.time_array)
+#     #print(pn.token_storage)
+#     print(pn.list_of_list_of_tokens_transferred_for_each_transition_per_timestep)
