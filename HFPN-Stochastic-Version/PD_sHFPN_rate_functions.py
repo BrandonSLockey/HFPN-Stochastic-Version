@@ -22,9 +22,11 @@ r_t_24OHchol_exocyto = lambda a : chol_mp* k_t_24OHchol_exocyto * a["p_24OHchol_
 r_t_SNCA_bind_ApoEchol_extra = lambda a : k_t_SNCA_bind_ApoEchol_extra*a['p_SNCA_act']*a['p_ApoEchol_extra']
 
 def function_for_MDV_delay(get_input_tokens):
-    log = lambda b: (1/chol_mp)*min(60,max((-24.34*np.log(b)+309.126), 20))
+    log = lambda b: (10/chol_mp)*min(60,max((-24.34*np.log(b)+309.126), 20))
     tokens = lambda a: a['p_ROS_mito']
     return log(tokens(get_input_tokens))
+
+
 #PD specific (NEEDS TO BE REVIEWED)
 r_t_SREBP1 = lambda a: 0
 r_t_LB_ER_stress = lambda a: 0
