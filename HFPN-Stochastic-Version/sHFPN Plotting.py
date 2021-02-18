@@ -33,14 +33,14 @@ start_time = datetime.now()
 File1 = '6MSD10healthy'
 File2 = '6MSD10aged'
 File3 = '6MSD10agedCD33'
-test = 'healthytest'
-timestep = 0.001
+test = 'robustnesstest'
+timestep = 0.01
 
-desired_plotting_steps = 100000
-window_size = 10000
+desired_plotting_steps = 1000
+window_size = 10000 #used to find rolling average 
 
 # analysis[File1] = Analysis.load_from_file(File1)
-analysis[File2] = Analysis.load_from_file(File2)
+# analysis[File2] = Analysis.load_from_file(File2)
 # analysis[File3] = Analysis.load_from_file(File3)
 analysis[test] = Analysis.load_from_file(test)
 
@@ -66,7 +66,7 @@ def movingaverage(interval, window_size):
     return np.convolve(interval, window, 'same')
     
 def create_plot(analysis, input_place_list, place_labels, mutation_list, mutation_labels, plot_title):
-    t=np.arange(0,(desired_plotting_steps/1000)+0.001,0.001) #
+    t=np.arange(0,(desired_plotting_steps*timestep)+timestep,timestep) #
 
     fig,ax=plt.subplots()
     linestep = 0.3
@@ -104,7 +104,7 @@ def create_plot(analysis, input_place_list, place_labels, mutation_list, mutatio
         
                 # y_av = movingaverage(y, window_size)
                 # ax.plot(t[window_size:desired_plotting_steps-window_size], y_av[window_size:desired_plotting_steps-window_size], label = 'rolling average', linewidth = line_width- i*linestep, color = "r")
-                ax.plot(timeseries2, y[timeseries], color='green', marker='o', linestyle='dashed')
+                # ax.plot(timeseries2, y[timeseries], color='green', marker='o', linestyle='dashed')
             else:
                 ax.plot(t, data, label = mutation_labels[i]+' - '+place_label, linewidth = line_width- i*linestep, color="black")
     
@@ -114,7 +114,7 @@ def create_plot(analysis, input_place_list, place_labels, mutation_list, mutatio
 ##############################################################################
 ############## OTHER PLOT PARAMETERS YOU WANT#################################
 ##############################################################################
-    # plt.xlim([0,4500]) #x axis range in seconds
+    # plt.xlim([0,1000]) #x axis range in seconds
     # plt.ylim(min(y), max(y))
     
     #DASHED LINES
@@ -332,11 +332,11 @@ start_time = datetime.now()
 
 # In[4]:
 create_plot(analysis, 
-            input_place_list = ['p_Ab_fib'], 
+            input_place_list = ['p_Ab'], 
             place_labels = [""], 
             mutation_list = [test], 
             mutation_labels = [test],
-            plot_title = 'Ab fibrils')
+            plot_title = 'Ab')
 
 execution_time = datetime.now()-start_time
 print('\n\nPlotting Time:', execution_time)
