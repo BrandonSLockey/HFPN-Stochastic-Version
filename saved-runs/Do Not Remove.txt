@@ -1,0 +1,1 @@
+This is to ensure saved-runs empty folder is created to avoid bugs upon fresh installations.
