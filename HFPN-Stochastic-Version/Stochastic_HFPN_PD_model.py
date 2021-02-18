@@ -27,18 +27,33 @@ import tkinter as tk
 from tkinter import ttk
 from functools import partial
 import glob
+from PIL import ImageTk,Image 
+import webbrowser as webbrowser
+from tkinter import font as tkfont
+
 #Import Threading
 import threading
 
+#Make Windows Taskbar Show as MNG Icon
+import ctypes
+myappid = 'sHFPN GUI' # arbitrary string
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
-  
+#Important packages for Graph embedding
+import matplotlib
+matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.figure import Figure
+import matplotlib.animation as animation
+from matplotlib import style
+style.use("ggplot")
 
 class sHFPN_GUI_APP:
     def __init__(self):
         self.root = tk.Tk()
         self.root.iconbitmap(r'mngicon.ico')
         self.root.title("sHFPN GUI")
-        self.root.geometry("700x500")
+        self.root.geometry("800x660")
         self.Left_Sidebar()
         self.root.bind("<Control-l>", lambda x: self.hide())
         self.hidden=0
@@ -52,7 +67,7 @@ class sHFPN_GUI_APP:
         self.lb.pack(side="left", fill=tk.BOTH)
         
         #***Add Different Channels***
-        self.lb.insert(tk.END, "Inputs","Run sHFPN","Analysis", "Saved Runs")
+        self.lb.insert(tk.END, "Inputs","Run sHFPN", "Neuronal Healthbar", "Analysis", "Saved Runs", "About")
      
         
         #*** Make Main Frame that other frames will rest on:
@@ -63,8 +78,11 @@ class sHFPN_GUI_APP:
         
         self.Inputs_Page()
         self.Run_sHFPN_Page()
+        self.Neuronal_HealthBar()
         self.Analysis_page()
         self.show_saved_runs()
+        self.About_Page()
+        
         #***Callback Function to execute if items in Left_Sidebars are selected
         def callback(event):
             selection = event.widget.curselection()
@@ -77,6 +95,9 @@ class sHFPN_GUI_APP:
                 if item_name == "Run sHFPN":
                     self.frame4.tkraise()
                     
+                if item_name == "Neuronal Healthbar":
+                    self.frame8.tkraise()
+                    
                 if item_name == "Analysis":
                     self.frame5.tkraise()
                     
@@ -86,8 +107,12 @@ class sHFPN_GUI_APP:
                     self.show_saved_runs()
                     self.frame6.tkraise()
                     
+                if item_name == "About":
+                    self.frame7.tkraise()
+                    
+                        
         self.lb.bind("<<ListboxSelect>>", callback)
-    
+        
         #***Select item in Listbox and Display Corresponding output in Right_Output
         #self.lb.bind("<<ListboxSelect>>", Lambda x: show)
  
@@ -118,19 +143,128 @@ class sHFPN_GUI_APP:
         #Create another frame inside the canvas2
         self.frame_in_canvas_Analysis = tk.Frame(self.canvas2)
         self.canvas2.create_window((0,0), window=self.frame_in_canvas_Analysis, anchor="nw")   
+    
+    def make_scrollbar_Inputs_Page(self):
+        self.canvas3 = tk.Canvas(self.frame3)
+        self.canvas3.pack(side="left", fill=tk.BOTH, expand=1)
+        
+        self.scrollbar3 = ttk.Scrollbar(self.frame3, orient=tk.VERTICAL, command =self.canvas3.yview)
+        self.scrollbar3.pack(side="left", fill=tk.Y)
+        
+        self.canvas3.configure(yscrollcommand=self.scrollbar3.set)
+        self.canvas3.bind('<Configure>', lambda e: self.canvas3.configure(scrollregion= self.canvas3.bbox("all")))
+        
+        #Create another frame inside the canvas2
+        self.frame_in_canvas_Inputs = tk.Frame(self.canvas3)
+        self.canvas3.create_window((0,0), window=self.frame_in_canvas_Inputs, anchor="nw")  
         
     def Inputs_Page(self):
         self.frame3=tk.Frame(self.frame2)
         #self.frame3.pack(side="left", fill=tk.BOTH,expand=1)
         self.frame3.grid(row=0,column=0,sticky="nsew")
-        self.e = tk.Entry(self.frame3)
-        self.e.pack()
+        self.make_scrollbar_Inputs_Page()
+        
+        #Inputs Labels and Entry Boxes
+        #*Run Save Name*
+        self.Label_run_save_name = tk.Label(self.frame_in_canvas_Inputs, text="Run Save Name")
+        self.Label_run_save_name.grid(row=0,column=0)
+        self.Label_run_save_name_e = tk.Entry(self.frame_in_canvas_Inputs)
+        self.Label_run_save_name_e.grid(row=0,column=1)
+        self.Label_run_save_name_e.insert(tk.END, "sHFPN_Save_Name")
+        #*Number of Timesteps*
+        self.Label_no_timesteps = tk.Label(self.frame_in_canvas_Inputs, text="Number of Timesteps")
+        self.Label_no_timesteps.grid(row=1,column=0)
+        self.Label_no_timesteps_e = tk.Entry(self.frame_in_canvas_Inputs)
+        self.Label_no_timesteps_e.grid(row=1,column=1)
+        self.Label_no_timesteps_e.insert(tk.END, "50000")
+        self.Label_Help_no_timesteps = tk.Label(self.frame_in_canvas_Inputs, text="Only input increments of 1000")
+        self.Label_Help_no_timesteps.grid(row=1, column=2)
+        #*Timestep Size*
+        self.Label_timestep_size = tk.Label(self.frame_in_canvas_Inputs, text="Timestep Size (s)")
+        self.Label_timestep_size.grid(row=2,column=0)
+        self.Label_timestep_size_e = tk.Entry(self.frame_in_canvas_Inputs)
+        self.Label_timestep_size_e.grid(row=2,column=1)
+        self.Label_timestep_size_e.insert(tk.END, "0.001")
+        
+        #*SD Header*
+        self.SD_font = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic")
+        self.Label_Header = tk.Label(self.frame_in_canvas_Inputs, text="Adjust Transition Stochasticity Levels", font=self.SD_font)
+        self.Label_Header.grid(row=3, column=1, pady=20)
+        
+        #*CholSD*
+        self.Label_CholSD = tk.Label(self.frame_in_canvas_Inputs, text="CholSD (0 to 1)")
+        self.Label_CholSD.grid(row=4,column=0)
+        self.Label_CholSD_e = tk.Entry(self.frame_in_canvas_Inputs)
+        self.Label_CholSD_e.grid(row=4,column=1)
+        self.Label_CholSD_e.insert(tk.END, "0.1")       
+        
+        #*Calcium Module SD*
+        self.Label_Calcium = tk.Label(self.frame_in_canvas_Inputs, text="Calcium Module SD (0 to 1)")
+        self.Label_Calcium.grid(row=5,column=0)
+        self.Label_Calcium_e = tk.Entry(self.frame_in_canvas_Inputs)
+        self.Label_Calcium_e.grid(row=5,column=1)
+        self.Label_Calcium_e.insert(tk.END, "0.1")            
+        
+        def save_entry_inputs(self):
+            self.HFPN_run_save_name =self.Label_run_save_name_e.get()
+            self.HFPN_number_of_timesteps = self.Label_no_timesteps_e.get()
+            self.HFPN_timestep_size = self.Label_timestep_size_e.get()
+            self.HFPN_CholSD = self.Label_CholSD_e.get()
+            self.HFPN_CalciumSD = self.Label_Calcium_e.get()
+            print("Inputs Saved")
+            self.button_1.config(state="normal", text="Run sHFPN")
+            self.button_6.config(state=tk.DISABLED)
+            
+        #*Save Inputs Button*
+        self.button_6 = tk.Button(self.frame_in_canvas_Inputs, text = "Save Inputs", cursor="hand2", command=partial(save_entry_inputs, self))    
+        self.button_6.grid(row=10, column=1, pady=20)  
+        self.Label_Save_Inputs_Button_info = tk.Label(self.frame_in_canvas_Inputs, text="Double check your inputs")
+        self.Label_Save_Inputs_Button_info.grid(row=10, column=2)
+            
+    def About_Page(self):
+        self.frame7=tk.Frame(self.frame2)
+        self.frame7.grid(row=0, column=0, sticky="nsew")
+        self.button_4 = tk.Button(self.frame7, text="Link to Website")
+        def Open_Link(url):
+            webbrowser.open_new(url)
+        self.button_4.config(cursor="hand2",command= partial(Open_Link, "https://www.ceb-mng.org/"))
+        self.button_4.pack()
+        self.button_5 = tk.Button(self.frame7, text="Twitter", cursor="hand2", command = partial(Open_Link, "https://twitter.com/mng_ceb"))
+        self.button_5.pack(side="top")
+
+        self.About_Image = ImageTk.PhotoImage(Image.open("AboutPage.png"))
+        self.Image_as_Label = tk.Label(self.frame7, text="TEST")
+        self.Image_as_Label.config(image=self.About_Image)
+        self.Image_as_Label.pack()
+        self.BSL_font = tkfont.Font(family='Helvetica', size=7, slant="italic")
+        self.Label_BSL = tk.Label(self.frame7, text="Please email B.S. Lockey at bsl29@cam.ac.uk for issues.", font=self.BSL_font)
+        self.Label_BSL.pack()
+
+    def Neuronal_HealthBar(self):
+        self.frame8=tk.Frame(self.frame2)
+        self.frame8.grid(row=0, column=0, sticky="nsew")
+        
+        #Label
+        self.Label_Neuronal_Healthbar = tk.Label(self.frame8, text="Under Construction...")
+        self.Label_Neuronal_Healthbar.pack()
+        
+        #Embedded Graphs (PROBABLY HAVE TO APPEND THIS TO SELF LATER, SO CAN BE ACCESSED)
+        f = Figure(figsize=(5,5), dpi=100)
+        a = f.add_subplot(111)
+        a.plot([1,2,3,4,5,6,7,8],[1,2,3,4,5,6,7,8])
+        Neuronal_Healthbar_canvas = FigureCanvasTkAgg(f, self.frame8)
+        Neuronal_Healthbar_canvas.draw()
+        Neuronal_Healthbar_canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)#I can also choose to grid it so its more compact for later, when I want to plot multiple plots. 
+        toolbar = NavigationToolbar2Tk(Neuronal_Healthbar_canvas, self.frame8)
+        toolbar.update()
+        Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         
     def Run_sHFPN_Page(self):
         self.frame4=tk.Frame(self.frame2)
         #self.frame4.pack(side="left", fill=tk.BOTH,expand=1)
         self.frame4.grid(row=0,column=0,sticky="nsew")
-        self.button_1 = tk.Button(self.frame4, text="Run sHFPN", command= threading.Thread(target = partial(self.run_sHFPN)).start)
+        self.button_1 = tk.Button(self.frame4, text="Please Save Inputs", state=tk.DISABLED, command= threading.Thread(target = partial(self.run_sHFPN)).start)
+        self.button_1.config(cursor="hand2")
         self.button_1.pack(side=tk.TOP)
         self.make_scrollbar_sHFPN()
         
@@ -144,9 +278,12 @@ class sHFPN_GUI_APP:
         def save_entry(self):
             "saves run_save_name entry"
             self.run_save_name =self.run_save_name_entry.get()
+            self.button_2.config(state="normal", text="Run Analysis")
             print(self.run_save_name)
+            self.button3.config(state=tk.DISABLED)
             
         self.button3 = tk.Button(self.frame5, text="Enter run_save_name", command = partial(save_entry, self))
+        self.button3.config(cursor="hand2")
         self.button3.pack()
         
 
@@ -175,6 +312,7 @@ class sHFPN_GUI_APP:
             plt.show()
             
         def run_Analysis(self):
+            self.button_2.config(text="Please Wait, Loading...", state=tk.DISABLED)
             run_save_name = self.run_save_name
             analysis = {}
             start_time = datetime.now()
@@ -202,9 +340,12 @@ class sHFPN_GUI_APP:
             tk.Button(self.frame_in_canvas_Analysis, text = "Places").grid(row=0, column=0, pady=10, padx=10)
             
             for index, place_id in enumerate(list_of_place_names):
-                tk.Button(self.frame_in_canvas_Analysis, text=place_id, command=partial(GUI_plot, place_id, analysis, File3)).grid(row=index+1, column=0, pady=10, padx=10)#pass value as an argument to plot    
+                tk.Button(self.frame_in_canvas_Analysis, text=place_id, command=partial(GUI_plot, place_id, analysis, File3)).grid(row=index+1, column=0, pady=10, padx=10)#pass value as an argument to plot  
+            self.button_2.config(text="Restart Session to Run Another Analysis", state=tk.DISABLED)
+           
 
-        self.button_2 = tk.Button(self.frame5, text="Run Analysis", command=threading.Thread(target = partial(run_Analysis,self)).start)
+        self.button_2 = tk.Button(self.frame5, text="Please Enter Save Name", state=tk.DISABLED, command= threading.Thread(target = partial(run_Analysis,self)).start)
+        self.button_2.config(cursor="hand2")
         self.button_2.pack(side=tk.TOP)
         self.make_scrollbar_Analysis()
     
@@ -230,9 +371,20 @@ class sHFPN_GUI_APP:
    
 
     def run_sHFPN(self):
+        
+        #Save Inputs from GUI
+        run_save_name = self.HFPN_run_save_name
+        number_time_steps = int(self.HFPN_number_of_timesteps)
+        time_step_size = float(self.HFPN_timestep_size)
+        cholSD = float(self.HFPN_CholSD)
+        DelaySD = float(self.HFPN_CalciumSD)        
+        
+        #Disable Run HFPN Button
+        self.button_1.config(state=tk.DISABLED)
+        self.button_1.config(text="Running Simulation... Please bear with Lag...")
         # Initialize an empty HFPN
-        pn = HFPN(time_step = time_step_size) #unit = s/A.U.
-    
+        pn = HFPN(time_step = time_step_size) #unit = s/A.U.    
+        
         ## Define places
     
        #  # Cholesterol homeostasis
@@ -311,204 +463,204 @@ class sHFPN_GUI_APP:
         
         # Cholesterol Endocytosis
         pn.add_transition_with_speed_function( #1
-                        transition_id				 = "t_LDLR_endocyto",
-                        label 						 = "LDLR endocyto",
-                        input_place_ids				 = ["p_ApoEchol_extra", "p_chol_ER","p_LB"],
-                        firing_condition			 = fc_t_LDLR_endocyto,
-                        reaction_speed_function		 = r_t_LDLR_endocyto, 
-                        consumption_coefficients	 = [0,0,0],
-                        output_place_ids			 = ["p_ApoEchol_EE"],
-                        production_coefficients		 = [1],
+                        transition_id                 = "t_LDLR_endocyto",
+                        label                          = "LDLR endocyto",
+                        input_place_ids                 = ["p_ApoEchol_extra", "p_chol_ER","p_LB"],
+                        firing_condition             = fc_t_LDLR_endocyto,
+                        reaction_speed_function         = r_t_LDLR_endocyto, 
+                        consumption_coefficients     = [0,0,0],
+                        output_place_ids             = ["p_ApoEchol_EE"],
+                        production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # # Cleavage of cholesteryl esters
         pn.add_transition_with_speed_function( #2
-                        transition_id				 = "t_ApoEchol_cleav",
-                        label 						 = "ApoE-chol cleav",
-                        input_place_ids				 = ["p_ApoEchol_EE"],
-                        firing_condition			 = fc_t_ApoEchol_cleav,
-                        reaction_speed_function		 = r_t_ApoEchol_cleav, 
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_chol_LE"],
-                        production_coefficients		 = [354],
+                        transition_id                 = "t_ApoEchol_cleav",
+                        label                          = "ApoE-chol cleav",
+                        input_place_ids                 = ["p_ApoEchol_EE"],
+                        firing_condition             = fc_t_ApoEchol_cleav,
+                        reaction_speed_function         = r_t_ApoEchol_cleav, 
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_LE"],
+                        production_coefficients         = [354],
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Transport Cholesterol from LE to ER
         pn.add_transition_with_speed_function( #3
-                        transition_id				 = "t_chol_trans_LE_ER",
-                        label 						 = "Chol transport LE-ER",
-                        input_place_ids				 = ["p_chol_LE"],
-                        firing_condition			 = fc_t_chol_trans_LE_ER,
-                        reaction_speed_function		 = r_t_chol_trans_LE_ER,
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_chol_ER"],
-                        production_coefficients		 = [1],
+                        transition_id                 = "t_chol_trans_LE_ER",
+                        label                          = "Chol transport LE-ER",
+                        input_place_ids                 = ["p_chol_LE"],
+                        firing_condition             = fc_t_chol_trans_LE_ER,
+                        reaction_speed_function         = r_t_chol_trans_LE_ER,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_ER"],
+                        production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Transport Cholesterol from LE to mito
         pn.add_transition_with_speed_function( #4
-                        transition_id				 = "t_chol_trans_LE_mito",
-                        label 						 = "Chol transport LE-mito",
-                        input_place_ids				 = ["p_chol_LE"],
-                        firing_condition			 = fc_t_chol_trans_LE_mito,
-                        reaction_speed_function		 = r_t_chol_trans_LE_mito,
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_chol_mito"],
-                        production_coefficients		 = [1],
+                        transition_id                 = "t_chol_trans_LE_mito",
+                        label                          = "Chol transport LE-mito",
+                        input_place_ids                 = ["p_chol_LE"],
+                        firing_condition             = fc_t_chol_trans_LE_mito,
+                        reaction_speed_function         = r_t_chol_trans_LE_mito,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_mito"],
+                        production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Transport Cholesterol from LE to PM
         pn.add_transition_with_speed_function( #5
-                        transition_id				 = "t_chol_trans_LE_PM",
-                        label 						 = "Chol transport LE-PM",
-                        input_place_ids				 = ["p_chol_LE"],
-                        firing_condition			 = fc_t_chol_trans_LE_PM, 
-                        reaction_speed_function		 = r_t_chol_trans_LE_PM,
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_chol_PM"],
-                        production_coefficients		 = [1],
+                        transition_id                 = "t_chol_trans_LE_PM",
+                        label                          = "Chol transport LE-PM",
+                        input_place_ids                 = ["p_chol_LE"],
+                        firing_condition             = fc_t_chol_trans_LE_PM, 
+                        reaction_speed_function         = r_t_chol_trans_LE_PM,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_PM"],
+                        production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Transport Cholesterol from PM to ER
         pn.add_transition_with_speed_function( #6
-                        transition_id				 = "t_chol_trans_PM_ER",
-                        label 						 = "Chol transport PM-ER",
-                        input_place_ids				 = ["p_chol_PM"],
-                        firing_condition			 = fc_t_chol_trans_PM_ER,
-                        reaction_speed_function		 = r_t_chol_trans_PM_ER,
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_chol_ER"],
-                        production_coefficients		 = [1],
+                        transition_id                 = "t_chol_trans_PM_ER",
+                        label                          = "Chol transport PM-ER",
+                        input_place_ids                 = ["p_chol_PM"],
+                        firing_condition             = fc_t_chol_trans_PM_ER,
+                        reaction_speed_function         = r_t_chol_trans_PM_ER,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_ER"],
+                        production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Transport Cholesterol from ER to PM
         pn.add_transition_with_speed_function( #7
-                        transition_id				 = "t_chol_trans_ER_PM",
-                        label 						 = "Chol transport ER-PM",
-                        input_place_ids				 = ["p_chol_ER"],
-                        firing_condition			 = fc_t_chol_trans_ER_PM,
-                        reaction_speed_function		 = r_t_chol_trans_ER_PM,
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_chol_PM"],
-                        production_coefficients		 = [1],
+                        transition_id                 = "t_chol_trans_ER_PM",
+                        label                          = "Chol transport ER-PM",
+                        input_place_ids                 = ["p_chol_ER"],
+                        firing_condition             = fc_t_chol_trans_ER_PM,
+                        reaction_speed_function         = r_t_chol_trans_ER_PM,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_PM"],
+                        production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Transport Cholesterol from ER to mito
         pn.add_transition_with_speed_function( #8
-                        transition_id				 = "t_chol_trans_ER_mito",
-                        label 						 = "Chol transport ER-mito",
-                        input_place_ids				 = ["p_chol_ER"],
-                        firing_condition			 = fc_t_chol_trans_ER_mito,
-                        reaction_speed_function		 = r_t_chol_trans_ER_mito,
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_chol_mito"],
-                        production_coefficients		 = [1],
+                        transition_id                 = "t_chol_trans_ER_mito",
+                        label                          = "Chol transport ER-mito",
+                        input_place_ids                 = ["p_chol_ER"],
+                        firing_condition             = fc_t_chol_trans_ER_mito,
+                        reaction_speed_function         = r_t_chol_trans_ER_mito,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_mito"],
+                        production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Metabolisation of chol by CYP27A1
         pn.add_transition_with_michaelis_menten( #9
-                        transition_id				 = "t_CYP27A1_metab",
-                        label 						 = "Chol metab CYP27A1",
-                        Km							 = Km_t_CYP27A1_metab,
-                        vmax						 = vmax_t_CYP27A1_metab,
-                        input_place_ids				 = ["p_chol_mito"],
-                        substrate_id				 = "p_chol_mito",
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_27OHchol_intra"],
-                        production_coefficients		 = [1],
-                        vmax_scaling_function		 = lambda a : chol_mp,
+                        transition_id                 = "t_CYP27A1_metab",
+                        label                          = "Chol metab CYP27A1",
+                        Km                             = Km_t_CYP27A1_metab,
+                        vmax                         = vmax_t_CYP27A1_metab,
+                        input_place_ids                 = ["p_chol_mito"],
+                        substrate_id                 = "p_chol_mito",
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_27OHchol_intra"],
+                        production_coefficients         = [1],
+                        vmax_scaling_function         = lambda a : chol_mp,
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Metabolism of chol by CYP11A1
         pn.add_transition_with_michaelis_menten( #10
-                        transition_id				 = "t_CYP11A1_metab",
-                        label 						 = "Chol metab CYP11A1",
-                        Km							 = Km_t_CYP11A1_metab,
-                        vmax						 = vmax_t_CYP11A1_metab,
-                        input_place_ids				 = ["p_chol_mito"],
-                        substrate_id				 = "p_chol_mito",
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_preg"],
-                        production_coefficients		 = [1],
-                        vmax_scaling_function		 = lambda a : chol_mp,
+                        transition_id                 = "t_CYP11A1_metab",
+                        label                          = "Chol metab CYP11A1",
+                        Km                             = Km_t_CYP11A1_metab,
+                        vmax                         = vmax_t_CYP11A1_metab,
+                        input_place_ids                 = ["p_chol_mito"],
+                        substrate_id                 = "p_chol_mito",
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_preg"],
+                        production_coefficients         = [1],
+                        vmax_scaling_function         = lambda a : chol_mp,
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Metabolisation of 27OHchol by CYP7B1
         pn.add_transition_with_michaelis_menten( #11
-                        transition_id				 = "t_CYP7B1_metab",
-                        label 						 = "27OHchol metab CYP7B1",
-                        Km							 = Km_t_CYP7B1_metab,
-                        vmax						 = vmax_t_CYP7B1_metab,
-                        input_place_ids				 = ["p_27OHchol_intra"],
-                        substrate_id				 = "p_27OHchol_intra",
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_7HOCA"],
-                        production_coefficients		 = [1],
-                        vmax_scaling_function		 = lambda a : chol_mp,
+                        transition_id                 = "t_CYP7B1_metab",
+                        label                          = "27OHchol metab CYP7B1",
+                        Km                             = Km_t_CYP7B1_metab,
+                        vmax                         = vmax_t_CYP7B1_metab,
+                        input_place_ids                 = ["p_27OHchol_intra"],
+                        substrate_id                 = "p_27OHchol_intra",
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_7HOCA"],
+                        production_coefficients         = [1],
+                        vmax_scaling_function         = lambda a : chol_mp,
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Endocytosis of 27OHchol
         pn.add_transition_with_speed_function( #12
-                        transition_id				 = "t_27OHchol_endocyto",
-                        label 						 = "27OHchol endocyto",
-                        input_place_ids				 = ["p_27OHchol_extra"],
-                        firing_condition			 = fc_t_27OHchol_endocyto,
-                        reaction_speed_function		 = r_t_27OHchol_endocyto,
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_27OHchol_intra", "p_27OHchol_extra"],
-                        production_coefficients		 = [1,1],
+                        transition_id                 = "t_27OHchol_endocyto",
+                        label                          = "27OHchol endocyto",
+                        input_place_ids                 = ["p_27OHchol_extra"],
+                        firing_condition             = fc_t_27OHchol_endocyto,
+                        reaction_speed_function         = r_t_27OHchol_endocyto,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_27OHchol_intra", "p_27OHchol_extra"],
+                        production_coefficients         = [1,1],
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Metabolisation of chol by CYP46A1
         pn.add_transition_with_michaelis_menten( #13
-                        transition_id				 = "t_CYP46A1_metab",
-                        label 						 = "Chol metab CYP46A1",
-                        Km							 = Km_t_CYP46A1_metab,
-                        vmax						 = vmax_t_CYP46A1_metab,
-                        input_place_ids				 = ["p_chol_ER"],
-                        substrate_id				 = "p_chol_ER",
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_24OHchol_intra"],
-                        production_coefficients		 = [1],
-                        vmax_scaling_function		 = lambda a : chol_mp,
+                        transition_id                 = "t_CYP46A1_metab",
+                        label                          = "Chol metab CYP46A1",
+                        Km                             = Km_t_CYP46A1_metab,
+                        vmax                         = vmax_t_CYP46A1_metab,
+                        input_place_ids                 = ["p_chol_ER"],
+                        substrate_id                 = "p_chol_ER",
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_24OHchol_intra"],
+                        production_coefficients         = [1],
+                        vmax_scaling_function         = lambda a : chol_mp,
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Exocytosis of 24OHchol
         pn.add_transition_with_speed_function( #14
-                        transition_id				 = "t_24OHchol_exocyto",
-                        label 						 = "24OHchol exocyto",
-                        input_place_ids				 = ["p_24OHchol_intra"],
-                        firing_condition			 = fc_t_24OHchol_exocyto,
-                        reaction_speed_function		 = r_t_24OHchol_exocyto,
-                        consumption_coefficients	 = [1],
-                        output_place_ids			 = ["p_24OHchol_extra"],
-                        production_coefficients		 = [1],
+                        transition_id                 = "t_24OHchol_exocyto",
+                        label                          = "24OHchol exocyto",
+                        input_place_ids                 = ["p_24OHchol_intra"],
+                        firing_condition             = fc_t_24OHchol_exocyto,
+                        reaction_speed_function         = r_t_24OHchol_exocyto,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_24OHchol_extra"],
+                        production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = collect_rate_analytics)
     
         # Transport of Chol into ECM
         pn.add_transition_with_speed_function( #15
-                        transition_id				 = "t_chol_trans_PM_ECM",
-                        label 						 = "Chol transport PM-ECM",
-                        input_place_ids				 = ["p_chol_PM", "p_24OHchol_intra"],
-                        firing_condition			 = fc_t_chol_trans_PM_ECM,
-                        reaction_speed_function		 = r_t_chol_trans_PM_ECM,
-                        consumption_coefficients	 = [1,0],
-                        output_place_ids			 = [],
-                        production_coefficients		 = [],
+                        transition_id                 = "t_chol_trans_PM_ECM",
+                        label                          = "Chol transport PM-ECM",
+                        input_place_ids                 = ["p_chol_PM", "p_24OHchol_intra"],
+                        firing_condition             = fc_t_chol_trans_PM_ECM,
+                        reaction_speed_function         = r_t_chol_trans_PM_ECM,
+                        consumption_coefficients     = [1,0],
+                        output_place_ids             = [],
+                        production_coefficients         = [],
                         stochastic_parameters = [cholSD],
                         collect_rate_analytics = ["yes", "no"])
     
@@ -948,7 +1100,7 @@ class sHFPN_GUI_APP:
                             consumption_coefficients =[1,0],
                             output_place_ids = ['p_chol_LE'],
                             production_coefficients = [1],
-                            stochastic_parameters = [SD, DelaySD],
+                            stochastic_parameters = [SD, cholSD],
                             collect_rate_analytics = collect_rate_analytics,
                             delay = function_for_MDV_delay) #lambda a: (1/chol_mp)*min(60,max((-24.34*np.log(a['p_ROS_mito'])+309.126)), 20)) #switch: lambda a: 60*(a['p_ROS_mito'] < 80000)+30*(a['p_ROS_mito']>80000)) 
                             
@@ -982,11 +1134,14 @@ class sHFPN_GUI_APP:
         print("Generating Pickle File...")
         print("")
         print("Starting Time is: ", start_time)
+        self.button_1.config(text="Generating Pickle File...")
         Analysis.store_to_file(analysis, run_save_name)
         print("")
         print('Network saved to : "' + run_save_name+'.pkl"')
         execution_time = datetime.now()-start_time
-        print('\n\nPickling Time:', execution_time)            
+        print('\n\nPickling Time:', execution_time) 
+        self.button_1.config(text="Restart Session to Re-run")
+           
                 
                
 
