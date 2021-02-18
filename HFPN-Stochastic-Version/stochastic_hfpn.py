@@ -243,14 +243,15 @@ class ContinuousTransition:
                     current_place_tokens = np.append(current_place_tokens, cs.return_consumption_place_tokens())
                 list_len = len(current_place_tokens)
                 consuming_tokens = np.zeros(list_len)
-                tokens_of_prioritised_element = current_place_tokens[index_min] 
-                standardised_tokens_of_prioritised_element = tokens_of_prioritised_element/self.consumption_coefficients[index_min]
+                tokens_of_prioritised_element = (current_place_tokens[index_min]) -1 # minus 1 is crucial to avoid divide by zero errors,so this empties the prioritised element to 1 token left, instead of 0 tokens left.
+                standardised_tokens_of_prioritised_element = (tokens_of_prioritised_element/self.consumption_coefficients[index_min])
                 for index,coefficient in enumerate(self.consumption_coefficients): #consumption_coefficients list should match to length of consuming_tokens list
                     consuming_tokens[index] = standardised_tokens_of_prioritised_element*coefficient
                 
                 #Now we need to set the tokens to fire for consumption_speeds
                 for cs,token_value in zip(self.consumption_speeds, consuming_tokens):
-                    cs.set_firing_tokens(token_value)
+                    token_value = token_value 
+                    cs.set_firing_tokens(token_value) #
                 
                 #calculate produced tokens from production_coefficients
                 list_len2 = len(self.production_coefficients)
@@ -259,8 +260,8 @@ class ContinuousTransition:
                     producing_tokens[index] = standardised_tokens_of_prioritised_element*coefficient                
                     
                 #Now we need to set the tokens to be produced for production_speeds:
-                for ps, token_value in zip(self.production_speeds, producing_tokens):
-                    ps.set_firing_tokens(token_value)
+                for ps, token_value_prod in zip(self.production_speeds, producing_tokens):
+                    ps.set_firing_tokens(token_value_prod)
                 #Perform Firing
                     
                 for cs in self.consumption_speeds:
@@ -884,6 +885,19 @@ class HFPN:
                         readable_value = value
                     token_buttons_dict[index_str].config(text=str(readable_value))
                     #Button(second_frame, text=str(value)).grid(row=index+1, column=1, pady=10,padx=10)
+            if t == number_time_steps-1:
+                tokens_header_button.config(text="Timestep: " + str(t))
+                for index,value in enumerate(single_run_tokens[t]):
+                    index_str = str(index)
+                    #significant_digits = 4 #for when i implement customization on the GUI to display SFs
+                    if value > 1e6:
+                        #value = round(value,significant_digits- int(math.floor(math.log10(abs(value)))) - 1)
+                        readable_value = "{:.3e}".format(value)
+                    else:
+                        readable_value = value
+                    token_buttons_dict[index_str].config(text=str(readable_value))                
+                    
+                
                 
                 #root.update()
 
