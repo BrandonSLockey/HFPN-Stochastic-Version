@@ -67,7 +67,7 @@ class sHFPN_GUI_APP:
         self.lb.pack(side="left", fill=tk.BOTH)
         
         #***Add Different Channels***
-        self.lb.insert(tk.END, "Inputs","Run sHFPN", "Neuronal Healthbar", "Analysis", "Saved Runs", "About")
+        self.lb.insert(tk.END, "PD Inputs","Run sHFPN", "Neuronal Healthbar", "Analysis", "Saved Runs", "About")
      
         
         #*** Make Main Frame that other frames will rest on:
@@ -76,7 +76,7 @@ class sHFPN_GUI_APP:
         self.frame2.grid_rowconfigure(0, weight=1)
         self.frame2.grid_columnconfigure(0, weight=1)
         
-        self.Inputs_Page()
+        self.PD_Inputs_Page()
         self.Run_sHFPN_Page()
         self.Neuronal_HealthBar()
         self.Analysis_page()
@@ -89,7 +89,7 @@ class sHFPN_GUI_APP:
             if selection:
                 index=selection[0] #selection is a tuple, first item of tuple gives index
                 item_name=event.widget.get(index)
-                if item_name == "Inputs":
+                if item_name == "PD Inputs":
                     self.frame3.tkraise()
     
                 if item_name == "Run sHFPN":
@@ -158,7 +158,7 @@ class sHFPN_GUI_APP:
         self.frame_in_canvas_Inputs = tk.Frame(self.canvas3)
         self.canvas3.create_window((0,0), window=self.frame_in_canvas_Inputs, anchor="nw")  
         
-    def Inputs_Page(self):
+    def PD_Inputs_Page(self):
         self.frame3=tk.Frame(self.frame2)
         #self.frame3.pack(side="left", fill=tk.BOTH,expand=1)
         self.frame3.grid(row=0,column=0,sticky="nsew")
@@ -203,7 +203,54 @@ class sHFPN_GUI_APP:
         self.Label_Calcium.grid(row=5,column=0)
         self.Label_Calcium_e = tk.Entry(self.frame_in_canvas_Inputs)
         self.Label_Calcium_e.grid(row=5,column=1)
-        self.Label_Calcium_e.insert(tk.END, "0.1")            
+        self.Label_Calcium_e.insert(tk.END, "0.1")    
+        
+        #*Mutations Header*
+        self.Mutations_Header = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic") 
+        self.Label_Header_Mutations = tk.Label(self.frame_in_canvas_Inputs, text="Mutations", font=self.Mutations_Header)
+        self.Label_Header_Mutations.grid(row=6, column=1)
+        
+        #*LRRK2 Mutation
+        self.LRRK2_Mutation = tk.Label(self.frame_in_canvas_Inputs, text="LRRK2")
+        self.LRRK2_Mutation.grid(row=7, column=0)
+        self.LRRK2_var = tk.IntVar()
+        self.LRRK2_Mutation_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.LRRK2_var)
+        self.LRRK2_Mutation_checkbox.grid(row=7, column=1)
+        
+        #*GBA1 Mutation
+        self.GBA1_Mutation = tk.Label(self.frame_in_canvas_Inputs, text="GBA1")
+        self.GBA1_Mutation.grid(row=8, column=0)
+        self.GBA1_var = tk.IntVar()
+        self.GBA1_Mutation_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.GBA1_var)
+        self.GBA1_Mutation_checkbox.grid(row=8, column=1)        
+        
+        #*VPS35 Mutation
+        self.VPS35_Mutation = tk.Label(self.frame_in_canvas_Inputs, text="VPS35")
+        self.VPS35_Mutation.grid(row=9, column=0)
+        self.VPS35_mut = tk.IntVar()
+        self.VPS35_Mutation_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.VPS35_mut)
+        self.VPS35_Mutation_checkbox.grid(row=9, column=1)          
+
+        #*DJ1 Mutation
+        self.DJ1_Mutation = tk.Label(self.frame_in_canvas_Inputs, text="DJ1")
+        self.DJ1_Mutation.grid(row=10, column=0)
+        self.DJ1_mut = tk.IntVar()
+        self.DJ1_Mutation_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.DJ1_mut)
+        self.DJ1_Mutation_checkbox.grid(row=10, column=1)   
+        
+        #*Therapeutics Header*
+        self.Therapeutics_Header = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic") 
+        self.Label_Header_Therapeutics = tk.Label(self.frame_in_canvas_Inputs, text="Therapeutics", font=self.Therapeutics_Header)
+        self.Label_Header_Therapeutics.grid(row=11, column=1)
+        
+        #NPT200
+        self.PD_NPT200 = tk.Label(self.frame_in_canvas_Inputs, text="NPT200")
+        self.PD_NPT200.grid(row=12, column=0)
+        self.PD_NPT200_var = tk.IntVar()
+        self.PD_NPT200_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.PD_NPT200_var)
+        self.PD_NPT200_checkbox.grid(row=12, column=1) 
+        
+        
         
         def save_entry_inputs(self):
             self.HFPN_run_save_name =self.Label_run_save_name_e.get()
@@ -217,9 +264,9 @@ class sHFPN_GUI_APP:
             
         #*Save Inputs Button*
         self.button_6 = tk.Button(self.frame_in_canvas_Inputs, text = "Save Inputs", cursor="hand2", command=partial(save_entry_inputs, self))    
-        self.button_6.grid(row=10, column=1, pady=20)  
+        self.button_6.grid(row=20, column=1, pady=20)  
         self.Label_Save_Inputs_Button_info = tk.Label(self.frame_in_canvas_Inputs, text="Double check your inputs")
-        self.Label_Save_Inputs_Button_info.grid(row=10, column=2)
+        self.Label_Save_Inputs_Button_info.grid(row=20, column=2)
             
     def About_Page(self):
         self.frame7=tk.Frame(self.frame2)
@@ -377,7 +424,17 @@ class sHFPN_GUI_APP:
         number_time_steps = int(self.HFPN_number_of_timesteps)
         time_step_size = float(self.HFPN_timestep_size)
         cholSD = float(self.HFPN_CholSD)
-        DelaySD = float(self.HFPN_CalciumSD)        
+        DelaySD = float(self.HFPN_CalciumSD)     
+        #*Get all Mutations*
+        it_p_LRRK2_mut = self.LRRK2_var.get()
+        it_p_GBA1 = self.GBA1_var.get()
+        it_p_VPS35 = self.VPS35_var.get()
+        it_p_DJ1 = self.DJ1_var.get()
+        
+        #*Therapeutics*
+        it_p_NPT200 = self.PD_NPT200_var.get()
+        it_p_DNL151 = self.PD_DNL151_var.get()
+        it_p_LAMP2A = self.PD_LAMP2A_var.get()
         
         #Disable Run HFPN Button
         self.button_1.config(state=tk.DISABLED)
