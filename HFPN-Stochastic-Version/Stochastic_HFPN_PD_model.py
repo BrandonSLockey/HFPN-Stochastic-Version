@@ -73,7 +73,7 @@ class sHFPN_GUI_APP:
         
         #***Add Different Channels***
 
-        self.lb.insert(tk.END, "Inputs","Run sHFPN","Run AD sHFPN", "Neuronal Healthbar", "Analysis", "Saved Runs", "About")
+        self.lb.insert(tk.END, "PD Inputs","Run PD sHFPN","Run AD sHFPN", "Neuronal Healthbar", "Analysis", "Saved Runs", "About")
      
         
         #*** Make Main Frame that other frames will rest on:
@@ -99,7 +99,7 @@ class sHFPN_GUI_APP:
                 if item_name == "PD Inputs":
                     self.frame3.tkraise()
     
-                if item_name == "Run sHFPN":
+                if item_name == "Run PD sHFPN":
                     self.frame4.tkraise()
                     
                 if item_name == "Run AD sHFPN":
@@ -253,15 +253,15 @@ class sHFPN_GUI_APP:
         #*VPS35 Mutation
         self.VPS35_Mutation = tk.Label(self.frame_in_canvas_Inputs, text="VPS35")
         self.VPS35_Mutation.grid(row=9, column=0)
-        self.VPS35_mut = tk.IntVar()
-        self.VPS35_Mutation_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.VPS35_mut)
+        self.VPS35_var = tk.IntVar()
+        self.VPS35_Mutation_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.VPS35_var)
         self.VPS35_Mutation_checkbox.grid(row=9, column=1)          
 
         #*DJ1 Mutation
         self.DJ1_Mutation = tk.Label(self.frame_in_canvas_Inputs, text="DJ1")
         self.DJ1_Mutation.grid(row=10, column=0)
-        self.DJ1_mut = tk.IntVar()
-        self.DJ1_Mutation_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.DJ1_mut)
+        self.DJ1_var = tk.IntVar()
+        self.DJ1_Mutation_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.DJ1_var)
         self.DJ1_Mutation_checkbox.grid(row=10, column=1)   
         
         #*Therapeutics Header*
@@ -276,7 +276,19 @@ class sHFPN_GUI_APP:
         self.PD_NPT200_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.PD_NPT200_var)
         self.PD_NPT200_checkbox.grid(row=12, column=1) 
         
-        
+        #DNL151
+        self.PD_DNL151 = tk.Label(self.frame_in_canvas_Inputs, text="DNL151")
+        self.PD_DNL151.grid(row=13, column=0)
+        self.PD_DNL151_var = tk.IntVar()
+        self.PD_DNL151_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.PD_DNL151_var)
+        self.PD_DNL151_checkbox.grid(row=13, column=1)        
+    
+        #LAMP2A
+        self.PD_LAMP2A = tk.Label(self.frame_in_canvas_Inputs, text="LAMP2A")
+        self.PD_LAMP2A.grid(row=14, column=0)
+        self.PD_LAMP2A_var = tk.IntVar()
+        self.PD_LAMP2A_checkbox = tk.Checkbutton(self.frame_in_canvas_Inputs, variable=self.PD_LAMP2A_var)
+        self.PD_LAMP2A_checkbox.grid(row=14, column=1)  
         
         def save_entry_inputs(self):
             self.HFPN_run_save_name =self.Label_run_save_name_e.get()
