@@ -79,7 +79,7 @@ class ConsumptionSpeed: # The new input arc
     #BSL:
     def calculate_firing_tokens(self, time_step, stochastic_multiplier):
         self.firing_tokens = self.consumption_function(self.get_input_place_tokens()) * time_step*stochastic_multiplier
-        if self.firing_tokens > self.consumption_place.tokens:
+        if self.firing_tokens-1 > self.consumption_place.tokens: #we set -1 here, because this increases the WIP BROKEN
             self.flag =+ 1
     #BSL:
     def set_firing_tokens(self, token_value):
@@ -243,7 +243,7 @@ class ContinuousTransition:
                     current_place_tokens = np.append(current_place_tokens, cs.return_consumption_place_tokens())
                 list_len = len(current_place_tokens)
                 consuming_tokens = np.zeros(list_len)
-                tokens_of_prioritised_element = (current_place_tokens[index_min]) -1 # minus 1 is crucial to avoid divide by zero errors,so this empties the prioritised element to 1 token left, instead of 0 tokens left.
+                tokens_of_prioritised_element = (current_place_tokens[index_min]) -1 # minus 1 is crucial to avoid divide by zero errors,so this empties the prioritised element to 1 token left, instead of 0 tokens left. #BROKEN
                 standardised_tokens_of_prioritised_element = (tokens_of_prioritised_element/self.consumption_coefficients[index_min])
                 for index,coefficient in enumerate(self.consumption_coefficients): #consumption_coefficients list should match to length of consuming_tokens list
                     consuming_tokens[index] = standardised_tokens_of_prioritised_element*coefficient

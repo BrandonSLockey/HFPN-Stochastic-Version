@@ -36,8 +36,8 @@ import threading
 
 #Make Windows Taskbar Show as MNG Icon
 import ctypes
-myappid = 'sHFPN GUI' # arbitrary string
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+# myappid = 'sHFPN GUI' # arbitrary string
+# ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 #Important packages for Graph embedding
 import matplotlib
@@ -67,7 +67,7 @@ class sHFPN_GUI_APP:
         self.lb.pack(side="left", fill=tk.BOTH)
         
         #***Add Different Channels***
-        self.lb.insert(tk.END, "Inputs","Run sHFPN", "Neuronal Healthbar", "Analysis", "Saved Runs", "About")
+        self.lb.insert(tk.END, "Inputs", "Run PD sHFPN", "Neuronal Healthbar", "Analysis", "Saved Runs", "About")
      
         
         #*** Make Main Frame that other frames will rest on:
@@ -91,8 +91,11 @@ class sHFPN_GUI_APP:
                 item_name=event.widget.get(index)
                 if item_name == "Inputs":
                     self.frame3.tkraise()
+                    
+                if item_name == "Run AD sHFPN":
+                    self.frame4.tkraise()
     
-                if item_name == "Run sHFPN":
+                if item_name == "Run PD sHFPN":
                     self.frame4.tkraise()
                     
                 if item_name == "Neuronal Healthbar":
@@ -233,7 +236,7 @@ class sHFPN_GUI_APP:
         self.button_5.pack(side="top")
 
         self.About_Image = ImageTk.PhotoImage(Image.open("AboutPage.png"))
-        self.Image_as_Label = tk.Label(self.frame7, text="TEST")
+        self.Image_as_Label = tk.Label(self.frame7)
         self.Image_as_Label.config(image=self.About_Image)
         self.Image_as_Label.pack()
         self.BSL_font = tkfont.Font(family='Helvetica', size=7, slant="italic")
@@ -258,6 +261,7 @@ class sHFPN_GUI_APP:
         toolbar = NavigationToolbar2Tk(Neuronal_Healthbar_canvas, self.frame8)
         toolbar.update()
         Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
         
     def Run_sHFPN_Page(self):
         self.frame4=tk.Frame(self.frame2)

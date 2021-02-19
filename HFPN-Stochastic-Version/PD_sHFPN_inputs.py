@@ -1,6 +1,6 @@
 #MUTATIONS (BINARY)
 it_p_GBA1 = 0
-it_p_LRRK2_mut = 1
+it_p_LRRK2_mut = 0
 it_p_VPS35 = 0
 it_p_DJ1 = 0
 
@@ -25,7 +25,7 @@ time_step_size = 0.005
 
 cholSD = 0.1 # cholesterol module
 SD = 0.1
-DelaySD = 0.1
+DelaySD = 0.1 #calcium clock and MDVs
 
 collect_rate_analytics = ["yes","yes"] #first element consumption rate analytics, second element production rate analytics. i.e. ["no", "yes"], means don't collect consumption rate, but collect production rate analytics.
 dont_collect = ["no","no"]
