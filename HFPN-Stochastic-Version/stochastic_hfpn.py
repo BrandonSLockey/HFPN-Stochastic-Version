@@ -856,13 +856,14 @@ class HFPN:
             if self.Pause_value == "off":
                 Pause_button.config(text="Paused!", bg="red")
                 self.Pause_value = "on"
+                
             else:
                 Pause_button.config(text="Pause", bg="green")
                 self.Pause_value = "off"
                 print("Unpaused!")
         
         
-        Pause_button = tk.Button(frame_in_canvas, text="Pause", command = pause, bg="green", cursor="hand2")
+        Pause_button = tk.Button(frame_in_canvas, text="Pause", command = partial(pause), bg="green", cursor="hand2")
         Pause_button.grid(row=0, column=3)
     
        
@@ -889,20 +890,12 @@ class HFPN:
                 #print(df_for_rate_analytics)
         # ***** GUI WIP ***** ===================
             if t % 1000==0:
-                #Check if Paused:
-                while self.Pause_value == "on":
-                    print("Pausing")
+                #Check if Paused:            
+                while self.Pause_value == "on":#IDK why, when GUI runs this line of code keeps running.
                     time.sleep(1)                 
         
-        
-            if t % 10000 ==0:
-                
-
-                    
-
-
-                
-                
+        #Update GUI every 10k steps.
+            if t % 1000 ==0:
                 tokens_header_button.config(text="Timestep: " + str(t))
                 for index,value in enumerate(single_run_tokens[t]):
                     index_str = str(index)
@@ -1012,6 +1005,11 @@ class HFPN:
 
         # Store mean number of firings for each transition across all runs
         self.mean_firings = np.mean(self.firings_storage, axis = 0)
+        
+        #store the number of timesteps used 
+        self.the_number_of_timesteps = number_time_steps
+        
+        
 
         
     def reset_network(self):

@@ -21,11 +21,11 @@ from PD_sHFPN_rate_functions import *
 from PD_sHFPN_firing_conditions import *
 from PD_sHFPN_inputs import *
 from visualisation import Analysis
-from AD_parameters import *
-from AD_rate_functions import *
-from AD_initial_tokens import *
-from AD_firing_conditions import *
-from AD_sHFPN_inputs import *
+# from AD_parameters import *
+# from AD_rate_functions import *
+# from AD_initial_tokens import *
+# from AD_firing_conditions import *
+# from AD_sHFPN_inputs import *
 
 #Import GUI
 import tkinter as tk
@@ -196,27 +196,27 @@ class sHFPN_GUI_APP:
         
         #Inputs Labels and Entry Boxes
         #*Run Save Name*
-        self.Label_run_save_name = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Run Save Name")
-        self.Label_run_save_name.grid(row=0,column=0)
-        self.Label_run_save_name_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
-        self.Label_run_save_name_e.grid(row=0,column=1)
-        self.Label_run_save_name_e.insert(tk.END, "sHFPN_Save_Name")
+        self.AD_Label_run_save_name = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Run Save Name")
+        self.AD_Label_run_save_name.grid(row=0,column=0)
+        self.AD_Label_run_save_name_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
+        self.AD_Label_run_save_name_e.grid(row=0,column=1)
+        self.AD_Label_run_save_name_e.insert(tk.END, "sHFPN_Save_Name")
         #*Number of Timesteps*
-        self.Label_no_timesteps = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Number of Timesteps")
-        self.Label_no_timesteps.grid(row=1,column=0)
-        self.Label_no_timesteps_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
-        self.Label_no_timesteps_e.grid(row=1,column=1)
+        self.AD_Label_no_timesteps = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Number of Timesteps")
+        self.AD_Label_no_timesteps.grid(row=1,column=0)
+        self.AD_Label_no_timesteps_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
+        self.AD_Label_no_timesteps_e.grid(row=1,column=1)
 
-        self.Label_no_timesteps_e.insert(tk.END, "100")
-        self.Label_Help_no_timesteps = tk.Label(self.frame_in_canvas_Inputs, text="Only input increments of 1000")
+        self.AD_Label_no_timesteps_e.insert(tk.END, "100")
+        self.AD_Label_Help_no_timesteps = tk.Label(self.frame_in_canvas_Inputs, text="Only input increments of 1000")
 
-        self.Label_Help_no_timesteps.grid(row=1, column=2)
+        self.AD_Label_Help_no_timesteps.grid(row=1, column=2)
         #*Timestep Size*
-        self.Label_timestep_size = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Timestep Size (s)")
-        self.Label_timestep_size.grid(row=2,column=0)
-        self.Label_timestep_size_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
-        self.Label_timestep_size_e.grid(row=2,column=1)
-        self.Label_timestep_size_e.insert(tk.END, "0.001")
+        self.AD_Label_timestep_size = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Timestep Size (s)")
+        self.AD_Label_timestep_size.grid(row=2,column=0)
+        self.AD_Label_timestep_size_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
+        self.AD_Label_timestep_size_e.grid(row=2,column=1)
+        self.AD_Label_timestep_size_e.insert(tk.END, "0.001")
         
         #*SD Header*
         self.SD_font = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic")
@@ -224,18 +224,18 @@ class sHFPN_GUI_APP:
         self.Label_Header.grid(row=3, column=1, pady=20)
         
         #*CholSD*
-        self.Label_CholSD = tk.Label(self.AD_frame3_in_canvas_Inputs, text="CholSD (0 to 1)")
-        self.Label_CholSD.grid(row=4,column=0)
-        self.Label_CholSD_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
-        self.Label_CholSD_e.grid(row=4,column=1)
-        self.Label_CholSD_e.insert(tk.END, "0.1")       
+        self.AD_Label_CholSD = tk.Label(self.AD_frame3_in_canvas_Inputs, text="CholSD (0 to 1)")
+        self.AD_Label_CholSD.grid(row=4,column=0)
+        self.AD_Label_CholSD_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
+        self.AD_Label_CholSD_e.grid(row=4,column=1)
+        self.AD_Label_CholSD_e.insert(tk.END, "0.1")       
         
         #*Calcium Module SD*
-        self.Label_Calcium = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Calcium Module SD (0 to 1)")
-        self.Label_Calcium.grid(row=5,column=0)
-        self.Label_Calcium_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
-        self.Label_Calcium_e.grid(row=5,column=1)
-        self.Label_Calcium_e.insert(tk.END, "0.1")    
+        self.AD_Label_Calcium = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Calcium Module SD (0 to 1)")
+        self.AD_Label_Calcium.grid(row=5,column=0)
+        self.AD_Label_Calcium_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
+        self.AD_Label_Calcium_e.grid(row=5,column=1)
+        self.AD_Label_Calcium_e.insert(tk.END, "0.1")    
         
         #*Mutations Header*
         self.Mutations_Header = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic") 
@@ -243,44 +243,44 @@ class sHFPN_GUI_APP:
         self.Label_Header_Mutations.grid(row=6, column=1)
         
         #*ApoE4 Mutation
-        self.ApoE4_Mutation = tk.Label(self.AD_frame3_in_canvas_Inputs, text="ApoE4")
-        self.ApoE4_Mutation.grid(row=7, column=0)
-        self.ApoE4_var = tk.IntVar()
-        self.ApoE4_Mutation_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.ApoE4_var)
-        self.ApoE4_Mutation_checkbox.grid(row=7, column=1)
+        self.AD_ApoE4_Mutation = tk.Label(self.AD_frame3_in_canvas_Inputs, text="ApoE4")
+        self.AD_ApoE4_Mutation.grid(row=7, column=0)
+        self.AD_ApoE4_var = tk.IntVar()
+        self.AD_ApoE4_Mutation_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.AD_ApoE4_var)
+        self.AD_ApoE4_Mutation_checkbox.grid(row=7, column=1)
 
         #CD33 mutation
-        self.CD33_Mutation = tk.Label(self.AD_frame3_in_canvas_Inputs, text="CD33")
-        self.CD33_Mutation.grid(row=8, column=0)
-        self.CD33_var = tk.IntVar()
-        self.CD33_Mutation_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.CD33_var)
-        self.CD33_Mutation_checkbox.grid(row=8, column=1)
+        self.AD_CD33_Mutation = tk.Label(self.AD_frame3_in_canvas_Inputs, text="CD33")
+        self.AD_CD33_Mutation.grid(row=8, column=0)
+        self.AD_CD33_var = tk.IntVar()
+        self.AD_CD33_Mutation_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.AD_CD33_var)
+        self.AD_CD33_Mutation_checkbox.grid(row=8, column=1)
             
          #Aged 
-        self.Aged_risk = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Aged")
-        self.Aged_risk.grid(row=9, column=0)
-        self.Aged_var = tk.IntVar()
-        self.Aged_risk_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.Aged_var)
-        self.Aged_risk_checkbox.grid(row=9, column=1)
+        self.AD_Aged_risk = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Aged")
+        self.AD_Aged_risk.grid(row=9, column=0)
+        self.AD_Aged_var = tk.IntVar()
+        self.AD_Aged_risk_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.AD_Aged_var)
+        self.AD_Aged_risk_checkbox.grid(row=9, column=1)
                        
         
         
-        def save_entry_inputs(self):
-            self.HFPN_run_save_name =self.Label_run_save_name_e.get()
-            self.HFPN_number_of_timesteps = self.Label_no_timesteps_e.get()
-            self.HFPN_timestep_size = self.Label_timestep_size_e.get()
-            self.HFPN_CholSD = self.Label_CholSD_e.get()
-            self.HFPN_CalciumSD = self.Label_Calcium_e.get()
+        def AD_save_entry_inputs(self):
+            self.AD_HFPN_run_save_name =self.AD_Label_run_save_name_e.get()
+            self.AD_HFPN_number_of_timesteps = self.AD_Label_no_timesteps_e.get()
+            self.AD_HFPN_timestep_size = self.AD_Label_timestep_size_e.get()
+            self.AD_HFPN_CholSD = self.AD_Label_CholSD_e.get()
+            self.AD_HFPN_CalciumSD = self.AD_Label_Calcium_e.get()
             print("Inputs Saved")
-            self.button_1.config(state="normal", text="Run sHFPN")
+            self.AD_button_1.config(state="normal", text="Run sHFPN")
             self.AD_button_1.config(state="normal", text="Run AD sHFPN")            
-            self.button_6.config(state=tk.DISABLED)
+            self.AD_button_6.config(state=tk.DISABLED)
             
         #*Save Inputs Button*
-        self.button_6 = tk.Button(self.AD_frame3_in_canvas_Inputs, text = "Save Inputs", cursor="hand2", command=partial(save_entry_inputs, self))    
-        self.button_6.grid(row=20, column=1, pady=20)  
-        self.Label_Save_Inputs_Button_info = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Double check your inputs")
-        self.Label_Save_Inputs_Button_info.grid(row=20, column=2)        
+        self.AD_button_6 = tk.Button(self.AD_frame3_in_canvas_Inputs, text = "Save Inputs", cursor="hand2", command=partial(AD_save_entry_inputs, self))    
+        self.AD_button_6.grid(row=20, column=1, pady=20)  
+        self.AD_Label_Save_Inputs_Button_info = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Double check your inputs")
+        self.AD_Label_Save_Inputs_Button_info.grid(row=20, column=2)        
         
     def make_scrollbar_Inputs_Page(self):
         self.canvas3 = tk.Canvas(self.frame3)
@@ -410,7 +410,6 @@ class sHFPN_GUI_APP:
             self.HFPN_CalciumSD = self.Label_Calcium_e.get()
             print("Inputs Saved")
             self.button_1.config(state="normal", text="Run sHFPN")
-            self.AD_button_1.config(state="normal", text="Run AD sHFPN")            
             self.button_6.config(state=tk.DISABLED)
             
         #*Save Inputs Button*
@@ -496,11 +495,15 @@ class sHFPN_GUI_APP:
 
             
         
-        def GUI_plot(place_id, analysis, File):
+        def GUI_plot(place_id, analysis, File, simulation_time_step, desired_plotting_steps):
             token_storage = analysis[File].token_storage        
             place_label =""
             plot_title = place_id
             t=np.arange(0,(desired_plotting_steps/(1/simulation_time_step))+simulation_time_step,simulation_time_step) #
+          
+            #truncate t by 1
+            
+            
           
             fig,ax=plt.subplots()
             linestep = 0.3
@@ -509,6 +512,7 @@ class sHFPN_GUI_APP:
             data = analysis[File].mean_token_history_for_places([place_id])[0:desired_plotting_steps+1] 
             #print(data[1600000]) #units in time_step
             #print(data[1800000])
+        
             if place_label == "":
                 ax.plot(t, data, label = File,  color="black")
             else:
@@ -524,13 +528,12 @@ class sHFPN_GUI_APP:
             analysis = {}
             start_time = datetime.now()
             
+            
+            
             #File1 = '200k_sHFPN_Healthy_SD_01_DelaySD_01_run3_V3_TRANSITION'
             #File2 = '6e6_sHFPN_Healthy_SD_0_DelaySD_02'
             File3 = run_save_name
-            global desired_plotting_steps
-            desired_plotting_steps = number_time_steps
-            global simulation_time_step
-            simulation_time_step = time_step_size
+
             
             #analysis[File1] = Analysis.load_from_file(File1)
             #analysis[File2] = Analysis.load_from_file(File2)
@@ -540,6 +543,9 @@ class sHFPN_GUI_APP:
             print('\n\nLoad-in Time:', execution_time)
             print("")    
             
+            simulation_time_step=analysis[File3].time_step
+            desired_plotting_steps=analysis[File3].number_of_timesteps_analysis
+            
             list_of_place_names = []
             for place in analysis[File3].place_ids:
                 list_of_place_names.append(place)
@@ -547,7 +553,7 @@ class sHFPN_GUI_APP:
             tk.Button(self.frame_in_canvas_Analysis, text = "Places").grid(row=0, column=0, pady=10, padx=10)
             
             for index, place_id in enumerate(list_of_place_names):
-                tk.Button(self.frame_in_canvas_Analysis, text=place_id, command=partial(GUI_plot, place_id, analysis, File3)).grid(row=index+1, column=0, pady=10, padx=10)#pass value as an argument to plot  
+                tk.Button(self.frame_in_canvas_Analysis, text=place_id, command=partial(GUI_plot, place_id, analysis, File3, simulation_time_step, desired_plotting_steps)).grid(row=index+1, column=0, pady=10, padx=10)#pass value as an argument to plot  
             self.button_2.config(text="Restart Session to Run Another Analysis", state=tk.DISABLED)
            
 
