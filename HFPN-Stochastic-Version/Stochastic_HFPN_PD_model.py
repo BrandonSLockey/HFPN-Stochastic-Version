@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
+from sys import platform
+
 
 cwd = os.getcwd() # Get current working directory
 root_folder = os.sep + "HFPN-Stochastic-Version"
@@ -42,7 +44,8 @@ import threading
 #Make Windows Taskbar Show as MNG Icon
 import ctypes
 myappid = 'sHFPN GUI' # arbitrary string
-# ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+if platform == 'win32':
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 #Important packages for Graph embedding
 import matplotlib
@@ -56,7 +59,11 @@ style.use("ggplot")
 class sHFPN_GUI_APP:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.iconbitmap(r'mngicon.ico')
+        if platform == 'darwin':
+            img = tk.Image("photo", file="mng.png")
+            self.root.iconphoto(True, img)
+        if platform == 'win32':
+            self.root.iconbitmap(r'mngicon.ico')
         self.root.title("sHFPN GUI")
         self.root.geometry("800x660")
         self.Left_Sidebar()
@@ -568,9 +575,14 @@ class sHFPN_GUI_APP:
         self.frame6.grid(row=0,column=0,sticky="nsew")
         self.lbx = tk.Listbox(self.frame6)
         self.lbx.pack(fill=tk.BOTH, expand=1)
-        for file in glob.glob("..\saved-runs\*"):
-            self.lbx.insert(tk.END, file)    
-    
+        
+        if platform == 'darwin':
+            for file in glob.glob("../saved-runs/*"):
+                self.lbx.insert(tk.END, file)  
+        if platform == 'win32':
+            for file in glob.glob("..\saved-runs\*"):
+                self.lbx.insert(tk.END, file) 
+                
     def hide(self):
         if self.hidden == 0:
             self.frame1.destroy()
@@ -1375,7 +1387,10 @@ class sHFPN_GUI_APP:
         number_time_steps = int(self.HFPN_number_of_timesteps)
         time_step_size = float(self.HFPN_timestep_size)
         cholSD = float(self.HFPN_CholSD)
-        DelaySD = float(self.HFPN_CalciumSD)        
+        DelaySD = float(self.HFPN_CalciumSD) 
+        it_p_ApoE = self.ApoE4_var.get()
+        it_p_CD33 = self.CD33_var.get()
+        it_p_age = self.Aged_risk_var.get()
         
         #Disable Run HFPN Button
         self.AD_button_1.config(state=tk.DISABLED)
