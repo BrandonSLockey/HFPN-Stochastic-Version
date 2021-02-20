@@ -237,8 +237,31 @@ class sHFPN_GUI_APP:
         
         #*Mutations Header*
         self.Mutations_Header = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic") 
-        self.Label_Header_Mutations = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Mutations", font=self.Mutations_Header)
+        self.Label_Header_Mutations = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Mutations and Risk Factors", font=self.Mutations_Header)
         self.Label_Header_Mutations.grid(row=6, column=1)
+        
+        #*ApoE4 Mutation
+        self.ApoE4_Mutation = tk.Label(self.AD_frame3_in_canvas_Inputs, text="ApoE4")
+        self.ApoE4_Mutation.grid(row=7, column=0)
+        self.ApoE4_var = tk.IntVar()
+        self.ApoE4_Mutation_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.ApoE4_var)
+        self.ApoE4_Mutation_checkbox.grid(row=7, column=1)
+
+        #CD33 mutation
+        self.CD33_Mutation = tk.Label(self.AD_frame3_in_canvas_Inputs, text="CD33")
+        self.CD33_Mutation.grid(row=8, column=0)
+        self.CD33_var = tk.IntVar()
+        self.CD33_Mutation_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.CD33_var)
+        self.CD33_Mutation_checkbox.grid(row=8, column=1)
+            
+         #Aged 
+        self.Aged_risk = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Aged")
+        self.Aged_risk.grid(row=9, column=0)
+        self.Aged_var = tk.IntVar()
+        self.Aged_risk_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.Aged_var)
+        self.Aged_risk_checkbox.grid(row=9, column=1)
+                       
+        
         
         def save_entry_inputs(self):
             self.HFPN_run_save_name =self.Label_run_save_name_e.get()
