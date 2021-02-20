@@ -175,18 +175,18 @@ class sHFPN_GUI_APP:
         self.canvas2.create_window((0,0), window=self.frame_in_canvas_Analysis, anchor="nw")   
     
     def AD_make_scrollbar_Inputs_Page(self):
-        self.AD_canvas3 = tk.Canvas(self.frame3)
+        self.AD_canvas3 = tk.Canvas(self.AD_frame3)
         self.AD_canvas3.pack(side="left", fill=tk.BOTH, expand=1)
         
-        self.AD_scrollbar3 = ttk.Scrollbar(self.frame3, orient=tk.VERTICAL, command =self.AD_canvas3.yview)
+        self.AD_scrollbar3 = ttk.Scrollbar(self.AD_frame3, orient=tk.VERTICAL, command =self.AD_canvas3.yview)
         self.AD_scrollbar3.pack(side="left", fill=tk.Y)
         
         self.AD_canvas3.configure(yscrollcommand=self.AD_scrollbar3.set)
         self.AD_canvas3.bind('<Configure>', lambda e: self.AD_canvas3.configure(scrollregion= self.AD_canvas3.bbox("all")))
         
-        #Create another frame inside the canvas2
-        self.AD_frame_in_canvas_Inputs = tk.Frame(self.AD_canvas3)
-        self.AD_canvas3.create_window((0,0), window=self.AD_frame_in_canvas_Inputs, anchor="nw")  
+        #Create another frame inside the canvas
+        self.AD_frame3_in_canvas_Inputs = tk.Frame(self.AD_canvas3)
+        self.AD_canvas3.create_window((0,0), window=self.AD_frame3_in_canvas_Inputs, anchor="nw")  
  
     def AD_Inputs_Page(self):
         self.AD_frame3=tk.Frame(self.frame2)
@@ -196,49 +196,74 @@ class sHFPN_GUI_APP:
         
         #Inputs Labels and Entry Boxes
         #*Run Save Name*
-        self.Label_run_save_name = tk.Label(self.AD_frame_in_canvas_Inputs, text="Run Save Name")
+        self.Label_run_save_name = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Run Save Name")
         self.Label_run_save_name.grid(row=0,column=0)
-        self.Label_run_save_name_e = tk.Entry(self.AD_frame_in_canvas_Inputs)
+        self.Label_run_save_name_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
         self.Label_run_save_name_e.grid(row=0,column=1)
         self.Label_run_save_name_e.insert(tk.END, "sHFPN_Save_Name")
         #*Number of Timesteps*
-        self.Label_no_timesteps = tk.Label(self.frame_in_canvas_Inputs, text="Number of Timesteps")
+        self.Label_no_timesteps = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Number of Timesteps")
         self.Label_no_timesteps.grid(row=1,column=0)
-        self.Label_no_timesteps_e = tk.Entry(self.frame_in_canvas_Inputs)
+        self.Label_no_timesteps_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
         self.Label_no_timesteps_e.grid(row=1,column=1)
+
         self.Label_no_timesteps_e.insert(tk.END, "100")
         self.Label_Help_no_timesteps = tk.Label(self.frame_in_canvas_Inputs, text="Only input increments of 1000")
+
         self.Label_Help_no_timesteps.grid(row=1, column=2)
         #*Timestep Size*
-        self.Label_timestep_size = tk.Label(self.frame_in_canvas_Inputs, text="Timestep Size (s)")
+        self.Label_timestep_size = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Timestep Size (s)")
         self.Label_timestep_size.grid(row=2,column=0)
-        self.Label_timestep_size_e = tk.Entry(self.frame_in_canvas_Inputs)
+        self.Label_timestep_size_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
         self.Label_timestep_size_e.grid(row=2,column=1)
         self.Label_timestep_size_e.insert(tk.END, "0.001")
         
         #*SD Header*
         self.SD_font = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic")
-        self.Label_Header = tk.Label(self.frame_in_canvas_Inputs, text="Adjust Transition Stochasticity Levels", font=self.SD_font)
+        self.Label_Header = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Adjust Transition Stochasticity Levels", font=self.SD_font)
         self.Label_Header.grid(row=3, column=1, pady=20)
         
         #*CholSD*
-        self.Label_CholSD = tk.Label(self.frame_in_canvas_Inputs, text="CholSD (0 to 1)")
+        self.Label_CholSD = tk.Label(self.AD_frame3_in_canvas_Inputs, text="CholSD (0 to 1)")
         self.Label_CholSD.grid(row=4,column=0)
-        self.Label_CholSD_e = tk.Entry(self.frame_in_canvas_Inputs)
+        self.Label_CholSD_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
         self.Label_CholSD_e.grid(row=4,column=1)
         self.Label_CholSD_e.insert(tk.END, "0.1")       
         
         #*Calcium Module SD*
-        self.Label_Calcium = tk.Label(self.frame_in_canvas_Inputs, text="Calcium Module SD (0 to 1)")
+        self.Label_Calcium = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Calcium Module SD (0 to 1)")
         self.Label_Calcium.grid(row=5,column=0)
-        self.Label_Calcium_e = tk.Entry(self.frame_in_canvas_Inputs)
+        self.Label_Calcium_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
         self.Label_Calcium_e.grid(row=5,column=1)
         self.Label_Calcium_e.insert(tk.END, "0.1")    
         
         #*Mutations Header*
         self.Mutations_Header = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic") 
-        self.Label_Header_Mutations = tk.Label(self.frame_in_canvas_Inputs, text="Mutations", font=self.Mutations_Header)
+        self.Label_Header_Mutations = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Mutations and Risk Factors", font=self.Mutations_Header)
         self.Label_Header_Mutations.grid(row=6, column=1)
+        
+        #*ApoE4 Mutation
+        self.ApoE4_Mutation = tk.Label(self.AD_frame3_in_canvas_Inputs, text="ApoE4")
+        self.ApoE4_Mutation.grid(row=7, column=0)
+        self.ApoE4_var = tk.IntVar()
+        self.ApoE4_Mutation_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.ApoE4_var)
+        self.ApoE4_Mutation_checkbox.grid(row=7, column=1)
+
+        #CD33 mutation
+        self.CD33_Mutation = tk.Label(self.AD_frame3_in_canvas_Inputs, text="CD33")
+        self.CD33_Mutation.grid(row=8, column=0)
+        self.CD33_var = tk.IntVar()
+        self.CD33_Mutation_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.CD33_var)
+        self.CD33_Mutation_checkbox.grid(row=8, column=1)
+            
+         #Aged 
+        self.Aged_risk = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Aged")
+        self.Aged_risk.grid(row=9, column=0)
+        self.Aged_var = tk.IntVar()
+        self.Aged_risk_checkbox = tk.Checkbutton(self.AD_frame3_in_canvas_Inputs, variable=self.Aged_var)
+        self.Aged_risk_checkbox.grid(row=9, column=1)
+                       
+        
         
         def save_entry_inputs(self):
             self.HFPN_run_save_name =self.Label_run_save_name_e.get()
@@ -252,9 +277,9 @@ class sHFPN_GUI_APP:
             self.button_6.config(state=tk.DISABLED)
             
         #*Save Inputs Button*
-        self.button_6 = tk.Button(self.frame_in_canvas_Inputs, text = "Save Inputs", cursor="hand2", command=partial(save_entry_inputs, self))    
+        self.button_6 = tk.Button(self.AD_frame3_in_canvas_Inputs, text = "Save Inputs", cursor="hand2", command=partial(save_entry_inputs, self))    
         self.button_6.grid(row=20, column=1, pady=20)  
-        self.Label_Save_Inputs_Button_info = tk.Label(self.frame_in_canvas_Inputs, text="Double check your inputs")
+        self.Label_Save_Inputs_Button_info = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Double check your inputs")
         self.Label_Save_Inputs_Button_info.grid(row=20, column=2)        
         
     def make_scrollbar_Inputs_Page(self):
