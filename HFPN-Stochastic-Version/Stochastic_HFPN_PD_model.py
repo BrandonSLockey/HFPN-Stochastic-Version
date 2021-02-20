@@ -83,7 +83,7 @@ class sHFPN_GUI_APP:
         self.frame2.grid_columnconfigure(0, weight=1)
         
         self.PD_Inputs_Page()
-        self.Run_sHFPN_Page()
+        self.PD_Run_sHFPN_Page()
         self.AD_Inputs_Page()
         self.Run_AD_sHFPN_Page()        
         self.Neuronal_HealthBar()
@@ -206,7 +206,7 @@ class sHFPN_GUI_APP:
         self.Label_no_timesteps.grid(row=1,column=0)
         self.Label_no_timesteps_e = tk.Entry(self.frame_in_canvas_Inputs)
         self.Label_no_timesteps_e.grid(row=1,column=1)
-        self.Label_no_timesteps_e.insert(tk.END, "50000")
+        self.Label_no_timesteps_e.insert(tk.END, "100")
         self.Label_Help_no_timesteps = tk.Label(self.frame_in_canvas_Inputs, text="Only input increments of 1000")
         self.Label_Help_no_timesteps.grid(row=1, column=2)
         #*Timestep Size*
@@ -442,9 +442,8 @@ class sHFPN_GUI_APP:
         self.make_scrollbar_AD_sHFPN()        
         
         
-    def Run_sHFPN_Page(self):
+    def PD_Run_sHFPN_Page(self):
         self.frame4=tk.Frame(self.frame2)
-        #self.frame4.pack(side="left", fill=tk.BOTH,expand=1)
         self.frame4.grid(row=0,column=0,sticky="nsew")
         self.button_1 = tk.Button(self.frame4, text="Please Save Inputs", state=tk.DISABLED, command= threading.Thread(target = partial(self.run_sHFPN)).start)
         self.button_1.config(cursor="hand2")

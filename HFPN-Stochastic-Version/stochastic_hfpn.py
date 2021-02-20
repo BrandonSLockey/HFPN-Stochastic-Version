@@ -848,6 +848,22 @@ class HFPN:
         tokens_header_button = tk.Button(frame_in_canvas, text = "0")
         tokens_header_button.grid(row=0, column=1)
         place_header_button = tk.Button(frame_in_canvas, text="place").grid(row=0, column=0)
+        
+        #*Pause_button
+        self.Pause_value = "off"
+        
+        def pause():
+            if self.Pause_value == "off":
+                Pause_button.config(text="Paused!", bg="red")
+                self.Pause_value = "on"
+            else:
+                Pause_button.config(text="Pause", bg="green")
+                self.Pause_value = "off"
+                print("Unpaused!")
+        
+        
+        Pause_button = tk.Button(frame_in_canvas, text="Pause", command = pause, bg="green", cursor="hand2")
+        Pause_button.grid(row=0, column=3)
     
        
         
@@ -872,8 +888,21 @@ class HFPN:
                 
                 #print(df_for_rate_analytics)
         # ***** GUI WIP ***** ===================
+            if t % 1000==0:
+                #Check if Paused:
+                while self.Pause_value == "on":
+                    print("Pausing")
+                    time.sleep(1)                 
+        
         
             if t % 10000 ==0:
+                
+
+                    
+
+
+                
+                
                 tokens_header_button.config(text="Timestep: " + str(t))
                 for index,value in enumerate(single_run_tokens[t]):
                     index_str = str(index)
@@ -885,6 +914,10 @@ class HFPN:
                         readable_value = value
                     token_buttons_dict[index_str].config(text=str(readable_value))
                     #Button(second_frame, text=str(value)).grid(row=index+1, column=1, pady=10,padx=10)
+                    
+                
+                    
+            #*Show final tokens in GUI when run ends.        
             if t == number_time_steps-1:
                 tokens_header_button.config(text="Timestep: " + str(t))
                 for index,value in enumerate(single_run_tokens[t]):
@@ -895,7 +928,10 @@ class HFPN:
                         readable_value = "{:.3e}".format(value)
                     else:
                         readable_value = value
-                    token_buttons_dict[index_str].config(text=str(readable_value))                
+                    token_buttons_dict[index_str].config(text=str(readable_value))            
+                
+                self.Pause_value =="off"
+                Pause_button.config(state=tk.DISABLED)
                     
                 
                 
