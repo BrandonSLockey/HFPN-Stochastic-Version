@@ -43,9 +43,11 @@ import threading
 
 #Make Windows Taskbar Show as MNG Icon
 import ctypes
+
 myappid = 'sHFPN GUI' # arbitrary string
 if platform == 'win32':
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
 
 #Important packages for Graph embedding
 import matplotlib
@@ -81,8 +83,9 @@ class sHFPN_GUI_APP:
         
         #***Add Different Channels***
 
+
         self.lb.insert(tk.END, "PD Inputs","Run PD sHFPN","AD Inputs", "Run AD sHFPN", "Live-Plots", "Analysis", "Saved Runs", "About")
-     
+
         
         #*** Make Main Frame that other frames will rest on:
         self.frame2= tk.Frame(self.root)
@@ -109,6 +112,9 @@ class sHFPN_GUI_APP:
                 item_name=event.widget.get(index)
                 if item_name == "PD Inputs":
                     self.frame3.tkraise()
+                    
+                if item_name == "Run AD sHFPN":
+                    self.frame4.tkraise()
     
                 if item_name == "Run PD sHFPN":
                     self.frame4.tkraise()
@@ -457,6 +463,7 @@ class sHFPN_GUI_APP:
         # self.Label_Neuronal_Healthbar.pack()
         
         #Embedded Graphs (PROBABLY HAVE TO APPEND THIS TO SELF LATER, SO CAN BE ACCESSED)
+
         # self.f = Figure(figsize=(5,5), dpi=100)
         # self.a = self.f.add_subplot(111)
         # self.a.plot([1,2,3,4,5,6,7,8],[1,2,3,4,5,6,7,8])
@@ -469,6 +476,7 @@ class sHFPN_GUI_APP:
 
     def Run_AD_sHFPN_Page(self):
         self.AD_frame1=tk.Frame(self.frame2)
+
         #self.frame4.pack(side="left", fill=tk.BOTH,expand=1)
         self.AD_frame1.grid(row=0,column=0,sticky="nsew")
         self.AD_button_1 = tk.Button(self.AD_frame1, text="Please Save Inputs", state=tk.DISABLED, command= threading.Thread(target = partial(self.run_AD_sHFPN)).start)
