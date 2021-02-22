@@ -1,7 +1,20 @@
 
-import random
-import numpy as np
+#Matplotlib Graphing
+import matplotlib
+matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.figure import Figure
+import matplotlib.animation as animation
+from matplotlib import style
+style.use("ggplot")
 import matplotlib.pyplot as plt
+
+import numpy as np
+
+
+import random
+
+
 import pandas as pd
 
 import tkinter as tk
@@ -769,7 +782,7 @@ class HFPN:
         return tokens, firings, list_of_tokens_transferred_for_each_transition_per_timestep_prod, list_of_tokens_transferred_for_each_transition_per_timestep_cons
         
 
-    def run(self, number_time_steps,frame_in_canvas, storage_interval=1):
+    def run(self, number_time_steps,GUI_App, storage_interval=1):
         """Execute a run with a set amount of time-steps.
 
             Args:
@@ -777,7 +790,7 @@ class HFPN:
                 storage_interval (int): number of time-steps between tokens being stored, default = 1  
                                         (e.g. storage_interval = 2: tokens stored for every 2nd time-step)
             Returns:
-                single_run_tokens: 2D numpy array where first dimension is time step and second dimension is places
+                single_run_tokens: 2D numpy array where first dimension is time step and second dimension is places (Row = timestep, Column = places)
                 single_run_total_firings: 1D numpy array where dimension is transitions.
         """
 
@@ -818,7 +831,9 @@ class HFPN:
         # root=root
         # main_frame=main_frame
         # second_frame=second_frame
-        frame_in_canvas = frame_in_canvas
+        
+        frame_in_canvas = GUI_App.frame_in_canvas
+        canvas = GUI_App.canvas
         
         #GUI *****Make buttons for place names*****
         list_of_places_names1 = [] 
@@ -827,13 +842,71 @@ class HFPN:
         
         
         for index, place in enumerate(list_of_places_names1):
-            tk.Button(frame_in_canvas, text=place).grid(row=index+1, column=0, pady=10, padx=10)
+            tk.Button(frame_in_canvas, text=place, state=tk.DISABLED).grid(row=index+1, column=0, pady=10, padx=10)
+            
+        
+        #need to pass canvas, should probably just pass self?
+        #Define Live Graph
+
+        
+        # GUI_App.f = Figure(figsize=(5,5), dpi=100)
+        # GUI_App.a = GUI_App.f.add_subplot(111)
+        # GUI_App.a.plot([1,2,3],[1,2,3])
+        # GUI_App.Neuronal_Healthbar_canvas = FigureCanvasTkAgg(GUI_App.f, GUI_App.frame8)
+        # GUI_App.Neuronal_Healthbar_canvas.draw()
+        # GUI_App.Neuronal_Healthbar_canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)#I can also choose to grid it so its more compact for later, when I want to plot multiple plots. 
+        # toolbar = NavigationToolbar2Tk(GUI_App.Neuronal_Healthbar_canvas, GUI_App.frame8)
+        # toolbar.update()
+        # GUI_App.Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)             
+        GUI_App.f = Figure(figsize=(5,5), dpi=100)
+        GUI_App.Neuronal_Healthbar_canvas = FigureCanvasTkAgg(GUI_App.f, GUI_App.frame8)
+        GUI_App.Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True) 
+        GUI_App.toolbar = NavigationToolbar2Tk(GUI_App.Neuronal_Healthbar_canvas, GUI_App.frame8)
+        GUI_App.toolbar.update() 
+        self.live_plot = "False"
+        def Live_Button():
+            
+            if self.live_plot == "False":
+                self.live_plot = "True"
+                GUI_App.Live_Button.config(text="Live!", bg="red")
+            else:
+                self.live_plot = "False"
+                GUI_App.Live_Button.config(text="Live Graph", bg="green")
+        GUI_App.Live_Button = tk.Button(GUI_App.frame8, text="Live Graph", command=Live_Button,bg="green", state=tk.DISABLED)
+        GUI_App.Live_Button.pack(side=tk.TOP)
+        
+        def Plot_Live_Graph(index,t):
+            # fig1 = plt.figure()
+            # plt.plot(single_run_tokens[0:t,index])  
+            # plt.close(GUI_App.f)
+            # GUI_App.f.delaxes(GUI_App.a)
+            GUI_App.Live_Button.config(state="normal")
+            self.plot_index = index
+            the_title = str(list_of_places_names1[index])
+            
+            GUI_App.f.clear()
+            GUI_App.a = GUI_App.f.add_subplot(111)
+            GUI_App.a.plot(single_run_tokens[0:t,index])
+            GUI_App.a.title.set_text(the_title)
+            GUI_App.Neuronal_Healthbar_canvas.draw_idle() #BSL: note, matplotlib is not thread safe, that's why I embed it into the GUI rather than display a separate window, solving this issue was a nightmare, so I embed the live plots into the GUI.
+            GUI_App.lb.itemconfig(4,{'bg':'red'}) #sets bg to red to guide user a new plot has been displayed
+            # GUI_App.Neuronal_Healthbar_canvas.get_tk_widget().destroy()
+            # GUI_App.f = Figure(figsize=(5,5), dpi=100)
+            # GUI_App.a = GUI_App.f.add_subplot(111)
+            # GUI_App.a.plot(single_run_tokens[0:t,index])
+            # GUI_App.Neuronal_Healthbar_canvas = FigureCanvasTkAgg(GUI_App.f, GUI_App.frame8)
+            # GUI_App.Neuronal_Healthbar_canvas.draw()
+            # GUI_App.Neuronal_Healthbar_canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)#I can also choose to grid it so its more compact for later, when I want to plot multiple plots. 
+            # GUI_App.toolbar = NavigationToolbar2Tk(GUI_App.Neuronal_Healthbar_canvas, GUI_App.frame8)
+            # GUI_App.toolbar.update()
+            # GUI_App.Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)            
+            
+   
+        
+
             
         #GUI *****Make token buttons*****
-        
         token_buttons_dict = {}
-        
-        
         for index,value in enumerate(single_run_tokens[0]):
             #dict keys should be the index
             index_str = str(index)
@@ -841,16 +914,46 @@ class HFPN:
                 readable_value = "{:e}".format(value)
             else:
                 readable_value = value
-            token_buttons_dict[index_str]=tk.Button(frame_in_canvas, text=str(readable_value))
+            token_buttons_dict[index_str]=tk.Button(frame_in_canvas, text=str(readable_value), command=partial(Plot_Live_Graph,index,0), cursor="hand2")
             token_buttons_dict[index_str].grid(row=index+1, column=1, pady=10,padx=10)
-            
-        
-        tokens_header_button = tk.Button(frame_in_canvas, text = "0")
+        tokens_header_button = tk.Button(frame_in_canvas, text = "0", state=tk.DISABLED)
         tokens_header_button.grid(row=0, column=1)
-        place_header_button = tk.Button(frame_in_canvas, text="place").grid(row=0, column=0)
+        place_header_button = tk.Button(frame_in_canvas, text="place", state=tk.DISABLED).grid(row=0, column=0)
+        canvas.configure(scrollregion=canvas.bbox("all"))
+        
+        #*Pause_button
+        
+        self.Pause_value = "off"
+        def pause():
+            if self.Pause_value == "off":
+                Pause_button.config(text="Paused!", bg="red")
+                Pause_button2.config(text="Paused!", bg="red")
+                self.Pause_value = "on"
+                Pickling_Button.config(state=tk.DISABLED)        
+            else:
+                Pause_button.config(text="Pause", bg="green")
+                Pause_button2.config(text="Pause", bg="green")
+                self.Pause_value = "off"
+                print("Unpaused!")
+                Pickling_Button.config(state="normal")   
+        Pause_button = tk.Button(frame_in_canvas, text="Pause", command = partial(pause), bg="green", cursor="hand2")
+        Pause_button.grid(row=0, column=3,pady=10,padx=10)
+        Pause_button2 = tk.Button(GUI_App.frame8, text="Pause", command = partial(pause), bg="green", cursor="hand2")
+        Pause_button2.pack()
+        
+
     
        
+        #Premature Pickling Button
+        self.Pickle_Decision = "no"
+        def premature_pickle():
+            self.Pickle_Decision = "yes"
         
+        Pickling_Button = tk.Button(frame_in_canvas, text="Prematurely Pickle", command = partial(premature_pickle), cursor="hand2")
+        Pickling_Button.grid(row=0, column=4,pady=10,padx=10)
+        
+    
+
         
         for t in range(number_time_steps):
             tokens, firings,list_of_tokens_transferred_for_each_transition_per_timestep_prod, list_of_tokens_transferred_for_each_transition_per_timestep_cons  = self.run_single_step()
@@ -872,8 +975,19 @@ class HFPN:
                 
                 #print(df_for_rate_analytics)
         # ***** GUI WIP ***** ===================
+            if t % 1000==0:
+                
+                #Check if Paused:            
+                while self.Pause_value == "on":#IDK why, when GUI runs this line of code keeps running.
+                    time.sleep(1)        
+                    if self.Pickle_Decision=="yes":
+                        Pause_button.config(state=tk.DISABLED)
+                        Pause_button2.config(state=tk.DISABLED)
+                        Pickling_Button.config(state=tk.DISABLED)                        
+                        break
         
-            if t % 10000 ==0:
+        #Update GUI every 1k steps.
+            if t % 1000 ==0:
                 tokens_header_button.config(text="Timestep: " + str(t))
                 for index,value in enumerate(single_run_tokens[t]):
                     index_str = str(index)
@@ -883,8 +997,18 @@ class HFPN:
                         readable_value = "{:.3e}".format(value)
                     else:
                         readable_value = value
-                    token_buttons_dict[index_str].config(text=str(readable_value))
+                    token_buttons_dict[index_str].config(text=str(readable_value), command=partial(Plot_Live_Graph,index,t))
                     #Button(second_frame, text=str(value)).grid(row=index+1, column=1, pady=10,padx=10)
+                if self.live_plot == "True":
+                    Plot_Live_Graph(self.plot_index, t)
+                    
+        #Update Live Graph every 1k steps. Works but I currently disable it - update is too slow. Can probably copy and paste more to force it to update faster.
+            # if t % 1000 ==0:
+            #     #t_span = list(range(0,t+1,100))
+            #     GUI_App.a.plot(single_run_tokens[:,2])
+                
+                    
+            #*Show final tokens in GUI when run ends.        
             if t == number_time_steps-1:
                 tokens_header_button.config(text="Timestep: " + str(t))
                 for index,value in enumerate(single_run_tokens[t]):
@@ -895,8 +1019,21 @@ class HFPN:
                         readable_value = "{:.3e}".format(value)
                     else:
                         readable_value = value
-                    token_buttons_dict[index_str].config(text=str(readable_value))                
+                    token_buttons_dict[index_str].config(text=str(readable_value))            
+                
+                self.Pause_value =="off"
+                Pause_button.config(state=tk.DISABLED)
+                Pause_button2.config(state=tk.DISABLED)
+                Pickling_Button.config(state=tk.DISABLED)
                     
+            #Premature Pickle
+            if self.Pickle_Decision =="yes":
+                Pause_button.config(state=tk.DISABLED)
+                Pause_button2.config(state=tk.DISABLED)
+                Pickling_Button.config(state=tk.DISABLED)
+                break
+            
+            
                 
                 
                 #root.update()
@@ -932,11 +1069,12 @@ class HFPN:
 
         # Determine how many times transition fired in single run
         single_run_total_firings = single_run_firings[-1,:]
+       
         
         return single_run_tokens, single_run_total_firings, df_for_rate_analytics_prod,  df_for_rate_analytics_cons
 
 
-    def run_many_times(self, number_runs, number_time_steps, frame_in_canvas, storage_interval=1):
+    def run_many_times(self, number_runs, number_time_steps, GUI_App, storage_interval=1):
         """Runs multiple iterations of the HFPN.
         
             Args: 
@@ -970,12 +1108,17 @@ class HFPN:
      
 #storing it for visualisation
         for i in range(number_runs):
-            self.token_storage[i], self.firings_storage[i], self.df_for_rate_analytics_prod, self.df_for_rate_analytics_cons = self.run(number_time_steps, frame_in_canvas, storage_interval)
+            self.token_storage[i], self.firings_storage[i], self.df_for_rate_analytics_prod, self.df_for_rate_analytics_cons = self.run(number_time_steps, GUI_App, storage_interval)
             self.reset_network()
 
 
         # Store mean number of firings for each transition across all runs
         self.mean_firings = np.mean(self.firings_storage, axis = 0)
+        
+        #store the number of timesteps used 
+        self.the_number_of_timesteps = number_time_steps
+        
+        
 
         
     def reset_network(self):
