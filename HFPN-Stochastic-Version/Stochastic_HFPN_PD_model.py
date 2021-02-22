@@ -3,7 +3,7 @@ import sys
 import random
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+
 from datetime import datetime
 from sys import platform
 
@@ -55,6 +55,7 @@ from matplotlib.figure import Figure
 import matplotlib.animation as animation
 from matplotlib import style
 style.use("ggplot")
+import matplotlib.pyplot as plt
 
 class sHFPN_GUI_APP:
     def __init__(self):
@@ -80,7 +81,7 @@ class sHFPN_GUI_APP:
         
         #***Add Different Channels***
 
-        self.lb.insert(tk.END, "PD Inputs","Run PD sHFPN","AD Inputs", "Run AD sHFPN", "Neuronal Healthbar", "Analysis", "Saved Runs", "About")
+        self.lb.insert(tk.END, "PD Inputs","Run PD sHFPN","AD Inputs", "Run AD sHFPN", "Live-Plots", "Analysis", "Saved Runs", "About")
      
         
         #*** Make Main Frame that other frames will rest on:
@@ -97,6 +98,8 @@ class sHFPN_GUI_APP:
         self.Analysis_page()
         self.show_saved_runs()
         self.About_Page()
+        
+        
         
         #***Callback Function to execute if items in Left_Sidebars are selected
         def callback(event):
@@ -116,8 +119,9 @@ class sHFPN_GUI_APP:
                 if item_name == "Run AD sHFPN":
                     self.AD_frame1.tkraise()
                     
-                if item_name == "Neuronal Healthbar":
+                if item_name == "Live-Plots":
                     self.frame8.tkraise()
+                    self.lb.itemconfig(4,{'bg':'black'})
                     
                 if item_name == "Analysis":
                     self.frame5.tkraise()
@@ -449,19 +453,19 @@ class sHFPN_GUI_APP:
         self.frame8.grid(row=0, column=0, sticky="nsew")
         
         #Label
-        self.Label_Neuronal_Healthbar = tk.Label(self.frame8, text="Under Construction...")
-        self.Label_Neuronal_Healthbar.pack()
+        # self.Label_Neuronal_Healthbar = tk.Label(self.frame8, text="Under Construction...")
+        # self.Label_Neuronal_Healthbar.pack()
         
         #Embedded Graphs (PROBABLY HAVE TO APPEND THIS TO SELF LATER, SO CAN BE ACCESSED)
-        f = Figure(figsize=(5,5), dpi=100)
-        a = f.add_subplot(111)
-        a.plot([1,2,3,4,5,6,7,8],[1,2,3,4,5,6,7,8])
-        Neuronal_Healthbar_canvas = FigureCanvasTkAgg(f, self.frame8)
-        Neuronal_Healthbar_canvas.draw()
-        Neuronal_Healthbar_canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)#I can also choose to grid it so its more compact for later, when I want to plot multiple plots. 
-        toolbar = NavigationToolbar2Tk(Neuronal_Healthbar_canvas, self.frame8)
-        toolbar.update()
-        Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        # self.f = Figure(figsize=(5,5), dpi=100)
+        # self.a = self.f.add_subplot(111)
+        # self.a.plot([1,2,3,4,5,6,7,8],[1,2,3,4,5,6,7,8])
+        # self.Neuronal_Healthbar_canvas = FigureCanvasTkAgg(self.f, self.frame8)
+        # self.Neuronal_Healthbar_canvas.draw()
+        # self.Neuronal_Healthbar_canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)#I can also choose to grid it so its more compact for later, when I want to plot multiple plots. 
+        # toolbar = NavigationToolbar2Tk(self.Neuronal_Healthbar_canvas, self.frame8)
+        # toolbar.update()
+        # self.Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
     def Run_AD_sHFPN_Page(self):
         self.AD_frame1=tk.Frame(self.frame2)
@@ -1355,10 +1359,11 @@ class sHFPN_GUI_APP:
         
         # Run the network
         
-        frame_in_canvas = self.frame_in_canvas
+        
+        GUI_App = self
         
         start_time = datetime.now()
-        pn.run_many_times(number_runs=number_runs, number_time_steps=number_time_steps, frame_in_canvas=frame_in_canvas)
+        pn.run_many_times(number_runs=number_runs, number_time_steps=number_time_steps, GUI_App=GUI_App)
         analysis = Analysis(pn)
         execution_time = datetime.now()-start_time
         print('\n\ntime to execute:', execution_time)
@@ -2326,10 +2331,10 @@ class sHFPN_GUI_APP:
                             delay=0.5,
                             collect_rate_analytics = collect_rate_analytics)
             
-        frame_in_canvas = self.AD_frame_in_canvas
+        GUI_App = self
         
         start_time = datetime.now()
-        pn.run_many_times(number_runs=number_runs, number_time_steps=number_time_steps, frame_in_canvas=frame_in_canvas)
+        pn.run_many_times(number_runs=number_runs, number_time_steps=number_time_steps, GUI_App=GUI_App)
         analysis = Analysis(pn)
         execution_time = datetime.now()-start_time
         print('\n\ntime to execute:', execution_time)
