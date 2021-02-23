@@ -864,7 +864,7 @@ class HFPN:
         GUI_App.toolbar = NavigationToolbar2Tk(GUI_App.Neuronal_Healthbar_canvas, GUI_App.frame8)
         GUI_App.toolbar.update() 
         self.live_plot = "False"
-        def Live_Button():
+        def Live_Button_command():
             
             if self.live_plot == "False":
                 self.live_plot = "True"
@@ -872,7 +872,7 @@ class HFPN:
             else:
                 self.live_plot = "False"
                 GUI_App.Live_Button.config(text="Live Graph", bg="green")
-        GUI_App.Live_Button = tk.Button(GUI_App.frame8, text="Live Graph", command=Live_Button,bg="green", state=tk.DISABLED)
+        GUI_App.Live_Button = tk.Button(GUI_App.frame8, text="Live Graph", command=Live_Button_command,bg="green", state=tk.DISABLED)
         GUI_App.Live_Button.pack(side=tk.TOP)
         
         def Plot_Live_Graph(index,t):
@@ -1025,12 +1025,14 @@ class HFPN:
                 Pause_button.config(state=tk.DISABLED)
                 Pause_button2.config(state=tk.DISABLED)
                 Pickling_Button.config(state=tk.DISABLED)
+                GUI_App.Live_Button.config(state=tk.DISABLED)
                     
             #Premature Pickle
             if self.Pickle_Decision =="yes":
                 Pause_button.config(state=tk.DISABLED)
                 Pause_button2.config(state=tk.DISABLED)
                 Pickling_Button.config(state=tk.DISABLED)
+                GUI_App.Live_Button.config(state=tk.DISABLED)
                 break
             
             
