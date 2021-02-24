@@ -70,8 +70,6 @@ class sHFPN_GUI_APP:
         self.root.title("sHFPN GUI")
         self.root.geometry("800x660")
         self.Left_Sidebar()
-        self.root.bind("<Control-l>", lambda x: self.hide())
-        self.hidden=0
         
     def Left_Sidebar(self):
         self.frame1= tk.Frame(self.root, width=175)
@@ -82,28 +80,36 @@ class sHFPN_GUI_APP:
         self.lb.pack(side="left", fill=tk.BOTH)
         
         #***Add Different Channels***
+        self.lb.insert(tk.END,"", "PD Inputs","AD Inputs", "", "PD Transitions", "AD Transitions", "","Run sHFPN", "Rate Analytics", "Live-Plots", "","Analysis", "Saved Runs", "", "About")
 
-
-        self.lb.insert(tk.END, "PD Inputs","Run PD sHFPN","AD Inputs", "Run AD sHFPN", "Live-Plots", "Analysis", "Saved Runs", "About")
-
-        
         #*** Make Main Frame that other frames will rest on:
         self.frame2= tk.Frame(self.root)
         self.frame2.pack(side="left", fill=tk.BOTH, expand=1)
         self.frame2.grid_rowconfigure(0, weight=1)
         self.frame2.grid_columnconfigure(0, weight=1)
+
+        #Preload PD Places and Transitions
+        self.PD_Places()
+        self.PD_Continuous_Transitions()
+        self.PD_Discrete_Transitions()
         
+        #Preload All GUI Pages
         self.PD_Inputs_Page()
-        self.PD_Run_sHFPN_Page()
+        self.Run_sHFPN_Page()
         self.AD_Inputs_Page()
-        self.Run_AD_sHFPN_Page()        
-        self.Neuronal_HealthBar()
+        self.PD_Transitions_Page()
+        self.Live_Rate_analytics_Page()
+        self.Live_Graph()
         self.Analysis_page()
         self.show_saved_runs()
         self.About_Page()
         
         
-        
+        #change the selectbackground of "empty" items to black
+        # self.lb.itemconfig(0, selectbackground="black")
+        # self.lb.itemconfig(3, selectbackground="black")
+        # self.lb.itemconfig(7, selectbackground="black")
+        # self.lb.itemconfig(10, selectbackground="black")
         #***Callback Function to execute if items in Left_Sidebars are selected
         def callback(event):
             selection = event.widget.curselection()
@@ -112,22 +118,23 @@ class sHFPN_GUI_APP:
                 item_name=event.widget.get(index)
                 if item_name == "PD Inputs":
                     self.frame3.tkraise()
-                    
-                if item_name == "Run AD sHFPN":
-                    self.frame4.tkraise()
-    
-                if item_name == "Run PD sHFPN":
-                    self.frame4.tkraise()
-                    
+
                 if item_name =="AD Inputs":
                     self.AD_frame3.tkraise()
                     
-                if item_name == "Run AD sHFPN":
-                    self.AD_frame1.tkraise()
+                if item_name == "PD Transitions":
+                    self.PD_frame1.tkraise()                    
+    
+                if item_name == "Run sHFPN":
+                    self.lb.itemconfig(7,bg="black")
+                    self.frame4.tkraise()                    
+                    
+                if item_name == "Rate Analytics":
+                    self.frame9.tkraise()
                     
                 if item_name == "Live-Plots":
                     self.frame8.tkraise()
-                    self.lb.itemconfig(4,{'bg':'black'})
+                    self.lb.itemconfig(9,{'bg':'black'})
                     
                 if item_name == "Analysis":
                     self.frame5.tkraise()
@@ -144,9 +151,837 @@ class sHFPN_GUI_APP:
                         
         self.lb.bind("<<ListboxSelect>>", callback)
         
+        
+    def Live_Rate_analytics_Page(self):
+        self.frame9 = tk.Frame(self.frame2)
+        self.frame9.grid(row=0,column=0, sticky="nsew")
+        
+        #
+        self.PD_rate_canvas = tk.Canvas(self.frame9)
+        self.PD_rate_canvas.pack(side="left", fill=tk.BOTH, expand=1)
+        
+        self.PD_rate_scrollbar = ttk.Scrollbar(self.frame9, orient=tk.VERTICAL, command=self.PD_rate_canvas.yview)
+        self.PD_rate_scrollbar.pack(side="left", fill=tk.Y)
+        
+        self.PD_rate_canvas.configure(yscrollcommand=self.PD_rate_scrollbar.set)
+        self.PD_rate_canvas.bind('<Configure>', lambda e: self.PD_rate_canvas.configure(scrollregion= self.PD_rate_canvas.bbox("all")))
+
+        #Create another frame inside the canvas
+        self.PD_frame_in_rate_canvas = tk.Frame(self.PD_rate_canvas)
+        self.PD_rate_canvas.create_window((0,0), window=self.PD_frame_in_rate_canvas, anchor="nw")         
         #***Select item in Listbox and Display Corresponding output in Right_Output
         #self.lb.bind("<<ListboxSelect>>", Lambda x: show)
- 
+        
+        
+    def PD_Transitions_Page(self):
+        self.PD_frame1 = tk.Frame(self.frame2)
+        self.PD_frame1.grid(row=0,column=0,sticky="nsew")
+        self.PD_trans_canvas = tk.Canvas(self.PD_frame1)
+        self.PD_trans_canvas.pack(side="left", fill=tk.BOTH, expand=1)
+        
+        self.PD_trans_scrollbar = ttk.Scrollbar(self.PD_frame1, orient=tk.VERTICAL, command=self.PD_trans_canvas.yview)
+        self.PD_trans_scrollbar.pack(side="left", fill=tk.Y)
+        
+        self.PD_trans_canvas.configure(yscrollcommand=self.PD_trans_scrollbar.set)
+        self.PD_trans_canvas.bind('<Configure>', lambda e: self.PD_trans_canvas.configure(scrollregion= self.PD_trans_canvas.bbox("all")))
+
+        #Create another frame inside the canvas
+        self.PD_frame_in_canvas = tk.Frame(self.PD_trans_canvas)
+        self.PD_trans_canvas.create_window((0,0), window=self.PD_frame_in_canvas, anchor="nw") 
+        
+        self.transitions_buttons_dict = {}
+        self.transitions_entry_box_dict = {}
+        self.transitions_consumption_checkboxes_dict = {}
+        self.transitions_production_checkboxes_dict = {}
+
+        self.transitions_entry_box_Discrete_SD = {}
+        self.consump_checkbox_variables_dict={}     
+        self.produc_checkbox_variables_dict={}
+        #Headers
+        transition_header_button = tk.Button(self.PD_frame_in_canvas, text="Transition", state=tk.DISABLED)
+        transition_header_button.grid(row=0, column=1)
+        #SD Header
+        SD_header_button = tk.Button(self.PD_frame_in_canvas, text="Transition SD", state=tk.DISABLED)
+        SD_header_button.grid(row=0, column=2)     
+        #DelaySD Header
+        DelaySD_header_button = tk.Button(self.PD_frame_in_canvas, text="Delay SD", state=tk.DISABLED)
+        DelaySD_header_button.grid(row=0, column=3)
+        
+        #Collect Rate Analytics Header
+        collect_rate_header_button = tk.Button(self.PD_frame_in_canvas, text="Collect Consumption Rate Analytics", state=tk.DISABLED)
+        collect_rate_header_button.grid(row=0, column=4)  
+        collect_rate_header_button_product = tk.Button(self.PD_frame_in_canvas, text="Collect Production Rate Analytics", state=tk.DISABLED)
+        collect_rate_header_button_product.grid(row=0, column=5)  
+           
+        
+        for index, transition in enumerate(self.PD_pn.transitions):
+            #dict keys should be the index
+            index_str = str(index)
+            #Grid Transitions 
+            self.transitions_buttons_dict[index_str]=tk.Button(self.PD_frame_in_canvas, text=transition, state=tk.DISABLED)
+            self.transitions_buttons_dict[index_str].grid(row=index+1, column=1, pady=10,padx=10)  
+            #Transition SD Entry Boxes
+            self.transitions_entry_box_dict[index_str] = tk.Entry(self.PD_frame_in_canvas, width=5)
+            self.transitions_entry_box_dict[index_str].grid(row=index+1, column=2, pady=10, padx=10)
+            default_stochastic_parameter = self.PD_pn.transitions[transition].stochastic_parameters[0] #takes the default stochastic parameter that was preset
+            self.transitions_entry_box_dict[index_str].insert(tk.END, default_stochastic_parameter)
+            #Checkboxes Collect Rates Consumption
+            consump_integer_y_n = self.PD_pn.transitions[transition].collect_rate_analytics[0]
+            if consump_integer_y_n == "yes":
+                consump_value = 1
+            if consump_integer_y_n == "no":
+                consump_value = 0
+            self.consump_checkbox_variables_dict[index_str] = tk.IntVar(value=consump_value)
+            self.transitions_consumption_checkboxes_dict[index_str] = tk.Checkbutton(self.PD_frame_in_canvas, variable=self.consump_checkbox_variables_dict[index_str])
+            self.transitions_consumption_checkboxes_dict[index_str].grid(row=index+1, column=4,pady=10, padx=10)
+            #Checkboxes Collect Rates Production
+            prod_integer_y_n = self.PD_pn.transitions[transition].collect_rate_analytics[1]
+            if prod_integer_y_n == "yes":
+                prod_value = 1
+            if prod_integer_y_n == "no":
+                prod_value = 0
+            self.produc_checkbox_variables_dict[index_str] = tk.IntVar(value=prod_value)
+            self.transitions_production_checkboxes_dict[index_str] = tk.Checkbutton(self.PD_frame_in_canvas, variable=self.produc_checkbox_variables_dict[index_str])
+            self.transitions_production_checkboxes_dict[index_str].grid(row=index+1, column=5,pady=10, padx=10)            
+            #Collect Rate Analytics Defaul
+            
+            
+            if self.PD_pn.transitions[transition].DiscreteFlag =="yes":
+                self.transitions_entry_box_Discrete_SD[index_str] = tk.Entry(self.PD_frame_in_canvas, width=5)
+                self.transitions_entry_box_Discrete_SD[index_str].grid(row=index+1, column=3, pady=10, padx=10)
+                default_stochastic_parameter = self.PD_pn.transitions[transition].stochastic_parameters[1] #Takes the Discrete Transition Stochastic Parameter now
+                self.transitions_entry_box_Discrete_SD[index_str].insert(tk.END, default_stochastic_parameter)
+            
+            
+
+    def PD_Places(self):
+        # Initialize an empty HFPN
+        self.PD_pn = HFPN()
+        
+        #  # Cholesterol homeostasis
+        self.PD_pn.add_place(it_p_chol_PM, "p_chol_PM","Chol - perinuclear region", continuous = True)
+        self.PD_pn.add_place(it_p_chol_LE, "p_chol_LE", "Chol - late endosome", continuous = True)
+        self.PD_pn.add_place(it_p_chol_ER, "p_chol_ER", "Chol - ER", continuous = True)
+        self.PD_pn.add_place(it_p_chol_mito, "p_chol_mito", "Chol - mitochondria", continuous = True)
+        self.PD_pn.add_place(it_p_27OHchol_extra, "p_27OHchol_extra","27-OH chol - extracellular", continuous = True)
+        self.PD_pn.add_place(it_p_27OHchol_intra, "p_27OHchol_intra","27-OH chol - intracellular", continuous = True)
+        self.PD_pn.add_place(it_p_ApoEchol_extra, "p_ApoEchol_extra","ApoE - extracellular", continuous = True)
+        self.PD_pn.add_place(it_p_ApoEchol_EE, "p_ApoEchol_EE","ApoE - Early endosome", continuous = True)
+        self.PD_pn.add_place(it_p_7HOCA, "p_7HOCA","7-HOCA", continuous = True)
+        self.PD_pn.add_place(it_p_preg,place_id="p_preg", label="Pregnenolon", continuous=True)
+        self.PD_pn.add_place(it_p_24OHchol_extra,place_id="p_24OHchol_extra", label="24OHchol extra", continuous=True)
+        self.PD_pn.add_place(it_p_24OHchol_intra,place_id="p_24OHchol_intra", label="24OHchol intra", continuous=True)
+    
+        #  # PD specific places in cholesterol homeostasis
+        self.PD_pn.add_place(it_p_GBA1, "p_GBA1","GBA1", continuous = False)
+        self.PD_pn.add_place(it_p_SNCA_act_extra, "p_SNCA_act_extra","a-synuclein - extracellular", continuous = True)
+        self.PD_pn.add_place(it_p_SNCAApoEchol_extra, "p_SNCAApoEchol_extra","a-synuclein-ApoE complex - extracellular", continuous = True)
+        self.PD_pn.add_place(it_p_SNCAApoEchol_intra, "p_SNCAApoEchol_intra","a-synuclein-ApoE complex - intracellular", continuous = True)
+    
+        #  # Energy metabolism
+        self.PD_pn.add_place(it_p_ROS_mito, "p_ROS_mito", "ROS - mitochondria", continuous = True)
+        self.PD_pn.add_place(it_p_H2O_mito, "p_H2O_mito", "H2O - mitochondria", continuous = True)
+        self.PD_pn.add_place(it_p_reduc_mito, "p_reduc_mito", "Reducing agents - mitochondria", continuous = True)
+        self.PD_pn.add_place(it_p_cas3, "p_cas3","caspase 3 - mitochondria", continuous = True)
+        self.PD_pn.add_place(it_p_DJ1, "p_DJ1","DJ1 mutant", continuous = True)
+        
+        #  # Calcium homeostasis
+        self.PD_pn.add_place(it_p_Ca_cyto, "p_Ca_cyto", "Ca - cytosole", continuous = True)
+        self.PD_pn.add_place(it_p_Ca_mito, "p_Ca_mito","Ca - mitochondria", continuous = True)
+        self.PD_pn.add_place(it_p_Ca_ER, "p_Ca_ER", "Ca - ER", continuous = True)
+        self.PD_pn.add_place(it_p_ADP, "p_ADP","ADP - Calcium ER import", continuous = True)
+        self.PD_pn.add_place(it_p_ATP, "p_ATP","ATP - Calcium ER import", continuous = True)
+    
+        #  # Discrete on/of-switches calcium pacemaking
+    
+        self.PD_pn.add_place(1, "p_Ca_extra", "on1 - Ca - extracellular", continuous = False)
+        self.PD_pn.add_place(0, "p_on2","on2", continuous = False)
+        self.PD_pn.add_place(0, "p_on3","on3", continuous = False)
+        self.PD_pn.add_place(0, "p_on4","on4", continuous = False)
+        
+          # Lewy bodies
+        self.PD_pn.add_place(it_p_SNCA_act, "p_SNCA_act","SNCA - active", continuous = True)
+        self.PD_pn.add_place(it_p_VPS35, "p_VPS35", "VPS35", continuous = True)
+        self.PD_pn.add_place(it_p_SNCA_inact, "p_SNCA_inact", "SNCA - inactive", continuous = True)
+        self.PD_pn.add_place(it_p_SNCA_olig, "p_SNCA_olig", "SNCA - Oligomerised", continuous = True)
+        self.PD_pn.add_place(it_p_LB, "p_LB", "Lewy body", continuous = True)
+        self.PD_pn.add_place(it_p_Fe2, "p_Fe2", "Fe2 iron pool", continuous = True)
+        
+          # Late endosome pathology 
+        self.PD_pn.add_place(it_p_LRRK2_mut, "p_LRRK2_mut","LRRK2 - mutated", continuous = True)
+          # Monomeric RTN3 (cycling between axonal and perinuclear regions)
+        self.PD_pn.add_place(it_p_RTN3_axon, place_id="p_RTN3_axon", label="monomeric RTN3 (axonal)", continuous=True)
+        self.PD_pn.add_place(it_p_RTN3_PN, place_id="p_RTN3_PN", label="monomeric RTN3 (perinuclear)", continuous=True)
+    
+          # HMW RTN3 (cycling between different cellular compartments)
+        self.PD_pn.add_place(it_p_RTN3_HMW_cyto, place_id="p_RTN3_HMW_cyto", label="HMW RTN3 (cytosol)", continuous=True)
+        self.PD_pn.add_place(it_p_RTN3_HMW_auto, place_id="p_RTN3_HMW_auto", label="HMW RTN3 (autophagosome)", continuous=True)
+        self.PD_pn.add_place(it_p_RTN3_HMW_lyso, place_id="p_RTN3_HMW_lyso", label="HMW RTN3 (degraded in lysosome)", continuous=True)
+        self.PD_pn.add_place(it_p_RTN3_HMW_dys1, place_id="p_RTN3_HMW_dys1", label="HMW RTN3 (type I/III dystrophic neurites)", continuous=True)
+        self.PD_pn.add_place(it_p_RTN3_HMW_dys2, place_id="p_RTN3_HMW_dys2", label="HMW RTN3 (type II dystrophic neurites)", continuous=True)
+    
+          # Two places that are NOT part of this subpathway, but are temporarily added for establishing proper connections
+          # They will be removed upon merging of subpathways
+        self.PD_pn.add_place(it_p_tau, place_id="p_tau", label = "Unphosphorylated tau", continuous = True)
+        self.PD_pn.add_place(it_p_tauP, place_id="p_tauP", label = "Phosphorylated tau", continuous = True)
+        
+        # Drug places 
+        self.PD_pn.add_place(it_p_NPT200, place_id="p_NPT200", label = "Drug NPT200", continuous = True)
+        self.PD_pn.add_place(it_p_DNL151, place_id="p_DNL151", label = "Drug DNL151", continuous = True)
+        self.PD_pn.add_place(it_p_LAMP2A, place_id="p_LAMP2A", label = "Drug LAMP2A", continuous = True)
+               
+
+    def PD_Continuous_Transitions(self):
+        ## Define transitions
+        
+        # Cholesterol Endocytosis
+        self.PD_pn.add_transition_with_speed_function( #1
+                        transition_id                 = "t_LDLR_endocyto",
+                        label                          = "LDLR endocyto",
+                        input_place_ids                 = ["p_ApoEchol_extra", "p_chol_ER","p_LB"],
+                        firing_condition             = fc_t_LDLR_endocyto,
+                        reaction_speed_function         = r_t_LDLR_endocyto, 
+                        consumption_coefficients     = [0,0,0],
+                        output_place_ids             = ["p_ApoEchol_EE"],
+                        production_coefficients         = [1],
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # # Cleavage of cholesteryl esters
+        self.PD_pn.add_transition_with_speed_function( #2
+                        transition_id                 = "t_ApoEchol_cleav",
+                        label                          = "ApoE-chol cleav",
+                        input_place_ids                 = ["p_ApoEchol_EE"],
+                        firing_condition             = fc_t_ApoEchol_cleav,
+                        reaction_speed_function         = r_t_ApoEchol_cleav, 
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_LE"],
+                        production_coefficients         = [354],
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Transport Cholesterol from LE to ER
+        self.PD_pn.add_transition_with_speed_function( #3
+                        transition_id                 = "t_chol_trans_LE_ER",
+                        label                          = "Chol transport LE-ER",
+                        input_place_ids                 = ["p_chol_LE"],
+                        firing_condition             = fc_t_chol_trans_LE_ER,
+                        reaction_speed_function         = r_t_chol_trans_LE_ER,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_ER"],
+                        production_coefficients         = [1],
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Transport Cholesterol from LE to mito
+        self.PD_pn.add_transition_with_speed_function( #4
+                        transition_id                 = "t_chol_trans_LE_mito",
+                        label                          = "Chol transport LE-mito",
+                        input_place_ids                 = ["p_chol_LE"],
+                        firing_condition             = fc_t_chol_trans_LE_mito,
+                        reaction_speed_function         = r_t_chol_trans_LE_mito,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_mito"],
+                        production_coefficients         = [1],
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Transport Cholesterol from LE to PM
+        self.PD_pn.add_transition_with_speed_function( #5
+                        transition_id                 = "t_chol_trans_LE_PM",
+                        label                          = "Chol transport LE-PM",
+                        input_place_ids                 = ["p_chol_LE"],
+                        firing_condition             = fc_t_chol_trans_LE_PM, 
+                        reaction_speed_function         = r_t_chol_trans_LE_PM,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_PM"],
+                        production_coefficients         = [1],
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Transport Cholesterol from PM to ER
+        self.PD_pn.add_transition_with_speed_function( #6
+                        transition_id                 = "t_chol_trans_PM_ER",
+                        label                          = "Chol transport PM-ER",
+                        input_place_ids                 = ["p_chol_PM"],
+                        firing_condition             = fc_t_chol_trans_PM_ER,
+                        reaction_speed_function         = r_t_chol_trans_PM_ER,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_ER"],
+                        production_coefficients         = [1],
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Transport Cholesterol from ER to PM
+        self.PD_pn.add_transition_with_speed_function( #7
+                        transition_id                 = "t_chol_trans_ER_PM",
+                        label                          = "Chol transport ER-PM",
+                        input_place_ids                 = ["p_chol_ER"],
+                        firing_condition             = fc_t_chol_trans_ER_PM,
+                        reaction_speed_function         = r_t_chol_trans_ER_PM,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_PM"],
+                        production_coefficients         = [1],
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Transport Cholesterol from ER to mito
+        self.PD_pn.add_transition_with_speed_function( #8
+                        transition_id                 = "t_chol_trans_ER_mito",
+                        label                          = "Chol transport ER-mito",
+                        input_place_ids                 = ["p_chol_ER"],
+                        firing_condition             = fc_t_chol_trans_ER_mito,
+                        reaction_speed_function         = r_t_chol_trans_ER_mito,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_chol_mito"],
+                        production_coefficients         = [1],
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Metabolisation of chol by CYP27A1
+        self.PD_pn.add_transition_with_michaelis_menten( #9
+                        transition_id                 = "t_CYP27A1_metab",
+                        label                          = "Chol metab CYP27A1",
+                        Km                             = Km_t_CYP27A1_metab,
+                        vmax                         = vmax_t_CYP27A1_metab,
+                        input_place_ids                 = ["p_chol_mito"],
+                        substrate_id                 = "p_chol_mito",
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_27OHchol_intra"],
+                        production_coefficients         = [1],
+                        vmax_scaling_function         = lambda a : chol_mp,
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Metabolism of chol by CYP11A1
+        self.PD_pn.add_transition_with_michaelis_menten( #10
+                        transition_id                 = "t_CYP11A1_metab",
+                        label                          = "Chol metab CYP11A1",
+                        Km                             = Km_t_CYP11A1_metab,
+                        vmax                         = vmax_t_CYP11A1_metab,
+                        input_place_ids                 = ["p_chol_mito"],
+                        substrate_id                 = "p_chol_mito",
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_preg"],
+                        production_coefficients         = [1],
+                        vmax_scaling_function         = lambda a : chol_mp,
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Metabolisation of 27OHchol by CYP7B1
+        self.PD_pn.add_transition_with_michaelis_menten( #11
+                        transition_id                 = "t_CYP7B1_metab",
+                        label                          = "27OHchol metab CYP7B1",
+                        Km                             = Km_t_CYP7B1_metab,
+                        vmax                         = vmax_t_CYP7B1_metab,
+                        input_place_ids                 = ["p_27OHchol_intra"],
+                        substrate_id                 = "p_27OHchol_intra",
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_7HOCA"],
+                        production_coefficients         = [1],
+                        vmax_scaling_function         = lambda a : chol_mp,
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Endocytosis of 27OHchol
+        self.PD_pn.add_transition_with_speed_function( #12
+                        transition_id                 = "t_27OHchol_endocyto",
+                        label                          = "27OHchol endocyto",
+                        input_place_ids                 = ["p_27OHchol_extra"],
+                        firing_condition             = fc_t_27OHchol_endocyto,
+                        reaction_speed_function         = r_t_27OHchol_endocyto,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_27OHchol_intra", "p_27OHchol_extra"],
+                        production_coefficients         = [1,1],
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Metabolisation of chol by CYP46A1
+        self.PD_pn.add_transition_with_michaelis_menten( #13
+                        transition_id                 = "t_CYP46A1_metab",
+                        label                          = "Chol metab CYP46A1",
+                        Km                             = Km_t_CYP46A1_metab,
+                        vmax                         = vmax_t_CYP46A1_metab,
+                        input_place_ids                 = ["p_chol_ER"],
+                        substrate_id                 = "p_chol_ER",
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_24OHchol_intra"],
+                        production_coefficients         = [1],
+                        vmax_scaling_function         = lambda a : chol_mp,
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Exocytosis of 24OHchol
+        self.PD_pn.add_transition_with_speed_function( #14
+                        transition_id                 = "t_24OHchol_exocyto",
+                        label                          = "24OHchol exocyto",
+                        input_place_ids                 = ["p_24OHchol_intra"],
+                        firing_condition             = fc_t_24OHchol_exocyto,
+                        reaction_speed_function         = r_t_24OHchol_exocyto,
+                        consumption_coefficients     = [1],
+                        output_place_ids             = ["p_24OHchol_extra"],
+                        production_coefficients         = [1],
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = collect_rate_analytics)
+    
+        # Transport of Chol into ECM
+        self.PD_pn.add_transition_with_speed_function( #15
+                        transition_id                 = "t_chol_trans_PM_ECM",
+                        label                          = "Chol transport PM-ECM",
+                        input_place_ids                 = ["p_chol_PM", "p_24OHchol_intra"],
+                        firing_condition             = fc_t_chol_trans_PM_ECM,
+                        reaction_speed_function         = r_t_chol_trans_PM_ECM,
+                        consumption_coefficients     = [1,0],
+                        output_place_ids             = [],
+                        production_coefficients         = [],
+                        stochastic_parameters = [cholSD],
+                        collect_rate_analytics = ["yes", "no"])
+    
+    
+        # PD specific
+    
+        self.PD_pn.add_transition_with_speed_function( #16
+                            transition_id = 't_SNCA_bind_ApoEchol_extra',
+                            label = 'Extracellular binding of SNCA to chol',
+                            input_place_ids = ['p_ApoEchol_extra','p_SNCA_act'],
+                            firing_condition = fc_t_SNCA_bind_ApoEchol_extra,
+                            reaction_speed_function = r_t_SNCA_bind_ApoEchol_extra,
+                            consumption_coefficients = [0,30], 
+                            output_place_ids = ['p_SNCA_olig'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
+    
+        self.PD_pn.add_transition_with_speed_function( #17
+                            transition_id = 't_chol_LE_upreg',
+                            label = 'Upregulation of chol in LE',
+                            input_place_ids = ['p_GBA1'],
+                            firing_condition = fc_t_chol_LE_upreg,
+                            reaction_speed_function = r_t_chol_LE_upreg,
+                            consumption_coefficients = [0], # GBA1 is an enzyme
+                            output_place_ids = ['p_chol_LE'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
+        
+        # # Calcium homeostasis
+        
+        self.PD_pn.add_transition_with_speed_function( #18
+                            transition_id = 't_Ca_imp',
+                            label = 'L-type Ca channel',
+                            input_place_ids = ['p_Ca_extra'],
+                            firing_condition = fc_t_Ca_imp,
+                            reaction_speed_function = r_t_Ca_imp,
+                            consumption_coefficients = [0], # Need to review this 
+                            output_place_ids = ['p_Ca_cyto'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) # Need to review this 
+    
+    
+        self.PD_pn.add_transition_with_speed_function( #19
+                            transition_id = 't_mCU',
+                            label = 'Ca import into mitochondria via mCU',
+                            input_place_ids = ['p_Ca_cyto','p_Ca_mito'],
+                            firing_condition = fc_t_mCU,
+                            reaction_speed_function = r_t_mCU,
+                            consumption_coefficients = [1,0], 
+                            output_place_ids = ['p_Ca_mito'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect)
+    
+        self.PD_pn.add_transition_with_speed_function( #20
+                            transition_id = 't_MAM',
+                            label = 'Ca transport from ER to mitochondria',
+                            input_place_ids = ['p_Ca_ER','p_Ca_mito'],
+                            firing_condition = fc_t_MAM,
+                            reaction_speed_function = r_t_MAM,
+                            consumption_coefficients = [1,0], 
+                            output_place_ids = ['p_Ca_mito'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect)
+    
+        self.PD_pn.add_transition_with_speed_function( #21
+                            transition_id = 't_RyR_IP3R',
+                            label = 'Ca export from ER',
+                            input_place_ids = ['p_Ca_extra','p_Ca_ER'],
+                            firing_condition = fc_t_RyR_IP3R,
+                            reaction_speed_function = r_t_RyR_IP3R,
+                            consumption_coefficients = [0,1], 
+                            output_place_ids = ['p_Ca_cyto'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+    
+        self.PD_pn.add_transition_with_speed_function( #22
+                            transition_id = 't_SERCA',
+                            label = 'Ca import to ER',
+                            input_place_ids = ['p_Ca_cyto','p_ATP'],
+                            firing_condition = fc_t_SERCA,
+                            reaction_speed_function = r_t_SERCA,
+                            consumption_coefficients = [1,1], #!!!!! Need to review this 0 should be 1
+                            output_place_ids = ['p_Ca_ER','p_ADP'],         
+                            production_coefficients = [1,1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) # Need to review this
+    
+        self.PD_pn.add_transition_with_speed_function( #23
+                            transition_id = 't_NCX_PMCA',
+                            label = 'Ca efflux to extracellular space',
+                            input_place_ids = ['p_Ca_cyto','p_on3'],
+                            firing_condition = lambda a: a['p_on3']==1,
+                            reaction_speed_function = r_t_NCX_PMCA,
+                            consumption_coefficients = [1,0], 
+                            output_place_ids = [],         
+                            production_coefficients = [],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect)
+        
+        self.PD_pn.add_transition_with_speed_function( #24
+                            transition_id = 't_mNCLX',
+                            label = 'Ca export from mitochondria via mNCLX',
+                            input_place_ids = ['p_Ca_mito','p_LRRK2_mut'],
+                            firing_condition = fc_t_mNCLX,
+                            reaction_speed_function = r_t_mNCLX,
+                            consumption_coefficients = [1,0], 
+                            output_place_ids = ['p_Ca_cyto'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+    
+        # # Discrete on/off-switches calcium pacemaking
+    
+
+        
+        # Link to energy metabolism in that it needs ATP replenishment
+        self.PD_pn.add_transition_with_mass_action( #29
+                            transition_id = 't_NaK_ATPase',
+                            label = 'NaK ATPase',
+                            rate_constant =  k_t_NaK_ATPase,
+                            input_place_ids = ['p_ATP', 'p_on3'],
+                            firing_condition = lambda a: a['p_on3']==1,
+                            consumption_coefficients = [1,0], 
+                            output_place_ids = ['p_ADP'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+        
+       # Lewy bodies pathology
+        self.PD_pn.add_transition_with_speed_function( #30
+                            transition_id = 't_SNCA_degr',
+                            label = 'SNCA degradation by CMA',
+                            input_place_ids = ['p_SNCA_act','p_VPS35','p_LRRK2_mut','p_27OHchol_intra','p_DJ1', 'p_DNL151', 'p_LAMP2A'],
+                            firing_condition = fc_t_SNCA_degr,
+                            reaction_speed_function = r_t_SNCA_degr,
+                            consumption_coefficients = [1,0,0,0,0,0,0], 
+                            output_place_ids = ['p_SNCA_inact'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics) 
+    
+        self.PD_pn.add_transition_with_speed_function(#31
+                            transition_id = 't_SNCA_aggr',
+                            label = 'SNCA aggregation',
+                            input_place_ids = ['p_SNCA_act','p_Ca_cyto','p_ROS_mito', 'p_tauP', 'p_NPT200'],
+                            firing_condition = fc_t_SNCA_aggr,
+                            reaction_speed_function = r_t_SNCA_aggr,
+                            consumption_coefficients = [30,0,0,0,0], #should be reviewed if Ca is consumed
+                            output_place_ids = ['p_SNCA_olig'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics) 
+    
+        self.PD_pn.add_transition_with_speed_function(#32
+                            transition_id = 't_SNCA_fibril',
+                            label = 'SNCA fibrillation',
+                            input_place_ids = ['p_SNCA_olig'],
+                            firing_condition = fc_t_SNCA_fibril,
+                            reaction_speed_function = r_t_SNCA_fibril,
+                            consumption_coefficients = [100], 
+                            output_place_ids = ['p_LB'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics) 
+    
+        self.PD_pn.add_transition_with_speed_function(#33
+                            transition_id = 't_IRE',
+                            label = 'IRE',
+                            input_place_ids = ['p_Fe2'],
+                            firing_condition = fc_t_IRE,
+                            reaction_speed_function = r_t_IRE,
+                            consumption_coefficients = [0], 
+                            output_place_ids = ['p_SNCA_act'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics) 
+        
+        # Energy metabolism
+        self.PD_pn.add_transition_with_speed_function(#34
+                            transition_id = 't_ATP_hydro_mito',
+                            label = 'ATP hydrolysis in mitochondria',
+                            input_place_ids = ['p_ATP'],
+                            firing_condition = fc_t_ATP_hydro_mito,
+                            reaction_speed_function = r_t_ATP_hydro_mito,
+                            consumption_coefficients = [1], 
+                            output_place_ids = ['p_ADP'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+        
+        self.PD_pn.add_transition_with_speed_function(#35
+                            transition_id = 't_ROS_metab',
+                            label = 'ROS neutralisation',
+                            input_place_ids = ['p_ROS_mito','p_chol_mito','p_LB','p_DJ1'],
+                            firing_condition = fc_t_ROS_metab,
+                            reaction_speed_function = r_t_ROS_metab,
+                            consumption_coefficients = [1,0,0,0], 
+                            output_place_ids = ['p_H2O_mito'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics) 
+        # #Link of krebs to calcium homeostasis
+        self.PD_pn.add_transition_with_speed_function(#36
+                            transition_id = 't_krebs',
+                            label = 'Krebs cycle',
+                            input_place_ids = ['p_ADP','p_Ca_mito'],
+                            firing_condition = fc_t_krebs,
+                            reaction_speed_function = r_t_krebs,
+                            consumption_coefficients = [1,0], # Need to review this
+                            output_place_ids = ['p_reduc_mito','p_ATP'],         
+                            production_coefficients = [4,1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics) 
+        
+        #Link of ETC to calcium and cholesterol
+        self.PD_pn.add_transition_with_speed_function(#37
+                            transition_id = 't_ETC',
+                            label = 'Electron transport chain',
+                            input_place_ids = ['p_reduc_mito', 'p_ADP', 'p_Ca_mito', 'p_chol_mito','p_ROS_mito','p_LRRK2_mut'],
+                            firing_condition = fc_t_ETC,
+                            reaction_speed_function = r_t_ETC,
+                            consumption_coefficients = [22/3,22,0,0,0,0], # Need to review this
+                            output_place_ids = ['p_ATP', 'p_ROS_mito'],         
+                            production_coefficients = [22,0.005],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics) 
+    
+        # # Output transitions: Cas3 for apoptosis
+        self.PD_pn.add_transition_with_speed_function(#38
+                            transition_id = 't_mito_dysfunc',
+                            label = 'Mitochondrial complex 1 dysfunction',
+                            input_place_ids = ['p_ROS_mito'],
+                            firing_condition = fc_t_mito_dysfunc,
+                            reaction_speed_function = r_t_mito_dysfunc,
+                            consumption_coefficients = [1], 
+                            output_place_ids = ['p_cas3'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics) 
+        
+        self.PD_pn.add_transition_with_speed_function(#39
+                            transition_id = 't_cas3_inact',
+                            label = 'Caspase 3 degredation',
+                            input_place_ids = ['p_cas3'],
+                            firing_condition = fc_t_cas3_inact,
+                            reaction_speed_function = r_t_cas3_inact,
+                            consumption_coefficients = [1], # Need to review this
+                            output_place_ids = [],         
+                            production_coefficients = [],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+        
+        # Late endosome pathology
+        self.PD_pn.add_transition_with_michaelis_menten(#40
+                            transition_id = 't_phos_tau',
+                            label = 'Phosphorylation of tau',
+                            Km = Km_t_phos_tau, 
+                            vmax = kcat_t_phos_tau, 
+                            input_place_ids = ['p_tau', 'p_SNCA_act'],
+                            substrate_id = 'p_tau',
+                            consumption_coefficients = [1, 0],
+                            output_place_ids = ['p_tauP'],
+                            production_coefficients = [1],
+                            vmax_scaling_function = vmax_scaling_t_phos_tau,
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+    
+        self.PD_pn.add_transition_with_michaelis_menten(#41
+                            transition_id = 't_dephos_tauP',
+                            label = 'Dephosphorylation of tau protein',
+                            Km = Km_t_dephos_tauP, 
+                            vmax = vmax_t_dephos_tauP, 
+                            input_place_ids = ['p_tauP', 'p_Ca_cyto'],
+                            substrate_id = 'p_tauP',
+                            consumption_coefficients = [1, 0],
+                            output_place_ids = ['p_tau'],
+                            production_coefficients = [1],
+                            vmax_scaling_function = vmax_scaling_t_dephos_tauP,
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+    
+        self.PD_pn.add_transition_with_speed_function(#42
+                            transition_id = 't_RTN3_exp',
+                            label = 'Expression rate of RTN3',
+                            input_place_ids = [], 
+                            firing_condition = fc_t_RTN3_exp,
+                            reaction_speed_function = r_t_RTN3_exp, 
+                            consumption_coefficients = [],
+                            output_place_ids = ['p_RTN3_PN'],
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+    
+        self.PD_pn.add_transition_with_speed_function(#43
+                            transition_id = 't_LE_retro',
+                            label = 'retrograde transport of LEs & ER',
+                            input_place_ids = ['p_ATP','p_chol_LE','p_RTN3_axon', 'p_tau','p_LRRK2_mut','p_LB'], 
+                            firing_condition = fc_t_LE_retro,
+                            reaction_speed_function = r_t_LE_retro, 
+                            consumption_coefficients = [ATPcons_t_LE_trans, 0, 1, 0,0,0],
+                            output_place_ids = ['p_ADP','p_RTN3_PN'],
+                            production_coefficients = [ATPcons_t_LE_trans, 1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+    
+        self.PD_pn.add_transition_with_speed_function(#44
+                            transition_id = 't_LE_antero',
+                            label = 'anterograde transport of LEs & ER',
+                            input_place_ids = ['p_ATP','p_RTN3_PN', 'p_tau'], # didn't connect p_tau yet
+                            firing_condition = fc_t_LE_antero,
+                            reaction_speed_function = r_t_LE_antero, # get later from NPCD
+                            consumption_coefficients = [ATPcons_t_LE_trans, 1, 0], # tune these coefficients based on PD
+                            output_place_ids = ['p_ADP','p_RTN3_axon'],
+                            production_coefficients = [ATPcons_t_LE_trans, 1],# tune these coefficients based on PD
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect)  
+    
+        self.PD_pn.add_transition_with_speed_function(#45
+                            transition_id = 't_RTN3_aggregation',
+                            label = 'aggregation of monomeric RTN3 into HMW RTN3',
+                            input_place_ids = ['p_RTN3_axon', 'p_RTN3_PN'], 
+                            firing_condition = fc_t_RTN3_aggregation, # tune aggregation limit later
+                            reaction_speed_function = r_t_RTN3_aggregation,
+                            consumption_coefficients = [1, 1],
+                            output_place_ids = ['p_RTN3_HMW_cyto'],
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+    
+        self.PD_pn.add_transition_with_speed_function(#46
+                            transition_id = 't_RTN3_auto',
+                            label = 'functional autophagy of HMW RTN3',
+                            input_place_ids = ['p_RTN3_HMW_cyto', 'p_RTN3_axon'], 
+                            firing_condition = fc_t_RTN3_auto, 
+                            reaction_speed_function = r_t_RTN3_auto,
+                            consumption_coefficients = [1, 0],
+                            output_place_ids = ['p_RTN3_HMW_auto'],
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+    
+        self.PD_pn.add_transition_with_speed_function(#47
+                            transition_id = 't_RTN3_lyso',
+                            label = 'functional delivery of HMW RTN3 to the lysosome',
+                            input_place_ids = ['p_RTN3_HMW_auto', 'p_tau'], 
+                            firing_condition = fc_t_RTN3_lyso, 
+                            reaction_speed_function = r_t_RTN3_lyso,
+                            consumption_coefficients = [1, 0],
+                            output_place_ids = ['p_RTN3_HMW_lyso'],
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+    
+        self.PD_pn.add_transition_with_speed_function(#48
+                            transition_id = 't_RTN3_dys_auto',
+                            label = 'dysfunctional autophagy of HMW RTN3',
+                            input_place_ids = ['p_RTN3_HMW_cyto', 'p_RTN3_axon'], 
+                            firing_condition = fc_t_RTN3_dys_auto, 
+                            reaction_speed_function = r_t_RTN3_dys_auto,
+                            consumption_coefficients = [1, 0],
+                            output_place_ids = ['p_RTN3_HMW_dys1'],
+                            production_coefficients = [1],# tune later when data are incorporated
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect)  
+    
+        self.PD_pn.add_transition_with_speed_function(#49
+                            transition_id = 't_RTN3_dys_lyso',
+                            label = 'dysfunctional delivery of HMW RTN3 to the lysosome',
+                            input_place_ids = ['p_RTN3_HMW_auto', 'p_RTN3_HMW_dys1', 'p_tau'], 
+                            firing_condition = fc_t_RTN3_dys_lyso, 
+                            reaction_speed_function = r_t_RTN3_dys_lyso,
+                            consumption_coefficients = [1, 0, 0],
+                            output_place_ids = ['p_RTN3_HMW_dys2'],
+                            production_coefficients = [1],# tune later when data are incorporated
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = dont_collect) 
+
+        
+    def PD_Discrete_Transitions(self):
+        self.PD_pn.add_transition_with_speed_function( #25
+                            transition_id = 't_A',
+                            label = 'A',
+                            input_place_ids = ['p_on4'],
+                            firing_condition = lambda a: a['p_on4']==1,
+                            reaction_speed_function = lambda a: 1,
+                            consumption_coefficients = [1], 
+                            output_place_ids = ['p_Ca_extra'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [CaSD,DelaySD],
+                            collect_rate_analytics = ["no","no"],
+                            delay=0.5) 
+        
+        self.PD_pn.add_transition_with_speed_function( #26
+                            transition_id = 't_B',
+                            label = 'B',
+                            input_place_ids = ['p_Ca_extra'],
+                            firing_condition = lambda a: a['p_Ca_extra']==1,
+                            reaction_speed_function = lambda a: 1,
+                            consumption_coefficients = [1], 
+                            output_place_ids = ['p_on2'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [CaSD,DelaySD],
+                            collect_rate_analytics = ["no","no"],
+                            delay=0.5) 
+        self.PD_pn.add_transition_with_speed_function( #27
+                            transition_id = 't_C',
+                            label = 'C',
+                            input_place_ids = ['p_on2'],
+                            firing_condition = lambda a: a['p_on2']==1,
+                            reaction_speed_function = lambda a: 1,
+                            consumption_coefficients = [1], 
+                            output_place_ids = ['p_on3'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [CaSD,0],
+                            collect_rate_analytics = ["no","no"],
+                            delay=0) 
+        self.PD_pn.add_transition_with_speed_function( #28
+                            transition_id = 't_D',
+                            label = 'D',
+                            input_place_ids = ['p_on3'],
+                            firing_condition = lambda a: a['p_on3']==1,
+                            reaction_speed_function = lambda a: 1,
+                            consumption_coefficients = [1], 
+                            output_place_ids = ['p_on4'],         
+                            production_coefficients = [1],
+                            stochastic_parameters = [CaSD,DelaySD],
+                            collect_rate_analytics = ["no","no"],
+                            delay=0.5)        
+        
+        self.PD_pn.add_transition_with_speed_function(#50
+                            transition_id = 't_MDV_Generation_basal',
+                            label = "Mitochondrially Derived Vesicles production",
+                            input_place_ids = ['p_chol_mito', 'p_ROS_mito'],
+                            firing_condition = lambda a: a['p_chol_mito']>100000,
+                            reaction_speed_function = lambda a: 0.0011088*a['p_chol_mito'],
+                            consumption_coefficients =[1,0],
+                            output_place_ids = ['p_chol_LE'],
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD, cholSD],
+                            collect_rate_analytics = collect_rate_analytics,
+                            delay = function_for_MDV_delay) #lambda a: (1/chol_mp)*min(60,max((-24.34*np.log(a['p_ROS_mito'])+309.126)), 20)) #switch: lambda a: 60*(a['p_ROS_mito'] < 80000)+30*(a['p_ROS_mito']>80000)) 
+                            
     def make_scrollbar_sHFPN(self):
         self.canvas = tk.Canvas(self.frame4)
         self.canvas.pack(side="left", fill=tk.BOTH, expand=1)
@@ -427,6 +1262,7 @@ class sHFPN_GUI_APP:
             self.HFPN_CalciumSD = self.Label_Calcium_e.get()
             print("Inputs Saved")
             self.button_1.config(state="normal", text="Run sHFPN")
+            self.lb.itemconfig(7, bg="red")
             self.button_6.config(state=tk.DISABLED)
             
         #*Save Inputs Button*
@@ -454,7 +1290,7 @@ class sHFPN_GUI_APP:
         self.Label_BSL = tk.Label(self.frame7, text="Please email B.S. Lockey at bsl29@cam.ac.uk for issues.", font=self.BSL_font)
         self.Label_BSL.pack()
 
-    def Neuronal_HealthBar(self):
+    def Live_Graph(self):
         self.frame8=tk.Frame(self.frame2)
         self.frame8.grid(row=0, column=0, sticky="nsew")
         
@@ -474,23 +1310,21 @@ class sHFPN_GUI_APP:
         # toolbar.update()
         # self.Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-    def Run_AD_sHFPN_Page(self):
-        self.AD_frame1=tk.Frame(self.frame2)
 
-        #self.frame4.pack(side="left", fill=tk.BOTH,expand=1)
-        self.AD_frame1.grid(row=0,column=0,sticky="nsew")
-        self.AD_button_1 = tk.Button(self.AD_frame1, text="Please Save Inputs", state=tk.DISABLED, command= threading.Thread(target = partial(self.run_AD_sHFPN)).start)
-        self.AD_button_1.config(cursor="hand2")
-        self.AD_button_1.pack(side=tk.TOP)
-        self.make_scrollbar_AD_sHFPN()        
         
         
-    def PD_Run_sHFPN_Page(self):
+    def Run_sHFPN_Page(self):
+        #PD Button
         self.frame4=tk.Frame(self.frame2)
         self.frame4.grid(row=0,column=0,sticky="nsew")
-        self.button_1 = tk.Button(self.frame4, text="Please Save Inputs", state=tk.DISABLED, command= threading.Thread(target = partial(self.run_sHFPN)).start)
+        self.button_1 = tk.Button(self.frame4, text="Save PD Inputs", state=tk.DISABLED, command= threading.Thread(target = partial(self.run_sHFPN)).start)
         self.button_1.config(cursor="hand2")
         self.button_1.pack(side=tk.TOP)
+        #AD Button
+        self.AD_button_1 = tk.Button(self.frame4, text="Save AD Inputs", state=tk.DISABLED, command= threading.Thread(target = partial(self.run_AD_sHFPN)).start)
+        self.AD_button_1.config(cursor="hand2")
+        self.AD_button_1.pack(side=tk.TOP)        
+
         self.make_scrollbar_sHFPN()
         
     def Analysis_page(self):
@@ -595,20 +1429,12 @@ class sHFPN_GUI_APP:
             for file in glob.glob("..\saved-runs\*"):
                 self.lbx.insert(tk.END, file) 
                 
-    def hide(self):
-        if self.hidden == 0:
-            self.frame1.destroy()
-            self.hidden=1
-        elif self.hidden==1:
-            self.frame2.destroy()
-            self.hidden=0
-            self.Left_Sidebar()
-            self.Right_Output()
+
                 
    
 
     def run_sHFPN(self):
-        
+        self.lb.itemconfig(7, fg="red")
         #Save Inputs from GUI
         run_save_name = self.HFPN_run_save_name
         number_time_steps = int(self.HFPN_number_of_timesteps)
@@ -626,731 +1452,48 @@ class sHFPN_GUI_APP:
         it_p_DNL151 = self.PD_DNL151_var.get()
         it_p_LAMP2A = self.PD_LAMP2A_var.get()
         
+        #Rewrite Place Inputs
+        self.PD_pn.add_place(it_p_LRRK2_mut, "p_LRRK2_mut","LRRK2 - mutated", continuous = True)
+        self.PD_pn.add_place(it_p_GBA1, "p_GBA1","GBA1", continuous = False)
+        self.PD_pn.add_place(it_p_VPS35, "p_VPS35", "VPS35", continuous = True)
+        self.PD_pn.add_place(it_p_DJ1, "p_DJ1","DJ1 mutant", continuous = True)
+        self.PD_pn.add_place(it_p_NPT200, place_id="p_NPT200", label = "Drug NPT200", continuous = True)
+        self.PD_pn.add_place(it_p_DNL151, place_id="p_DNL151", label = "Drug DNL151", continuous = True)
+        self.PD_pn.add_place(it_p_LAMP2A, place_id="p_LAMP2A", label = "Drug LAMP2A", continuous = True)        
+        
         #Disable Run HFPN Button
         self.button_1.config(state=tk.DISABLED)
         self.button_1.config(text="Running Simulation... Please bear with Lag...")
-        # Initialize an empty HFPN
-        pn = HFPN(time_step = time_step_size) #unit = s/A.U.    
         
+            
+        self.PD_pn.set_time_step(time_step = time_step_size) #unit = s/A.U. 
         ## Define places
-    
-       #  # Cholesterol homeostasis
-        pn.add_place(it_p_chol_PM, "p_chol_PM","Chol - perinuclear region", continuous = True)
-        pn.add_place(it_p_chol_LE, "p_chol_LE", "Chol - late endosome", continuous = True)
-        pn.add_place(it_p_chol_ER, "p_chol_ER", "Chol - ER", continuous = True)
-        pn.add_place(it_p_chol_mito, "p_chol_mito", "Chol - mitochondria", continuous = True)
-        pn.add_place(it_p_27OHchol_extra, "p_27OHchol_extra","27-OH chol - extracellular", continuous = True)
-        pn.add_place(it_p_27OHchol_intra, "p_27OHchol_intra","27-OH chol - intracellular", continuous = True)
-        pn.add_place(it_p_ApoEchol_extra, "p_ApoEchol_extra","ApoE - extracellular", continuous = True)
-        pn.add_place(it_p_ApoEchol_EE, "p_ApoEchol_EE","ApoE - Early endosome", continuous = True)
-        pn.add_place(it_p_7HOCA, "p_7HOCA","7-HOCA", continuous = True)
-        pn.add_place(it_p_preg,place_id="p_preg", label="Pregnenolon", continuous=True)
-        pn.add_place(it_p_24OHchol_extra,place_id="p_24OHchol_extra", label="24OHchol extra", continuous=True)
-        pn.add_place(it_p_24OHchol_intra,place_id="p_24OHchol_intra", label="24OHchol intra", continuous=True)
-    
-        #  # PD specific places in cholesterol homeostasis
-        pn.add_place(it_p_GBA1, "p_GBA1","GBA1", continuous = False)
-        pn.add_place(it_p_SNCA_act_extra, "p_SNCA_act_extra","a-synuclein - extracellular", continuous = True)
-        pn.add_place(it_p_SNCAApoEchol_extra, "p_SNCAApoEchol_extra","a-synuclein-ApoE complex - extracellular", continuous = True)
-        pn.add_place(it_p_SNCAApoEchol_intra, "p_SNCAApoEchol_intra","a-synuclein-ApoE complex - intracellular", continuous = True)
-    
-        #  # Energy metabolism
-        pn.add_place(it_p_ROS_mito, "p_ROS_mito", "ROS - mitochondria", continuous = True)
-        pn.add_place(it_p_H2O_mito, "p_H2O_mito", "H2O - mitochondria", continuous = True)
-        pn.add_place(it_p_reduc_mito, "p_reduc_mito", "Reducing agents - mitochondria", continuous = True)
-        pn.add_place(it_p_cas3, "p_cas3","caspase 3 - mitochondria", continuous = True)
-        pn.add_place(it_p_DJ1, "p_DJ1","DJ1 mutant", continuous = True)
+
+        #Set the Input Stochastic Parameter Values
+        for index,value in enumerate(self.transitions_entry_box_dict):
+            str_index = str(index) #stringed number is the key of these dictionaries
+            SD_value = float(self.transitions_entry_box_dict[str_index].get()) #float because entry box value is initially a string
+            transition_id = list(self.PD_pn.transitions)[index] #get the transition id (dict key) from a list of all the transitions in this dict.
+            self.PD_pn.transitions[transition_id].set_1st_stochastic_parameter(SD_value)
+            if self.PD_pn.transitions[transition_id].DiscreteFlag=="yes":
+                Delay_SD_Value = float(self.transitions_entry_box_Discrete_SD[str_index].get())
+                self.PD_pn.transitions[transition_id].set_2nd_stochastic_parameter(Delay_SD_Value)
+
+        #Set the Collect Rate Analytics Decisions Consumption
+        for index,value in enumerate(self.transitions_consumption_checkboxes_dict):
+            str_index = str(index)
+            Integer_value = self.consump_checkbox_variables_dict[str_index].get() # 1 means checked, 0 means not.
+            transition_id = list(self.PD_pn.transitions)[index]
+            self.PD_pn.transitions[transition_id].set_consumption_collect_decision(Integer_value)
+           
+        #Set the Collect Rate Analytics Decisions Production
+        for index,value in enumerate(self.transitions_production_checkboxes_dict):
+            str_index = str(index)
+            Integer_value = self.produc_checkbox_variables_dict[str_index].get() # 1 means checked, 0 means not.
+            transition_id = list(self.PD_pn.transitions)[index]
+            self.PD_pn.transitions[transition_id].set_production_collect_decision(Integer_value)
         
-        #  # Calcium homeostasis
-        pn.add_place(it_p_Ca_cyto, "p_Ca_cyto", "Ca - cytosole", continuous = True)
-        pn.add_place(it_p_Ca_mito, "p_Ca_mito","Ca - mitochondria", continuous = True)
-        pn.add_place(it_p_Ca_ER, "p_Ca_ER", "Ca - ER", continuous = True)
-        pn.add_place(it_p_ADP, "p_ADP","ADP - Calcium ER import", continuous = True)
-        pn.add_place(it_p_ATP, "p_ATP","ATP - Calcium ER import", continuous = True)
-    
-        #  # Discrete on/of-switches calcium pacemaking
-    
-        pn.add_place(1, "p_Ca_extra", "on1 - Ca - extracellular", continuous = False)
-        pn.add_place(0, "p_on2","on2", continuous = False)
-        pn.add_place(0, "p_on3","on3", continuous = False)
-        pn.add_place(0, "p_on4","on4", continuous = False)
-        
-          # Lewy bodies
-        pn.add_place(it_p_SNCA_act, "p_SNCA_act","SNCA - active", continuous = True)
-        pn.add_place(it_p_VPS35, "p_VPS35", "VPS35", continuous = True)
-        pn.add_place(it_p_SNCA_inact, "p_SNCA_inact", "SNCA - inactive", continuous = True)
-        pn.add_place(it_p_SNCA_olig, "p_SNCA_olig", "SNCA - Oligomerised", continuous = True)
-        pn.add_place(it_p_LB, "p_LB", "Lewy body", continuous = True)
-        pn.add_place(it_p_Fe2, "p_Fe2", "Fe2 iron pool", continuous = True)
-        
-          # Late endosome pathology 
-        pn.add_place(it_p_LRRK2_mut, "p_LRRK2_mut","LRRK2 - mutated", continuous = True)
-          # Monomeric RTN3 (cycling between axonal and perinuclear regions)
-        pn.add_place(it_p_RTN3_axon, place_id="p_RTN3_axon", label="monomeric RTN3 (axonal)", continuous=True)
-        pn.add_place(it_p_RTN3_PN, place_id="p_RTN3_PN", label="monomeric RTN3 (perinuclear)", continuous=True)
-    
-          # HMW RTN3 (cycling between different cellular compartments)
-        pn.add_place(it_p_RTN3_HMW_cyto, place_id="p_RTN3_HMW_cyto", label="HMW RTN3 (cytosol)", continuous=True)
-        pn.add_place(it_p_RTN3_HMW_auto, place_id="p_RTN3_HMW_auto", label="HMW RTN3 (autophagosome)", continuous=True)
-        pn.add_place(it_p_RTN3_HMW_lyso, place_id="p_RTN3_HMW_lyso", label="HMW RTN3 (degraded in lysosome)", continuous=True)
-        pn.add_place(it_p_RTN3_HMW_dys1, place_id="p_RTN3_HMW_dys1", label="HMW RTN3 (type I/III dystrophic neurites)", continuous=True)
-        pn.add_place(it_p_RTN3_HMW_dys2, place_id="p_RTN3_HMW_dys2", label="HMW RTN3 (type II dystrophic neurites)", continuous=True)
-    
-          # Two places that are NOT part of this subpathway, but are temporarily added for establishing proper connections
-          # They will be removed upon merging of subpathways
-        pn.add_place(it_p_tau, place_id="p_tau", label = "Unphosphorylated tau", continuous = True)
-        pn.add_place(it_p_tauP, place_id="p_tauP", label = "Phosphorylated tau", continuous = True)
-        
-        # Drug places 
-        pn.add_place(it_p_NPT200, place_id="p_NPT200", label = "Drug NPT200", continuous = True)
-        pn.add_place(it_p_DNL151, place_id="p_DNL151", label = "Drug DNL151", continuous = True)
-        pn.add_place(it_p_LAMP2A, place_id="p_LAMP2A", label = "Drug LAMP2A", continuous = True)
-        
-        ## Define transitions
-        
-        # Cholesterol Endocytosis
-        pn.add_transition_with_speed_function( #1
-                        transition_id                 = "t_LDLR_endocyto",
-                        label                          = "LDLR endocyto",
-                        input_place_ids                 = ["p_ApoEchol_extra", "p_chol_ER","p_LB"],
-                        firing_condition             = fc_t_LDLR_endocyto,
-                        reaction_speed_function         = r_t_LDLR_endocyto, 
-                        consumption_coefficients     = [0,0,0],
-                        output_place_ids             = ["p_ApoEchol_EE"],
-                        production_coefficients         = [1],
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # # Cleavage of cholesteryl esters
-        pn.add_transition_with_speed_function( #2
-                        transition_id                 = "t_ApoEchol_cleav",
-                        label                          = "ApoE-chol cleav",
-                        input_place_ids                 = ["p_ApoEchol_EE"],
-                        firing_condition             = fc_t_ApoEchol_cleav,
-                        reaction_speed_function         = r_t_ApoEchol_cleav, 
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_chol_LE"],
-                        production_coefficients         = [354],
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Transport Cholesterol from LE to ER
-        pn.add_transition_with_speed_function( #3
-                        transition_id                 = "t_chol_trans_LE_ER",
-                        label                          = "Chol transport LE-ER",
-                        input_place_ids                 = ["p_chol_LE"],
-                        firing_condition             = fc_t_chol_trans_LE_ER,
-                        reaction_speed_function         = r_t_chol_trans_LE_ER,
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_chol_ER"],
-                        production_coefficients         = [1],
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Transport Cholesterol from LE to mito
-        pn.add_transition_with_speed_function( #4
-                        transition_id                 = "t_chol_trans_LE_mito",
-                        label                          = "Chol transport LE-mito",
-                        input_place_ids                 = ["p_chol_LE"],
-                        firing_condition             = fc_t_chol_trans_LE_mito,
-                        reaction_speed_function         = r_t_chol_trans_LE_mito,
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_chol_mito"],
-                        production_coefficients         = [1],
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Transport Cholesterol from LE to PM
-        pn.add_transition_with_speed_function( #5
-                        transition_id                 = "t_chol_trans_LE_PM",
-                        label                          = "Chol transport LE-PM",
-                        input_place_ids                 = ["p_chol_LE"],
-                        firing_condition             = fc_t_chol_trans_LE_PM, 
-                        reaction_speed_function         = r_t_chol_trans_LE_PM,
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_chol_PM"],
-                        production_coefficients         = [1],
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Transport Cholesterol from PM to ER
-        pn.add_transition_with_speed_function( #6
-                        transition_id                 = "t_chol_trans_PM_ER",
-                        label                          = "Chol transport PM-ER",
-                        input_place_ids                 = ["p_chol_PM"],
-                        firing_condition             = fc_t_chol_trans_PM_ER,
-                        reaction_speed_function         = r_t_chol_trans_PM_ER,
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_chol_ER"],
-                        production_coefficients         = [1],
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Transport Cholesterol from ER to PM
-        pn.add_transition_with_speed_function( #7
-                        transition_id                 = "t_chol_trans_ER_PM",
-                        label                          = "Chol transport ER-PM",
-                        input_place_ids                 = ["p_chol_ER"],
-                        firing_condition             = fc_t_chol_trans_ER_PM,
-                        reaction_speed_function         = r_t_chol_trans_ER_PM,
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_chol_PM"],
-                        production_coefficients         = [1],
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Transport Cholesterol from ER to mito
-        pn.add_transition_with_speed_function( #8
-                        transition_id                 = "t_chol_trans_ER_mito",
-                        label                          = "Chol transport ER-mito",
-                        input_place_ids                 = ["p_chol_ER"],
-                        firing_condition             = fc_t_chol_trans_ER_mito,
-                        reaction_speed_function         = r_t_chol_trans_ER_mito,
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_chol_mito"],
-                        production_coefficients         = [1],
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Metabolisation of chol by CYP27A1
-        pn.add_transition_with_michaelis_menten( #9
-                        transition_id                 = "t_CYP27A1_metab",
-                        label                          = "Chol metab CYP27A1",
-                        Km                             = Km_t_CYP27A1_metab,
-                        vmax                         = vmax_t_CYP27A1_metab,
-                        input_place_ids                 = ["p_chol_mito"],
-                        substrate_id                 = "p_chol_mito",
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_27OHchol_intra"],
-                        production_coefficients         = [1],
-                        vmax_scaling_function         = lambda a : chol_mp,
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Metabolism of chol by CYP11A1
-        pn.add_transition_with_michaelis_menten( #10
-                        transition_id                 = "t_CYP11A1_metab",
-                        label                          = "Chol metab CYP11A1",
-                        Km                             = Km_t_CYP11A1_metab,
-                        vmax                         = vmax_t_CYP11A1_metab,
-                        input_place_ids                 = ["p_chol_mito"],
-                        substrate_id                 = "p_chol_mito",
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_preg"],
-                        production_coefficients         = [1],
-                        vmax_scaling_function         = lambda a : chol_mp,
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Metabolisation of 27OHchol by CYP7B1
-        pn.add_transition_with_michaelis_menten( #11
-                        transition_id                 = "t_CYP7B1_metab",
-                        label                          = "27OHchol metab CYP7B1",
-                        Km                             = Km_t_CYP7B1_metab,
-                        vmax                         = vmax_t_CYP7B1_metab,
-                        input_place_ids                 = ["p_27OHchol_intra"],
-                        substrate_id                 = "p_27OHchol_intra",
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_7HOCA"],
-                        production_coefficients         = [1],
-                        vmax_scaling_function         = lambda a : chol_mp,
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Endocytosis of 27OHchol
-        pn.add_transition_with_speed_function( #12
-                        transition_id                 = "t_27OHchol_endocyto",
-                        label                          = "27OHchol endocyto",
-                        input_place_ids                 = ["p_27OHchol_extra"],
-                        firing_condition             = fc_t_27OHchol_endocyto,
-                        reaction_speed_function         = r_t_27OHchol_endocyto,
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_27OHchol_intra", "p_27OHchol_extra"],
-                        production_coefficients         = [1,1],
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Metabolisation of chol by CYP46A1
-        pn.add_transition_with_michaelis_menten( #13
-                        transition_id                 = "t_CYP46A1_metab",
-                        label                          = "Chol metab CYP46A1",
-                        Km                             = Km_t_CYP46A1_metab,
-                        vmax                         = vmax_t_CYP46A1_metab,
-                        input_place_ids                 = ["p_chol_ER"],
-                        substrate_id                 = "p_chol_ER",
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_24OHchol_intra"],
-                        production_coefficients         = [1],
-                        vmax_scaling_function         = lambda a : chol_mp,
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Exocytosis of 24OHchol
-        pn.add_transition_with_speed_function( #14
-                        transition_id                 = "t_24OHchol_exocyto",
-                        label                          = "24OHchol exocyto",
-                        input_place_ids                 = ["p_24OHchol_intra"],
-                        firing_condition             = fc_t_24OHchol_exocyto,
-                        reaction_speed_function         = r_t_24OHchol_exocyto,
-                        consumption_coefficients     = [1],
-                        output_place_ids             = ["p_24OHchol_extra"],
-                        production_coefficients         = [1],
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = collect_rate_analytics)
-    
-        # Transport of Chol into ECM
-        pn.add_transition_with_speed_function( #15
-                        transition_id                 = "t_chol_trans_PM_ECM",
-                        label                          = "Chol transport PM-ECM",
-                        input_place_ids                 = ["p_chol_PM", "p_24OHchol_intra"],
-                        firing_condition             = fc_t_chol_trans_PM_ECM,
-                        reaction_speed_function         = r_t_chol_trans_PM_ECM,
-                        consumption_coefficients     = [1,0],
-                        output_place_ids             = [],
-                        production_coefficients         = [],
-                        stochastic_parameters = [cholSD],
-                        collect_rate_analytics = ["yes", "no"])
-    
-    
-        # PD specific
-    
-        pn.add_transition_with_speed_function( #16
-                            transition_id = 't_SNCA_bind_ApoEchol_extra',
-                            label = 'Extracellular binding of SNCA to chol',
-                            input_place_ids = ['p_ApoEchol_extra','p_SNCA_act'],
-                            firing_condition = fc_t_SNCA_bind_ApoEchol_extra,
-                            reaction_speed_function = r_t_SNCA_bind_ApoEchol_extra,
-                            consumption_coefficients = [0,30], 
-                            output_place_ids = ['p_SNCA_olig'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = collect_rate_analytics)
-    
-        pn.add_transition_with_speed_function( #17
-                            transition_id = 't_chol_LE_upreg',
-                            label = 'Upregulation of chol in LE',
-                            input_place_ids = ['p_GBA1'],
-                            firing_condition = fc_t_chol_LE_upreg,
-                            reaction_speed_function = r_t_chol_LE_upreg,
-                            consumption_coefficients = [0], # GBA1 is an enzyme
-                            output_place_ids = ['p_chol_LE'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = collect_rate_analytics)
-        
-        # # Calcium homeostasis
-        
-        pn.add_transition_with_speed_function( #18
-                            transition_id = 't_Ca_imp',
-                            label = 'L-type Ca channel',
-                            input_place_ids = ['p_Ca_extra'],
-                            firing_condition = fc_t_Ca_imp,
-                            reaction_speed_function = r_t_Ca_imp,
-                            consumption_coefficients = [0], # Need to review this 
-                            output_place_ids = ['p_Ca_cyto'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) # Need to review this 
-    
-    
-        pn.add_transition_with_speed_function( #19
-                            transition_id = 't_mCU',
-                            label = 'Ca import into mitochondria via mCU',
-                            input_place_ids = ['p_Ca_cyto','p_Ca_mito'],
-                            firing_condition = fc_t_mCU,
-                            reaction_speed_function = r_t_mCU,
-                            consumption_coefficients = [1,0], 
-                            output_place_ids = ['p_Ca_mito'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect)
-    
-        pn.add_transition_with_speed_function( #20
-                            transition_id = 't_MAM',
-                            label = 'Ca transport from ER to mitochondria',
-                            input_place_ids = ['p_Ca_ER','p_Ca_mito'],
-                            firing_condition = fc_t_MAM,
-                            reaction_speed_function = r_t_MAM,
-                            consumption_coefficients = [1,0], 
-                            output_place_ids = ['p_Ca_mito'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect)
-    
-        pn.add_transition_with_speed_function( #21
-                            transition_id = 't_RyR_IP3R',
-                            label = 'Ca export from ER',
-                            input_place_ids = ['p_Ca_extra','p_Ca_ER'],
-                            firing_condition = fc_t_RyR_IP3R,
-                            reaction_speed_function = r_t_RyR_IP3R,
-                            consumption_coefficients = [0,1], 
-                            output_place_ids = ['p_Ca_cyto'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-    
-        pn.add_transition_with_speed_function( #22
-                            transition_id = 't_SERCA',
-                            label = 'Ca import to ER',
-                            input_place_ids = ['p_Ca_cyto','p_ATP'],
-                            firing_condition = fc_t_SERCA,
-                            reaction_speed_function = r_t_SERCA,
-                            consumption_coefficients = [1,1], #!!!!! Need to review this 0 should be 1
-                            output_place_ids = ['p_Ca_ER','p_ADP'],         
-                            production_coefficients = [1,1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) # Need to review this
-    
-        pn.add_transition_with_speed_function( #23
-                            transition_id = 't_NCX_PMCA',
-                            label = 'Ca efflux to extracellular space',
-                            input_place_ids = ['p_Ca_cyto','p_on3'],
-                            firing_condition = lambda a: a['p_on3']==1,
-                            reaction_speed_function = r_t_NCX_PMCA,
-                            consumption_coefficients = [1,0], 
-                            output_place_ids = [],         
-                            production_coefficients = [],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect)
-        
-        pn.add_transition_with_speed_function( #24
-                            transition_id = 't_mNCLX',
-                            label = 'Ca export from mitochondria via mNCLX',
-                            input_place_ids = ['p_Ca_mito','p_LRRK2_mut'],
-                            firing_condition = fc_t_mNCLX,
-                            reaction_speed_function = r_t_mNCLX,
-                            consumption_coefficients = [1,0], 
-                            output_place_ids = ['p_Ca_cyto'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-    
-        # # Discrete on/off-switches calcium pacemaking
-    
-        pn.add_transition_with_speed_function( #25
-                            transition_id = 't_A',
-                            label = 'A',
-                            input_place_ids = ['p_on4'],
-                            firing_condition = lambda a: a['p_on4']==1,
-                            reaction_speed_function = lambda a: 1,
-                            consumption_coefficients = [1], 
-                            output_place_ids = ['p_Ca_extra'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [CaSD,DelaySD],
-                            collect_rate_analytics = ["no","no"],
-                            delay=0.5) 
-        
-        pn.add_transition_with_speed_function( #26
-                            transition_id = 't_B',
-                            label = 'B',
-                            input_place_ids = ['p_Ca_extra'],
-                            firing_condition = lambda a: a['p_Ca_extra']==1,
-                            reaction_speed_function = lambda a: 1,
-                            consumption_coefficients = [1], 
-                            output_place_ids = ['p_on2'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [CaSD,DelaySD],
-                            collect_rate_analytics = ["no","no"],
-                            delay=0.5) 
-        pn.add_transition_with_speed_function( #27
-                            transition_id = 't_C',
-                            label = 'C',
-                            input_place_ids = ['p_on2'],
-                            firing_condition = lambda a: a['p_on2']==1,
-                            reaction_speed_function = lambda a: 1,
-                            consumption_coefficients = [1], 
-                            output_place_ids = ['p_on3'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [CaSD,0],
-                            collect_rate_analytics = ["no","no"],
-                            delay=0) 
-        pn.add_transition_with_speed_function( #28
-                            transition_id = 't_D',
-                            label = 'D',
-                            input_place_ids = ['p_on3'],
-                            firing_condition = lambda a: a['p_on3']==1,
-                            reaction_speed_function = lambda a: 1,
-                            consumption_coefficients = [1], 
-                            output_place_ids = ['p_on4'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [CaSD,DelaySD],
-                            collect_rate_analytics = ["no","no"],
-                            delay=0.5)
-        
-        # Link to energy metabolism in that it needs ATP replenishment
-        pn.add_transition_with_mass_action( #29
-                            transition_id = 't_NaK_ATPase',
-                            label = 'NaK ATPase',
-                            rate_constant =  k_t_NaK_ATPase,
-                            input_place_ids = ['p_ATP', 'p_on3'],
-                            firing_condition = lambda a: a['p_on3']==1,
-                            consumption_coefficients = [1,0], 
-                            output_place_ids = ['p_ADP'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-        
-       # Lewy bodies pathology
-        pn.add_transition_with_speed_function( #30
-                            transition_id = 't_SNCA_degr',
-                            label = 'SNCA degradation by CMA',
-                            input_place_ids = ['p_SNCA_act','p_VPS35','p_LRRK2_mut','p_27OHchol_intra','p_DJ1', 'p_DNL151', 'p_LAMP2A'],
-                            firing_condition = fc_t_SNCA_degr,
-                            reaction_speed_function = r_t_SNCA_degr,
-                            consumption_coefficients = [1,0,0,0,0,0,0], 
-                            output_place_ids = ['p_SNCA_inact'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = collect_rate_analytics) 
-    
-        pn.add_transition_with_speed_function(#31
-                            transition_id = 't_SNCA_aggr',
-                            label = 'SNCA aggregation',
-                            input_place_ids = ['p_SNCA_act','p_Ca_cyto','p_ROS_mito', 'p_tauP', 'p_NPT200'],
-                            firing_condition = fc_t_SNCA_aggr,
-                            reaction_speed_function = r_t_SNCA_aggr,
-                            consumption_coefficients = [30,0,0,0,0], #should be reviewed if Ca is consumed
-                            output_place_ids = ['p_SNCA_olig'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = collect_rate_analytics) 
-    
-        pn.add_transition_with_speed_function(#32
-                            transition_id = 't_SNCA_fibril',
-                            label = 'SNCA fibrillation',
-                            input_place_ids = ['p_SNCA_olig'],
-                            firing_condition = fc_t_SNCA_fibril,
-                            reaction_speed_function = r_t_SNCA_fibril,
-                            consumption_coefficients = [100], 
-                            output_place_ids = ['p_LB'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = collect_rate_analytics) 
-    
-        pn.add_transition_with_speed_function(#33
-                            transition_id = 't_IRE',
-                            label = 'IRE',
-                            input_place_ids = ['p_Fe2'],
-                            firing_condition = fc_t_IRE,
-                            reaction_speed_function = r_t_IRE,
-                            consumption_coefficients = [0], 
-                            output_place_ids = ['p_SNCA_act'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = collect_rate_analytics) 
-        
-        # Energy metabolism
-        pn.add_transition_with_speed_function(#34
-                            transition_id = 't_ATP_hydro_mito',
-                            label = 'ATP hydrolysis in mitochondria',
-                            input_place_ids = ['p_ATP'],
-                            firing_condition = fc_t_ATP_hydro_mito,
-                            reaction_speed_function = r_t_ATP_hydro_mito,
-                            consumption_coefficients = [1], 
-                            output_place_ids = ['p_ADP'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-        
-        pn.add_transition_with_speed_function(#35
-                            transition_id = 't_ROS_metab',
-                            label = 'ROS neutralisation',
-                            input_place_ids = ['p_ROS_mito','p_chol_mito','p_LB','p_DJ1'],
-                            firing_condition = fc_t_ROS_metab,
-                            reaction_speed_function = r_t_ROS_metab,
-                            consumption_coefficients = [1,0,0,0], 
-                            output_place_ids = ['p_H2O_mito'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = collect_rate_analytics) 
-        # #Link of krebs to calcium homeostasis
-        pn.add_transition_with_speed_function(#36
-                            transition_id = 't_krebs',
-                            label = 'Krebs cycle',
-                            input_place_ids = ['p_ADP','p_Ca_mito'],
-                            firing_condition = fc_t_krebs,
-                            reaction_speed_function = r_t_krebs,
-                            consumption_coefficients = [1,0], # Need to review this
-                            output_place_ids = ['p_reduc_mito','p_ATP'],         
-                            production_coefficients = [4,1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = collect_rate_analytics) 
-        
-        #Link of ETC to calcium and cholesterol
-        pn.add_transition_with_speed_function(#37
-                            transition_id = 't_ETC',
-                            label = 'Electron transport chain',
-                            input_place_ids = ['p_reduc_mito', 'p_ADP', 'p_Ca_mito', 'p_chol_mito','p_ROS_mito','p_LRRK2_mut'],
-                            firing_condition = fc_t_ETC,
-                            reaction_speed_function = r_t_ETC,
-                            consumption_coefficients = [22/3,22,0,0,0,0], # Need to review this
-                            output_place_ids = ['p_ATP', 'p_ROS_mito'],         
-                            production_coefficients = [22,0.005],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = collect_rate_analytics) 
-    
-        # # Output transitions: Cas3 for apoptosis
-        pn.add_transition_with_speed_function(#38
-                            transition_id = 't_mito_dysfunc',
-                            label = 'Mitochondrial complex 1 dysfunction',
-                            input_place_ids = ['p_ROS_mito'],
-                            firing_condition = fc_t_mito_dysfunc,
-                            reaction_speed_function = r_t_mito_dysfunc,
-                            consumption_coefficients = [1], 
-                            output_place_ids = ['p_cas3'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = collect_rate_analytics) 
-        
-        pn.add_transition_with_speed_function(#39
-                            transition_id = 't_cas3_inact',
-                            label = 'Caspase 3 degredation',
-                            input_place_ids = ['p_cas3'],
-                            firing_condition = fc_t_cas3_inact,
-                            reaction_speed_function = r_t_cas3_inact,
-                            consumption_coefficients = [1], # Need to review this
-                            output_place_ids = [],         
-                            production_coefficients = [],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-        
-        # Late endosome pathology
-        pn.add_transition_with_michaelis_menten(#40
-                            transition_id = 't_phos_tau',
-                            label = 'Phosphorylation of tau',
-                            Km = Km_t_phos_tau, 
-                            vmax = kcat_t_phos_tau, 
-                            input_place_ids = ['p_tau', 'p_SNCA_act'],
-                            substrate_id = 'p_tau',
-                            consumption_coefficients = [1, 0],
-                            output_place_ids = ['p_tauP'],
-                            production_coefficients = [1],
-                            vmax_scaling_function = vmax_scaling_t_phos_tau,
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-    
-        pn.add_transition_with_michaelis_menten(#41
-                            transition_id = 't_dephos_tauP',
-                            label = 'Dephosphorylation of tau protein',
-                            Km = Km_t_dephos_tauP, 
-                            vmax = vmax_t_dephos_tauP, 
-                            input_place_ids = ['p_tauP', 'p_Ca_cyto'],
-                            substrate_id = 'p_tauP',
-                            consumption_coefficients = [1, 0],
-                            output_place_ids = ['p_tau'],
-                            production_coefficients = [1],
-                            vmax_scaling_function = vmax_scaling_t_dephos_tauP,
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-    
-        pn.add_transition_with_speed_function(#42
-                            transition_id = 't_RTN3_exp',
-                            label = 'Expression rate of RTN3',
-                            input_place_ids = [], 
-                            firing_condition = fc_t_RTN3_exp,
-                            reaction_speed_function = r_t_RTN3_exp, 
-                            consumption_coefficients = [],
-                            output_place_ids = ['p_RTN3_PN'],
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-    
-        pn.add_transition_with_speed_function(#43
-                            transition_id = 't_LE_retro',
-                            label = 'retrograde transport of LEs & ER',
-                            input_place_ids = ['p_ATP','p_chol_LE','p_RTN3_axon', 'p_tau','p_LRRK2_mut','p_LB'], 
-                            firing_condition = fc_t_LE_retro,
-                            reaction_speed_function = r_t_LE_retro, 
-                            consumption_coefficients = [ATPcons_t_LE_trans, 0, 1, 0,0,0],
-                            output_place_ids = ['p_ADP','p_RTN3_PN'],
-                            production_coefficients = [ATPcons_t_LE_trans, 1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-    
-        pn.add_transition_with_speed_function(#44
-                            transition_id = 't_LE_antero',
-                            label = 'anterograde transport of LEs & ER',
-                            input_place_ids = ['p_ATP','p_RTN3_PN', 'p_tau'], # didn't connect p_tau yet
-                            firing_condition = fc_t_LE_antero,
-                            reaction_speed_function = r_t_LE_antero, # get later from NPCD
-                            consumption_coefficients = [ATPcons_t_LE_trans, 1, 0], # tune these coefficients based on PD
-                            output_place_ids = ['p_ADP','p_RTN3_axon'],
-                            production_coefficients = [ATPcons_t_LE_trans, 1],# tune these coefficients based on PD
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect)  
-    
-        pn.add_transition_with_speed_function(#45
-                            transition_id = 't_RTN3_aggregation',
-                            label = 'aggregation of monomeric RTN3 into HMW RTN3',
-                            input_place_ids = ['p_RTN3_axon', 'p_RTN3_PN'], 
-                            firing_condition = fc_t_RTN3_aggregation, # tune aggregation limit later
-                            reaction_speed_function = r_t_RTN3_aggregation,
-                            consumption_coefficients = [1, 1],
-                            output_place_ids = ['p_RTN3_HMW_cyto'],
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-    
-        pn.add_transition_with_speed_function(#46
-                            transition_id = 't_RTN3_auto',
-                            label = 'functional autophagy of HMW RTN3',
-                            input_place_ids = ['p_RTN3_HMW_cyto', 'p_RTN3_axon'], 
-                            firing_condition = fc_t_RTN3_auto, 
-                            reaction_speed_function = r_t_RTN3_auto,
-                            consumption_coefficients = [1, 0],
-                            output_place_ids = ['p_RTN3_HMW_auto'],
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-    
-        pn.add_transition_with_speed_function(#47
-                            transition_id = 't_RTN3_lyso',
-                            label = 'functional delivery of HMW RTN3 to the lysosome',
-                            input_place_ids = ['p_RTN3_HMW_auto', 'p_tau'], 
-                            firing_condition = fc_t_RTN3_lyso, 
-                            reaction_speed_function = r_t_RTN3_lyso,
-                            consumption_coefficients = [1, 0],
-                            output_place_ids = ['p_RTN3_HMW_lyso'],
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-    
-        pn.add_transition_with_speed_function(#48
-                            transition_id = 't_RTN3_dys_auto',
-                            label = 'dysfunctional autophagy of HMW RTN3',
-                            input_place_ids = ['p_RTN3_HMW_cyto', 'p_RTN3_axon'], 
-                            firing_condition = fc_t_RTN3_dys_auto, 
-                            reaction_speed_function = r_t_RTN3_dys_auto,
-                            consumption_coefficients = [1, 0],
-                            output_place_ids = ['p_RTN3_HMW_dys1'],
-                            production_coefficients = [1],# tune later when data are incorporated
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect)  
-    
-        pn.add_transition_with_speed_function(#49
-                            transition_id = 't_RTN3_dys_lyso',
-                            label = 'dysfunctional delivery of HMW RTN3 to the lysosome',
-                            input_place_ids = ['p_RTN3_HMW_auto', 'p_RTN3_HMW_dys1', 'p_tau'], 
-                            firing_condition = fc_t_RTN3_dys_lyso, 
-                            reaction_speed_function = r_t_RTN3_dys_lyso,
-                            consumption_coefficients = [1, 0, 0],
-                            output_place_ids = ['p_RTN3_HMW_dys2'],
-                            production_coefficients = [1],# tune later when data are incorporated
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
-        pn.add_transition_with_speed_function(#50
-                            transition_id = 't_MDV_Generation_basal',
-                            label = "Mitochondrially Derived Vesicles production",
-                            input_place_ids = ['p_chol_mito', 'p_ROS_mito'],
-                            firing_condition = lambda a: a['p_chol_mito']>100000,
-                            reaction_speed_function = lambda a: 0.0011088*a['p_chol_mito'],
-                            consumption_coefficients =[1,0],
-                            output_place_ids = ['p_chol_LE'],
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD, cholSD],
-                            collect_rate_analytics = collect_rate_analytics,
-                            delay = function_for_MDV_delay) #lambda a: (1/chol_mp)*min(60,max((-24.34*np.log(a['p_ROS_mito'])+309.126)), 20)) #switch: lambda a: 60*(a['p_ROS_mito'] < 80000)+30*(a['p_ROS_mito']>80000)) 
-                            
+
                             
         
         #TESTING ADDED TRANSITION FOR DEBUGGING PURPOSES
@@ -1371,8 +1514,8 @@ class sHFPN_GUI_APP:
         GUI_App = self
         
         start_time = datetime.now()
-        pn.run_many_times(number_runs=number_runs, number_time_steps=number_time_steps, GUI_App=GUI_App)
-        analysis = Analysis(pn)
+        self.PD_pn.run_many_times(number_runs=number_runs, number_time_steps=number_time_steps, GUI_App=GUI_App)
+        analysis = Analysis(self.PD_pn)
         execution_time = datetime.now()-start_time
         print('\n\ntime to execute:', execution_time)
         # Save the network
@@ -1408,7 +1551,7 @@ class sHFPN_GUI_APP:
         #Disable Run HFPN Button
         self.AD_button_1.config(state=tk.DISABLED)
         self.AD_button_1.config(text="Running Simulation... Please bear with Lag...")
-        # Initialize an empty HFPN
+        # Initialize an empty HFPN #HERE
         pn = HFPN(time_step = time_step_size) #unit = s/A.U.           
   
             ### Cholesterol Homeostasis
@@ -2412,7 +2555,18 @@ def set_input_file(e, button1):
     button1.destroy()
     e.destroy()    
 
+    # self.root.bind("<Control-l>", lambda x: self.hide()) #Unnecessary feature... to be removed
+    # self.hidden=0
 
+    # def hide(self): #to be removed
+    #     if self.hidden == 0:
+    #         self.frame1.destroy()
+    #         self.hidden=1
+    #     elif self.hidden==1:
+    #         self.frame2.destroy()
+    #         self.hidden=0
+    #         self.Left_Sidebar()
+    #         self.Right_Output()
 
 
 
