@@ -189,10 +189,27 @@ class ContinuousTransition:
         self.production_coefficients = production_coefficients
         self.counter_thing = 0
         self.output_place_ids = output_place_ids
-        
+        self.DiscreteFlag = "no"
     #BSL:
     def __str__(self):
         return f"transition_id:{self.transition_id}, label:{self.label},firing_condition:{self.firing_condition},consumption_speeds:{self.consumption_speeds},production_speeds:{self.production_speeds},firings:{self.firings}"
+    
+    def set_1st_stochastic_parameter(self, decimal):
+        self.stochastic_parameters[0]=decimal
+        
+    def set_consumption_collect_decision(self, integer):
+        if integer == 0:
+            self.collect_rate_analytics[0] == "no"
+        if integer ==1:
+            self.collect_rate_analytics[0] == "yes"
+        print(self.collect_rate_analytics)
+        
+    def set_production_collect_decision(self, integer):
+        if integer == 0:
+            self.collect_rate_analytics[1] == "no"
+        if integer ==1:
+            self.collect_rate_analytics[1] == "yes"
+        print(self.collect_rate_analytics)        
 
     def get_input_place_tokens(self):
         input_place_tokens_dictionary = {}
@@ -364,11 +381,17 @@ class DiscreteTransition(ContinuousTransition):
         self.delay_original = delay
         self.delay_counter = 0 # Counter for consecutive no. of steps where firing condition still holds true
         self.delay_list = [] # create list for analysis later
+        self.DiscreteFlag = "yes"
         
         
         input_place_tokens = self.get_input_place_tokens()
         self.delay = self.calculate_lambda_f_delay(self.delay_original, input_place_tokens)
 
+    def set_2nd_stochastic_parameter(self, decimal):
+        "Allows the stochastic Parameter to be reset later, after the transition was loaded"
+        self.stochastic_parameters[1]=decimal
+        print(self.transition_id)
+        print(self.stochastic_parameters)
     def calculate_lambda_f_delay(self, delay_original, input_place_tokens):
         """Purpose is to check if delay is a lambda function or a float/integer, only used in initialisation to prevent error"""
         truth = isinstance(delay_original, int)
@@ -433,18 +456,20 @@ class DiscreteTransition(ContinuousTransition):
 class HFPN:
     """Hybrid functional Petri net (HPFN) with the option to specify a time-step in seconds."""
 
-    def __init__(self, time_step = 0.001, printout=False): 
+    def __init__(self, printout=False): 
         """
             Args:
-                time_step: size of the time increment, in seconds
+                
                 printout (bool): Whether to print out number of tokens in each place for each time-step
         """
         self.places = {}
         self.transitions = {}
-        self.time_step = time_step # time-step in seconds
         self.printout = printout
         self.counter = 0
         
+    def set_time_step(self, time_step):
+        "time_step: time increment size (seconds)"
+        self.time_step = time_step
             #BSL:
     def __str__(self):
         return f"places:{self.places}, transitions:{self.transitions},time_step:{self.time_step}"
@@ -470,6 +495,10 @@ class HFPN:
 
         if place_id in self.places.keys():
             print(f"Warning: Place {place_id} already exists.")
+            #rewrite it.. does this work?
+            place = Place(initial_tokens, place_id, label, continuous)
+            self.places[place_id] = place
+            print(f"Rewrote: Place {place_id}.")
         else:
             place = Place(initial_tokens, place_id, label, continuous)
             self.places[place_id] = place
@@ -521,6 +550,8 @@ class HFPN:
 
         if transition_id in self.transitions.keys():
             print(f"Warning: Transition {transition_id} already exists.")
+            #Rewrite
+            
         else:
 
             # Translate input_places from strings to Place instances
@@ -809,9 +840,20 @@ class HFPN:
                 if trans.collect_rate_analytics[0]=="yes":
                     list_of_column_names_consumption.append(trans.transition_id+" "+ input_place_id)
         
-    
+        
+        
         df_for_rate_analytics_cons = pd.DataFrame(columns=list_of_column_names_consumption, index=np.arange(0,number_time_steps+1))        
 
+        
+        header_button_consump = tk.Button(GUI_App.PD_frame_in_rate_canvas, text="consumption Rates")
+        header_button_consump.grid(row=0,column=0, pady=10, padx=10)
+
+        header_button_produc = tk.Button(GUI_App.PD_frame_in_rate_canvas, text="Production Rates")
+        header_button_produc.grid(row=0,column=2, pady=10, padx=10)
+        
+        for index, col in enumerate(df_for_rate_analytics_cons.columns):
+            x = tk.Button(GUI_App.PD_frame_in_rate_canvas, text=col, state=tk.DISABLED)
+            x.grid(row=index+1, column=0, padx=10, pady=10)
         
         ##Make dataframe for production rate analytics here
         list_of_column_names_production = []
@@ -826,7 +868,9 @@ class HFPN:
  
         df_for_rate_analytics_prod = pd.DataFrame(columns=list_of_column_names_production, index=np.arange(0,number_time_steps+1))
         
-        
+        for index, col in enumerate(df_for_rate_analytics_prod.columns):
+            x = tk.Button(GUI_App.PD_frame_in_rate_canvas, text=col, state=tk.DISABLED)
+            x.grid(row=index+1, column=2, padx=10, pady=10)        
         #GUI *****Redefine GUI Frames*****
         # root=root
         # main_frame=main_frame
@@ -889,7 +933,7 @@ class HFPN:
             GUI_App.a.plot(single_run_tokens[0:t,index])
             GUI_App.a.title.set_text(the_title)
             GUI_App.Neuronal_Healthbar_canvas.draw_idle() #BSL: note, matplotlib is not thread safe, that's why I embed it into the GUI rather than display a separate window, solving this issue was a nightmare, so I embed the live plots into the GUI.
-            GUI_App.lb.itemconfig(4,{'bg':'red'}) #sets bg to red to guide user a new plot has been displayed
+            GUI_App.lb.itemconfig(9,{'bg':'red'}) #sets bg to red to guide user a new plot has been displayed
             # GUI_App.Neuronal_Healthbar_canvas.get_tk_widget().destroy()
             # GUI_App.f = Figure(figsize=(5,5), dpi=100)
             # GUI_App.a = GUI_App.f.add_subplot(111)
@@ -1007,7 +1051,9 @@ class HFPN:
             #     #t_span = list(range(0,t+1,100))
             #     GUI_App.a.plot(single_run_tokens[:,2])
                 
-                    
+            if t % 1000 == 0:
+                for col in df_for_rate_analytics_prod.columns:
+                    print(col)
             #*Show final tokens in GUI when run ends.        
             if t == number_time_steps-1:
                 tokens_header_button.config(text="Timestep: " + str(t))
