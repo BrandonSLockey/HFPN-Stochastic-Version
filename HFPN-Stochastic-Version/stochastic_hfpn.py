@@ -870,12 +870,10 @@ class HFPN:
         
         for index, col in enumerate(df_for_rate_analytics_prod.columns):
             x = tk.Button(GUI_App.PD_frame_in_rate_canvas, text=col, state=tk.DISABLED)
-            x.grid(row=index+1, column=2, padx=10, pady=10)        
-        #GUI *****Redefine GUI Frames*****
-        # root=root
-        # main_frame=main_frame
-        # second_frame=second_frame
-        
+            x.grid(row=index+1, column=2, padx=10, pady=10)      
+            
+            
+        #GUI *****Redefine GUI Frames*****        
         frame_in_canvas = GUI_App.frame_in_canvas
         canvas = GUI_App.canvas
         
@@ -889,22 +887,11 @@ class HFPN:
             tk.Button(frame_in_canvas, text=place, state=tk.DISABLED).grid(row=index+1, column=0, pady=10, padx=10)
             
         
-        #need to pass canvas, should probably just pass self?
         #Define Live Graph
 
-        
-        # GUI_App.f = Figure(figsize=(5,5), dpi=100)
-        # GUI_App.a = GUI_App.f.add_subplot(111)
-        # GUI_App.a.plot([1,2,3],[1,2,3])
-        # GUI_App.Neuronal_Healthbar_canvas = FigureCanvasTkAgg(GUI_App.f, GUI_App.frame8)
-        # GUI_App.Neuronal_Healthbar_canvas.draw()
-        # GUI_App.Neuronal_Healthbar_canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)#I can also choose to grid it so its more compact for later, when I want to plot multiple plots. 
-        # toolbar = NavigationToolbar2Tk(GUI_App.Neuronal_Healthbar_canvas, GUI_App.frame8)
-        # toolbar.update()
-        # GUI_App.Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)             
         GUI_App.f = Figure(figsize=(5,5), dpi=100)
         GUI_App.Neuronal_Healthbar_canvas = FigureCanvasTkAgg(GUI_App.f, GUI_App.frame8)
-        GUI_App.Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True) 
+        GUI_App.Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True) #I can also choose to grid it so its more compact for later, when I want to plot multiple plots. 
         GUI_App.toolbar = NavigationToolbar2Tk(GUI_App.Neuronal_Healthbar_canvas, GUI_App.frame8)
         GUI_App.toolbar.update() 
         self.live_plot = "False"
@@ -920,34 +907,56 @@ class HFPN:
         GUI_App.Live_Button.pack(side=tk.TOP)
         
         def Plot_Live_Graph(index,t):
-            # fig1 = plt.figure()
-            # plt.plot(single_run_tokens[0:t,index])  
-            # plt.close(GUI_App.f)
-            # GUI_App.f.delaxes(GUI_App.a)
             GUI_App.Live_Button.config(state="normal")
             self.plot_index = index
-            the_title = str(list_of_places_names1[index])
-            
+            the_title = str(list_of_places_names1[index])           
             GUI_App.f.clear()
             GUI_App.a = GUI_App.f.add_subplot(111)
             GUI_App.a.plot(single_run_tokens[0:t,index])
             GUI_App.a.title.set_text(the_title)
             GUI_App.Neuronal_Healthbar_canvas.draw_idle() #BSL: note, matplotlib is not thread safe, that's why I embed it into the GUI rather than display a separate window, solving this issue was a nightmare, so I embed the live plots into the GUI.
             GUI_App.lb.itemconfig(9,{'bg':'red'}) #sets bg to red to guide user a new plot has been displayed
-            # GUI_App.Neuronal_Healthbar_canvas.get_tk_widget().destroy()
-            # GUI_App.f = Figure(figsize=(5,5), dpi=100)
-            # GUI_App.a = GUI_App.f.add_subplot(111)
-            # GUI_App.a.plot(single_run_tokens[0:t,index])
-            # GUI_App.Neuronal_Healthbar_canvas = FigureCanvasTkAgg(GUI_App.f, GUI_App.frame8)
-            # GUI_App.Neuronal_Healthbar_canvas.draw()
-            # GUI_App.Neuronal_Healthbar_canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)#I can also choose to grid it so its more compact for later, when I want to plot multiple plots. 
-            # GUI_App.toolbar = NavigationToolbar2Tk(GUI_App.Neuronal_Healthbar_canvas, GUI_App.frame8)
-            # GUI_App.toolbar.update()
-            # GUI_App.Neuronal_Healthbar_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)            
+         
             
-   
-        
-
+        GUI_App.f_rates = Figure(figsize=(5,5), dpi=100)
+        GUI_App.Rates_canvas = FigureCanvasTkAgg(GUI_App.f_rates, GUI_App.frame10)
+        GUI_App.Rates_canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True) #I can also choose to grid it so its more compact for later, when I want to plot multiple plots. 
+        GUI_App.toolbar_rates = NavigationToolbar2Tk(GUI_App.Rates_canvas, GUI_App.frame10)
+        GUI_App.toolbar.update() 
+        self.live_plot_rates_cons = "False"  
+        def Live_Button_Rates_command_Cons():
+            
+            if self.live_plot_rates_cons == "False":
+                self.live_plot_rates_cons = "True"
+                GUI_App.Live_Button_Rates.config(text="Live!", bg="red")
+            else:
+                self.live_plot_rates_cons = "False"
+                GUI_App.Live_Button_Rates.config(text="Live Graph", bg="green")        
+        GUI_App.Live_Button_Rates = tk.Button(GUI_App.frame10, text="Live Graph", command=Live_Button_Rates_command_Cons,bg="green", state=tk.DISABLED)
+        GUI_App.Live_Button_Rates.pack(side=tk.TOP)        
+        def Plot_Live_Graph_rates_cons(col_name,t):#arguments need to be changed
+            GUI_App.Live_Button_Rates.config(state="normal")
+            self.plot_col_name = col_name
+            the_title = col_name           
+            GUI_App.f_rates.clear()
+            GUI_App.a_rates = GUI_App.f_rates.add_subplot(111)
+            numpy_array = df_for_rate_analytics_cons[col_name].to_numpy()
+            GUI_App.a_rates.plot(numpy_array)
+            GUI_App.a_rates.title.set_text(the_title)
+            GUI_App.Rates_canvas.draw_idle() 
+            GUI_App.lb.itemconfig(10,{'bg':'red'})      
+            
+        def Plot_Live_Graph_rates_prod(col_name,t):#arguments need to be changed
+            GUI_App.Live_Button_Rates.config(state="normal")
+            self.plot_col_name = col_name
+            the_title = col_name           
+            GUI_App.f_rates.clear()
+            GUI_App.a_rates = GUI_App.f_rates.add_subplot(111)
+            numpy_array = df_for_rate_analytics_prod[col_name].to_numpy()
+            GUI_App.a_rates.plot(numpy_array)
+            GUI_App.a_rates.title.set_text(the_title)
+            GUI_App.Rates_canvas.draw_idle() 
+            GUI_App.lb.itemconfig(10,{'bg':'red'})  
             
         #GUI *****Make token buttons*****
         token_buttons_dict = {}
@@ -964,8 +973,28 @@ class HFPN:
         tokens_header_button.grid(row=0, column=1)
         place_header_button = tk.Button(frame_in_canvas, text="place", state=tk.DISABLED).grid(row=0, column=0)
         canvas.configure(scrollregion=canvas.bbox("all"))
+  
         
-        #*Pause_button
+        #GUI Make Rate Token Buttons
+        token_consume_rate_buttons_dict = {}
+        token_produce_rate_buttons_dict = {}
+        
+
+        for index,value in enumerate(df_for_rate_analytics_cons):
+            #dict keys should be the index            
+            readable_value = df_for_rate_analytics_cons.iloc[0][value] #value is the column name in this case.
+            index_str = str(index)
+            token_consume_rate_buttons_dict[index_str]=tk.Button(GUI_App.PD_frame_in_rate_canvas, text=str(readable_value), cursor="hand2")
+            token_consume_rate_buttons_dict[index_str].grid(row=index+1, column=1, pady=10,padx=10)           
+        
+
+        for index,value in enumerate(df_for_rate_analytics_prod):
+            #dict keys should be the index
+            readable_value = df_for_rate_analytics_prod.iloc[0][value] #value is the column name in this case.
+            index_str = str(index)
+            token_produce_rate_buttons_dict[index_str]=tk.Button(GUI_App.PD_frame_in_rate_canvas, text=str(readable_value), cursor="hand2")
+            token_produce_rate_buttons_dict[index_str].grid(row=index+1, column=3, pady=10,padx=10)        
+        # *Pause_button
         
         self.Pause_value = "off"
         def pause():
@@ -1052,8 +1081,30 @@ class HFPN:
             #     GUI_App.a.plot(single_run_tokens[:,2])
                 
             if t % 1000 == 0:
-                for col in df_for_rate_analytics_prod.columns:
-                    print(col)
+                
+                for index,col_name in enumerate(df_for_rate_analytics_cons):
+                    #dict keys should be the index                    
+                    value = df_for_rate_analytics_cons.iloc[t][col_name] 
+                    index_str = str(index)
+                    if value > 1e6:
+                        readable_value = "{:e}".format(value)
+                    else:
+                        readable_value = value
+                    token_consume_rate_buttons_dict[index_str].config(text=str(readable_value), command=partial(Plot_Live_Graph_rates_cons, col_name, t))          
+                
+        
+                for index,col_name in enumerate(df_for_rate_analytics_prod):
+                    #dict keys should be the index
+                    value = df_for_rate_analytics_prod.iloc[t][col_name] 
+                    index_str = str(index)
+                    if value > 1e6:
+                        readable_value = "{:e}".format(value)
+                    else:
+                        readable_value = value
+                    token_produce_rate_buttons_dict[index_str].config(text=str(readable_value), command=partial(Plot_Live_Graph_rates_prod, col_name, t))
+                if self.live_plot_rates_cons == "True":
+                    Plot_Live_Graph_rates_cons(self.plot_col_name,t)
+           
             #*Show final tokens in GUI when run ends.        
             if t == number_time_steps-1:
                 tokens_header_button.config(text="Timestep: " + str(t))
@@ -1118,7 +1169,7 @@ class HFPN:
         # Determine how many times transition fired in single run
         single_run_total_firings = single_run_firings[-1,:]
        
-        
+        GUI_App.lb.itemconfig(7, fg="lime")
         return single_run_tokens, single_run_total_firings, df_for_rate_analytics_prod,  df_for_rate_analytics_cons
 
 
