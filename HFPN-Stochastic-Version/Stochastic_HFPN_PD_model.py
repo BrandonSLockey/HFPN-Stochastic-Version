@@ -398,17 +398,10 @@ class sHFPN_GUI_APP:
         self.AD_pn.add_place(it_p_CD33, 'p_CD33', 'CD33 mutation', continuous = True) # 80 years old, risk factor in AD for BACE1 activity increase
     # 80 years old, risk factor in AD for BACE1 activity increase
     
-<<<<<<< Updated upstream
-        # ##AB aggregation places
-        # self.AD_pn.add_place(it_p_Ab_elon, place_id="p_Ab_elon", label="Elongating Ab", continuous = True)
-        # self.AD_pn.add_place(it_p_Ab_olig, place_id="p_Ab_olig", label="Ab oligomer", continuous = True)
-        # self.AD_pn.add_place(it_p_Ab_fib, place_id="p_Ab_fib", label="Ab fibril", continuous = True)
-=======
         ##AB aggregation places
         self.AD_pn.add_place(it_p_Ab_S, place_id="p_Ab_S", label="Nucleated Ab", continuous = True)
         self.AD_pn.add_place(it_p_Ab_P, place_id="p_Ab_P", label="Ab oligomer", continuous = True)
         self.AD_pn.add_place(it_p_Ab_M, place_id="p_Ab_M", label="Ab fibril (mass)", continuous = True)
->>>>>>> Stashed changes
      # ER retraction and collapse
     
         # Monomeric RTN3 (cycling between axonal and perinuclear regions)
@@ -1727,19 +1720,19 @@ class sHFPN_GUI_APP:
                         stochastic_parameters = [SD],
                         collect_rate_analytics = collect_rate_analytics)# none
     
-        # self.AD_pn.add_transition_with_michaelis_menten(
-        #                 transition_id                 = 't_CTF99_gsec_cleav',
-        #                 label                         = 'Gamma secretase cleavage of CTF99',
-        #                 Km = Km_t_CTF99_gsec_cleav, 
-        #                 vmax = kcat_t_CTF99_gsec_cleav,
-        #                 input_place_ids                 = ['p_CTF99', 'p_gsec', 'p_chol_PM'],
-        #                 substrate_id = 'p_CTF99', 
-        #                 consumption_coefficients     = [1, 0, 0],
-        #                 output_place_ids = ['p_Abconc', 'p_Ab', 'p_AICD'],
-        #                 production_coefficients = [conversion, 1, 1],
-        #                 vmax_scaling_function = vmax_scaling_t_CTF99_gsec_cleav,
-        #                 stochastic_parameters = [SD],
-        #                 collect_rate_analytics = collect_rate_analytics)
+        self.AD_pn.add_transition_with_michaelis_menten(
+                        transition_id                 = 't_CTF99_gsec_cleav',
+                        label                         = 'Gamma secretase cleavage of CTF99',
+                        Km = Km_t_CTF99_gsec_cleav, 
+                        vmax = kcat_t_CTF99_gsec_cleav,
+                        input_place_ids                 = ['p_CTF99', 'p_gsec', 'p_chol_PM'],
+                        substrate_id = 'p_CTF99', 
+                        consumption_coefficients     = [1, 0, 0],
+                        output_place_ids = ['p_Abconc', 'p_Ab', 'p_AICD'],
+                        production_coefficients = [conversion, 1, 1],
+                        vmax_scaling_function = vmax_scaling_t_CTF99_gsec_cleav,
+                        stochastic_parameters = [SD],
+                        collect_rate_analytics = collect_rate_analytics)
     
         self.AD_pn.add_transition_with_speed_function(
                         transition_id                 = 't_gsec_exp',
@@ -1765,172 +1758,89 @@ class sHFPN_GUI_APP:
                         stochastic_parameters = [SD],
                         collect_rate_analytics = collect_rate_analytics)# none
     
-<<<<<<< Updated upstream
         self.AD_pn.add_transition_with_speed_function(
                         transition_id                 = 't_Ab_degr',
                         label                         = 'Ab degradation',
-                        input_place_ids                 = ['p_Ab'], 
+                        input_place_ids                 = ['p_Ab', 'p_Abconc'], 
                         firing_condition             = fc_t_Ab_degr,
                         reaction_speed_function         = r_t_Ab_degr,
-                        consumption_coefficients     = [1], 
+                        consumption_coefficients     = [1, conversion], 
                         output_place_ids = [],
                         production_coefficients = [],
                         stochastic_parameters = [SD],
                         collect_rate_analytics = collect_rate_analytics)# TODO - fix ratio
-    
-        # self.AD_pn.add_transition_with_speed_function(
-        #                 transition_id                 = 't_Ab_phag',
-        #                 label                         = 'Ab phagocytosis',
-        #                 input_place_ids                 = ['p_Ab'], 
-        #                 firing_condition             = fc_t_Ab_phag,
-        #                 reaction_speed_function         = r_t_Ab_phag,
-        #                 consumption_coefficients     = [1], 
-        #                 output_place_ids = [],
-        #                 production_coefficients = [],
-        #                 stochastic_parameters = [SD],
-        #                 collect_rate_analytics = collect_rate_analytics)# TODO - 
-    
-    # ##AB aggregation module
-    #   ##AB Aggregation transitions
-            
-    #     self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_elon',
-    #                         label                = "Ab elongation step",
-    #                         input_place_ids       = ['p_Ab'],
-    #                         firing_condition = fc_t_Ab_elon,
-    #                         reaction_speed_function = r_t_Ab_elon,
-    #                         consumption_coefficients  = [1], 
-    #                         output_place_ids       = ['p_Ab_elon'],
-    #                         production_coefficients = [1],
-    #                         stochastic_parameters = [SD],
-    #                         collect_rate_analytics = collect_rate_analytics)
-        
-    #     self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_agg',
-    #                         label                = "Ab aggregation",
-    #                         input_place_ids       = ['p_Ab_elon'],
-    #                         firing_condition = fc_t_Ab_agg,
-    #                         reaction_speed_function = r_t_Ab_agg,
-    #                         consumption_coefficients  = [12.4], 
-    #                         output_place_ids       = ['p_Ab_olig'],
-    #                         production_coefficients = [1],
-    #                         stochastic_parameters = [SD],
-    #                         collect_rate_analytics = collect_rate_analytics)
-    
-    #     self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_fib',
-    #                         label                = "Ab fibrillation",
-    #                         input_place_ids       = ['p_Ab_olig'],
-    #                         firing_condition = fc_t_Ab_fib,
-    #                         reaction_speed_function = r_t_Ab_fib,
-    #                         consumption_coefficients  = [4], 
-    #                         output_place_ids       = ['p_Ab_fib'],
-    #                         production_coefficients = [1],
-    #                         stochastic_parameters = [SD],
-    #                         collect_rate_analytics = collect_rate_analytics)
-        
-    #     self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_frag',
-    #                         label                = "Ab fragmentation",
-    #                         input_place_ids       = ['p_Ab_fib'],
-    #                         firing_condition = fc_t_Ab_frag,
-    #                         reaction_speed_function = r_t_Ab_frag,
-    #                         consumption_coefficients  = [1], 
-    #                         output_place_ids       = ['p_Ab_olig', 'p_Ab'],
-    #                         production_coefficients = [3,12.4],
-    #                         stochastic_parameters = [SD],
-    #                         collect_rate_analytics = collect_rate_analytics)
-    
-    #     self.AD_pn.add_transition_with_speed_function(transition_id = 't_Abfib_phag',
-    #                         label                = "Ab fibril phagocytosis",
-    #                         input_place_ids       = ['p_Ab_fib'],
-    #                         firing_condition = fc_t_Abfib_phag,
-    #                         reaction_speed_function = r_t_Abfib_phag,
-    #                         consumption_coefficients  = [1], 
-    #                         output_place_ids       = [],
-    #                         production_coefficients = [],
-    #                         stochastic_parameters = [SD],
-    #                         collect_rate_analytics = collect_rate_analytics)
-=======
-        # self.AD_pn.add_transition_with_speed_function(
-        #                 transition_id                 = 't_Ab_degr',
-        #                 label                         = 'Ab degradation',
-        #                 input_place_ids                 = ['p_Ab', 'p_Abconc'], 
-        #                 firing_condition             = fc_t_Ab_degr,
-        #                 reaction_speed_function         = r_t_Ab_degr,
-        #                 consumption_coefficients     = [1, conversion], 
-        #                 output_place_ids = [],
-        #                 production_coefficients = [],
-        #                 stochastic_parameters = [SD],
-        #                 collect_rate_analytics = collect_rate_analytics)# TODO - fix ratio
+
 
     
-    ##AB aggregation module
-      ##AB Aggregation transitions
+    #AB aggregation module
+      #AB Aggregation transitions
             
-        # self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_nuc1',
-        #                     label                = "Ab primary nucleation",
-        #                     input_place_ids       = ['p_Ab', 'p_Abconc'],
-        #                     firing_condition = fc_t_Ab_nuc1,
-        #                     reaction_speed_function = r_t_Ab_nuc1,
-        #                     consumption_coefficients  = [1/conversion, 1], 
-        #                     output_place_ids       = ['p_Ab_S'],
-        #                     production_coefficients = [1],
-        #                     stochastic_parameters = [SD],
-        #                     collect_rate_analytics = collect_rate_analytics)
+        self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_nuc1',
+                            label                = "Ab primary nucleation",
+                            input_place_ids       = ['p_Ab', 'p_Abconc'],
+                            firing_condition = fc_t_Ab_nuc1,
+                            reaction_speed_function = r_t_Ab_nuc1,
+                            consumption_coefficients  = [1/conversion, 1], 
+                            output_place_ids       = ['p_Ab_S'],
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
 
         
-        # self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_dis1',
-        #                     label                = "Ab dissociation1",
-        #                     input_place_ids       = ['p_Ab_S'],
-        #                     firing_condition = fc_t_Ab_dis1,
-        #                     reaction_speed_function = r_t_Ab_dis1,
-        #                     consumption_coefficients  = [1], 
-        #                     output_place_ids       = ['p_Ab', 'p_Abconc'],
-        #                     production_coefficients = [1/conversion, 1],
-        #                     stochastic_parameters = [SD],
-        #                     collect_rate_analytics = collect_rate_analytics)
+        self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_dis1',
+                            label                = "Ab dissociation1",
+                            input_place_ids       = ['p_Ab_S'],
+                            firing_condition = fc_t_Ab_dis1,
+                            reaction_speed_function = r_t_Ab_dis1,
+                            consumption_coefficients  = [1], 
+                            output_place_ids       = ['p_Ab', 'p_Abconc'],
+                            production_coefficients = [1/conversion, 1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
     
-        # self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_elon',
-        #                     label                = "Ab elongation",
-        #                     input_place_ids       = ['p_Ab_S'],
-        #                     firing_condition = fc_t_Ab_elon,
-        #                     reaction_speed_function = r_t_Ab_elon,
-        #                     consumption_coefficients  = [1], 
-        #                     output_place_ids       = ['p_Ab_P'],
-        #                     production_coefficients = [1],
-        #                     stochastic_parameters = [SD],
-        #                     collect_rate_analytics = collect_rate_analytics)
+        self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_elon',
+                            label                = "Ab elongation",
+                            input_place_ids       = ['p_Ab_S'],
+                            firing_condition = fc_t_Ab_elon,
+                            reaction_speed_function = r_t_Ab_elon,
+                            consumption_coefficients  = [1], 
+                            output_place_ids       = ['p_Ab_P'],
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
         
-        # self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_fib',
-        #                     label                = "Ab fibrillation",
-        #                     input_place_ids       = ['p_Ab_P', 'p_Ab', 'p_Abconc'],
-        #                     firing_condition = fc_t_Ab_fib,
-        #                     reaction_speed_function = r_t_Ab_fib,
-        #                     consumption_coefficients  = [1, 0, 0],
-        #                     output_place_ids       = ['p_Ab_M'],
-        #                     production_coefficients = [1],
-        #                     stochastic_parameters = [SD],
-        #                     collect_rate_analytics = collect_rate_analytics)
+        self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_fib',
+                            label                = "Ab fibrillation",
+                            input_place_ids       = ['p_Ab_P', 'p_Ab', 'p_Abconc'],
+                            firing_condition = fc_t_Ab_fib,
+                            reaction_speed_function = r_t_Ab_fib,
+                            consumption_coefficients  = [1, 0, 0],
+                            output_place_ids       = ['p_Ab_M'],
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
     
-        # self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_M_frag',
-        #                     label                = "Ab fibril fragmentation",
-        #                     input_place_ids       = ['p_Ab_M'],
-        #                     firing_condition = fc_t_Ab_M_frag,
-        #                     reaction_speed_function = r_t_Ab_M_frag,
-        #                     consumption_coefficients  = [1], 
-        #                     output_place_ids       = ['p_Ab_P'],
-        #                     production_coefficients = [1],
-        #                     stochastic_parameters = [SD],
-        #                     collect_rate_analytics = collect_rate_analytics)
+        self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_M_frag',
+                            label                = "Ab fibril fragmentation",
+                            input_place_ids       = ['p_Ab_M'],
+                            firing_condition = fc_t_Ab_M_frag,
+                            reaction_speed_function = r_t_Ab_M_frag,
+                            consumption_coefficients  = [1], 
+                            output_place_ids       = ['p_Ab_P'],
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
             
-        # self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_M_phag',
-        #                     label                = "Ab fibril phagocytosis",
-        #                     input_place_ids       = ['p_Ab_M'],
-        #                     firing_condition = fc_t_Ab_M_phag,
-        #                     reaction_speed_function = r_t_Ab_M_phag,
-        #                     consumption_coefficients  = [1], 
-        #                     output_place_ids       = [],
-        #                     production_coefficients = [],
-        #                     stochastic_parameters = [SD],
-        #                     collect_rate_analytics = collect_rate_analytics)
->>>>>>> Stashed changes
+        self.AD_pn.add_transition_with_speed_function(transition_id = 't_Ab_M_phag',
+                            label                = "Ab fibril phagocytosis",
+                            input_place_ids       = ['p_Ab_M'],
+                            firing_condition = fc_t_Ab_M_phag,
+                            reaction_speed_function = r_t_Ab_M_phag,
+                            consumption_coefficients  = [1], 
+                            output_place_ids       = [],
+                            production_coefficients = [],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
             
         
     
