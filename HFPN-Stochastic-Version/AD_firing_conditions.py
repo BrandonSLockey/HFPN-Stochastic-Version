@@ -54,12 +54,13 @@ fc_t_APP_bsec_cleav = lambda a : True
 fc_CTF99_gsec_cleav = lambda a : True
 
 
-fc_t_Ab_elon = lambda a : a['p_Ab'] > 1
-fc_t_Ab_agg = lambda a : a['p_Ab_elon'] >= 12.4
-fc_t_Ab_fib = lambda a : a['p_Ab_olig'] >= 4
-fc_t_Ab_frag = lambda a : a['p_Ab_fib'] >= 1
-fc_t_Ab_phag = lambda a : a['p_Ab'] > 1
-fc_t_Abfib_phag = lambda a : a['p_Ab_fib'] > 0
+fc_t_Ab_nuc1 = lambda a : a['p_Abconc'] > 0
+fc_t_Ab_nuc2 = lambda a : a['p_Abconc'] > 0
+fc_t_Ab_dis1 = lambda a : a['p_Ab_S'] > 0
+fc_t_Ab_elon = lambda a : a['p_Ab_S'] > 0
+fc_t_Ab_fib = lambda a :  a['p_Ab_P'] > 0
+fc_t_Ab_M_frag = lambda a :  a['p_Ab_M'] > 0
+fc_t_Ab_M_phag = lambda a :  a['p_Ab_M'] > 0
 
 
 
