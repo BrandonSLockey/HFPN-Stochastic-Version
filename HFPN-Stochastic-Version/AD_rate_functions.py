@@ -3,6 +3,16 @@
 from AD_parameters import *
 from AD_initial_tokens import *
 
+ko1 = 1.056e-6
+ko2 = 8.056e-6
+kd1 = 0.032
+kc = 9.16e-6
+kplus = 3
+kminus = 0.1
+
+conversion = 3.963e-7
+Abagg_multiplier = 1000
+
 function = lambda f, g : lambda a : f(a) * g(a)
 
 
@@ -48,7 +58,7 @@ r_t_LE_retro = lambda a : ER_multiplier * beta_t_LE_retro * vmax_t_LE_retro * a[
 r_t_LE_antero = lambda a : ER_multiplier * (vmax_t_LE_antero * a['p_ATP']) / (Km_t_LE_antero + a['p_ATP']) / dist_t_LE_trans * a['p_RTN3_PN'] * a['p_tau']/it_p_tau
 r_t_RTN3_exp = lambda a : ER_multiplier * k_t_RTN3_exp
 
-r_t_RTN3_aggregation = lambda a : ER_multiplier * 0.1 * ((a["p_RTN3_axon"] + a["p_RTN3_PN"]) - (it_p_RTN3_tot * (1 - (1-dec_t_RTN3_aggregation) * max(0,(a['p_Ab'] - it_p_Ab))/(Ab_t_RTN3_aggregation - it_p_Ab)))) # kinetics not measured and dont really matter; only equilibrium/threshold matters. just assume that 10% of excess RTN3 above threshold aggregates every second (for smoothness)
+r_t_RTN3_aggregation = lambda a : ER_multiplier * 0.1 * ((a["p_RTN3_axon"] + a["p_RTN3_PN"]) - (it_p_RTN3_tot * (1 - (1-dec_t_RTN3_aggregation) * max(0,((a['p_Ab'] - it_p_Ab)))/(Ab_t_RTN3_aggregation - it_p_Ab)))) # kinetics not measured and dont really matter; only equilibrium/threshold matters. just assume that 10% of excess RTN3 above threshold aggregates every second (for smoothness)
 
 r_t_RTN3_auto = lambda a : ER_multiplier * a["p_RTN3_HMW_cyto"] * k_t_RTN3_auto * min(1, (a["p_RTN3_axon"] / it_p_RTN3_axon)) # autophagosomes per second (each containing 1 oligomer), scaled by the proportion of functional ER left
 r_t_RTN3_lyso = lambda a : ER_multiplier * a["p_RTN3_HMW_auto"] * k_t_RTN3_lyso * min(1, (a["p_tau"]/it_p_tau)) # rate of transport across axon, scaled by the proportion of functional tau left
@@ -71,17 +81,16 @@ r_t_gsec_degr = lambda a : Abeta_multiplier * k_t_gsec_degr * a['p_gsec']
 
 r_t_Ab_degr = lambda a : Abeta_multiplier * k_t_Ab_degr * a['p_Ab']
 # r_t_Ab_phag = lambda a : Abeta_multiplier * (0.0000194-(0.00000555*a['p_age'])) * a['p_Ab'] #phagocytosis is 2% slower in aged case]
-r_t_Ab_phag = lambda a : Abeta_multiplier * (0.000194-(0.0000555*it_p_age)) * a['p_Ab'] #phagocytosis is 2% slower in aged case]
+# r_t_Ab_phag = lambda a : Abeta_multiplier * (0.000194-(0.0000555*it_p_age)) * a['p_Ab'] #phagocytosis is 2% slower in aged case]
 
-r_t_Abfib_phag = lambda a : a['p_Ab_fib'] * Abeta_multiplier * (0.0004 - (0.00003 * it_p_age) - (0.00003 *  it_p_CD33 * a['p_Ab']/it_p_Ab)) 
-#currently tuning this. rate needs to depend on age, but also on CD33 status. However CD33 activity is also dependent on the levels of Ab
 
-r_t_Ab_elon = lambda a: Abeta_multiplier * Vmax_t_Ab_elon * a['p_Ab'] / (Km_t_Ab_elon + a['p_Ab'])
+r_t_Ab_nuc1 = lambda a : Abagg_multiplier * ko1 * a['p_Abconc']**0.3
+r_t_Ab_dis1 = lambda a :  Abagg_multiplier * kd1 * a['p_Ab_S']
+r_t_Ab_elon = lambda a : Abagg_multiplier * kc * a['p_Ab_S']
+r_t_Ab_fib = lambda a : Abagg_multiplier * 2 * kplus * a['p_Abconc'] * a['p_Ab_P']
+r_t_Ab_M_frag = lambda a : Abagg_multiplier * kminus * a['p_Ab_M']
+r_t_Ab_M_phag = lambda a : Abagg_multiplier * (0.00005-(0.000555*it_p_age)-(0.005*it_p_CD33)) * a['p_Ab_M'] #phagocytosis is 2% slower in aged case]
 
-r_t_Ab_frag = lambda a: Abeta_multiplier * 0.000025 * a['p_Ab_fib']
-
-r_t_Ab_agg = lambda a : 1000
-r_t_Ab_fib = lambda a : 1000
 
 ##AB Michealis Menten Rate Functions
 
@@ -108,7 +117,7 @@ r_t_CTF99_gsec_cleav = function(speed_function_CTF99_gsec_cleav, vmax_scaling_t_
 
 
 # Tau Pathology
-r_t_actv_GSK3b = lambda a : tau_multiplier * k_t_actv_GSK3b * a['p_GSK3b_inact'] * (dis_t_act_GSK3b * a['p_ApoE'] + 1) * (m_t_act_GSK3b * a['p_Ab'] + n_t_act_GSK3b)
+r_t_actv_GSK3b = lambda a : tau_multiplier * k_t_actv_GSK3b * a['p_GSK3b_inact'] * (dis_t_act_GSK3b * a['p_ApoE'] + 1) * (m_t_act_GSK3b * (a['p_Ab']) + n_t_act_GSK3b)
 r_t_inactv_GSK3b = lambda a : tau_multiplier * k_t_inactv_GSK3b * a['p_GSK3b_act']
 r_t_GSK3b_exp_deg = lambda a : tau_multiplier * (k_t_p_GSK3b_exp - k_t_p_GSK3b_deg * a['p_GSK3b_inact'])
 
@@ -163,8 +172,8 @@ rate_t_H_Extract = lambda a: a['p_on8']
 # Energy metabolism
 r_t_krebs = lambda a : k_t_krebs * a['p_ADP'] * a['p_Ca_mito'] * min( [1.0, max([0.0018,(m_t_ETC_inhib_Ab * a["p_Ab"] + n_t_ETC_inhib_Ab)])])
 r_t_ATP_hydro_mito = lambda a : k_t_ATP_hydro_mito * a['p_ATP']
-r_t_ETC = lambda a : k_t_ETC * a['p_ADP'] * a['p_Ca_mito'] *  a['p_reduc_mito'] / a['p_ROS_mito']**0.5 / max(a['p_chol_mito'], it_p_chol_mito) * min( [1.0, max([0.0018,(m_t_ETC_inhib_Ab * a["p_Ab"] + n_t_ETC_inhib_Ab)])])
+r_t_ETC = lambda a : k_t_ETC * a['p_ADP'] * a['p_Ca_mito'] *  a['p_reduc_mito'] / a['p_ROS_mito']**0.5 / max(a['p_chol_mito'], it_p_chol_mito) * min( [1.0, max([0.0018,(m_t_ETC_inhib_Ab * (a["p_Ab"]) + n_t_ETC_inhib_Ab)])])
 r_t_ROS_metab = lambda a : k_t_ROS_metab * a['p_ROS_mito'] / max(a['p_chol_mito'], it_p_chol_mito)
-r_t_mito_dysfunc = lambda a : k_t_mito_dysfunc * (m_t_mito_dysfunc * a["p_ROS_mito"] + n_t_mito_dysfunc) * (m_t_mito_dysfunc_Ab * a["p_Ab"] + n_t_mito_dysfunc_Ab)
+r_t_mito_dysfunc = lambda a : k_t_mito_dysfunc * (m_t_mito_dysfunc * a["p_ROS_mito"] + n_t_mito_dysfunc) * (m_t_mito_dysfunc_Ab * (a["p_Ab"]) + n_t_mito_dysfunc_Ab)
 r_t_cas3_inact = lambda a : k_t_cas3_inact * a["p_cas3"]
-r_t_ROS_gener_Ab = lambda a : k_t_ROS_gener_Ab * (a["p_Ab"] - it_p_Ab)
+r_t_ROS_gener_Ab = lambda a : k_t_ROS_gener_Ab * ((a["p_Ab"] - it_p_Ab))
