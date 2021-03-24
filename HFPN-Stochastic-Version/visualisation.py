@@ -40,6 +40,7 @@ class Analysis:
         self.df_for_rate_analytics_cons=hfpn.df_for_rate_analytics_cons
         self.number_of_timesteps_analysis = hfpn.the_number_of_timesteps
         self.time_step = hfpn.time_step
+        self.final_time_step = hfpn.FINAL_time_step
         
         
      
