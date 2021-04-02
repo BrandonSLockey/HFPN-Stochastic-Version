@@ -194,22 +194,7 @@ class ContinuousTransition:
     def __str__(self):
         return f"transition_id:{self.transition_id}, label:{self.label},firing_condition:{self.firing_condition},consumption_speeds:{self.consumption_speeds},production_speeds:{self.production_speeds},firings:{self.firings}"
     
-    def set_1st_stochastic_parameter(self, decimal):
-        self.stochastic_parameters[0]=decimal
-        
-    def set_consumption_collect_decision(self, integer):
-        if integer == 0:
-            self.collect_rate_analytics[0] == "no"
-        if integer ==1:
-            self.collect_rate_analytics[0] == "yes"
-        print(self.collect_rate_analytics)
-        
-    def set_production_collect_decision(self, integer):
-        if integer == 0:
-            self.collect_rate_analytics[1] == "no"
-        if integer ==1:
-            self.collect_rate_analytics[1] == "yes"
-        print(self.collect_rate_analytics)        
+    
 
     def get_input_place_tokens(self):
         input_place_tokens_dictionary = {}
@@ -387,11 +372,6 @@ class DiscreteTransition(ContinuousTransition):
         input_place_tokens = self.get_input_place_tokens()
         self.delay = self.calculate_lambda_f_delay(self.delay_original, input_place_tokens)
 
-    def set_2nd_stochastic_parameter(self, decimal):
-        "Allows the stochastic Parameter to be reset later, after the transition was loaded"
-        self.stochastic_parameters[1]=decimal
-        print(self.transition_id)
-        print(self.stochastic_parameters)
     def calculate_lambda_f_delay(self, delay_original, input_place_tokens):
         """Purpose is to check if delay is a lambda function or a float/integer, only used in initialisation to prevent error"""
         truth = isinstance(delay_original, int)
@@ -466,6 +446,35 @@ class HFPN:
         self.transitions = {}
         self.printout = printout
         self.counter = 0
+        
+        
+    def set_place_tokens(self, place_id, value):
+        self.places[place_id].tokens = value
+    def set_1st_stochastic_parameter(self, decimal, transition_id):
+        self.transitions[transition_id].stochastic_parameters[0]=decimal 
+        
+    def set_2nd_stochastic_parameter(self, decimal, transition_id):
+        "Allows the stochastic Parameter to be reset later, after the transition was loaded"
+        self.transitions[transition_id].stochastic_parameters[1]=decimal
+        
+        
+    def set_consumption_collect_decision(self, integer, transition_id):
+
+        if integer == 0:
+            self.transitions[transition_id].collect_rate_analytics[0] = "no"
+            print("0 activated")
+        if integer ==1:
+            self.transitions[transition_id].collect_rate_analytics[0] = "yes"
+            print("1 activated")
+            print(self.transitions[transition_id].collect_rate_analytics, "IN PETRI NET")
+            
+        
+    def set_production_collect_decision(self, integer, transition_id):
+        if integer == 0:
+            self.transitions[transition_id].collect_rate_analytics[1] = "no"
+        if integer ==1:
+            self.transitions[transition_id].collect_rate_analytics[1] = "yes"
+   
         
     def set_time_step(self, time_step):
         "time_step: time increment size (seconds)"
