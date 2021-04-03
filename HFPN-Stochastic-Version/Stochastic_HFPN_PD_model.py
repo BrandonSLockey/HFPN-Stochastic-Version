@@ -2732,11 +2732,11 @@ class sHFPN_GUI_APP:
             Integer_value = self.consump_checkbox_variables_dict[str_index].get() # 1 means checked, 0 means not.
             transition_id = list(self.PD_pn.transitions)[index]
             self.PD_pn.set_consumption_collect_decision(Integer_value,transition_id)
-            print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "in cons for loop") 
+            #print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "in cons for loop") 
             
         for index,value in enumerate(self.transitions_consumption_checkboxes_dict): #DEBUGGING
             transition_id = list(self.PD_pn.transitions)[index]
-            print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "after cons for loops")             
+            #print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "after cons for loops")             
             
         # for index,value in enumerate(self.transitions_consumption_checkboxes_dict): #DEBUGGING
         #     transition_id = list(self.PD_pn.transitions)[index]
@@ -2751,11 +2751,11 @@ class sHFPN_GUI_APP:
             Integer_value = self.produc_checkbox_variables_dict[str_index].get() # 1 means checked, 0 means not.
             transition_id = list(self.PD_pn.transitions)[index]
             self.PD_pn.set_production_collect_decision(integer = Integer_value, transition_id=transition_id)
-            print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "in prod for loop")
+            #print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "in prod for loop")
             
         for index,value in enumerate(self.transitions_consumption_checkboxes_dict): #DEBUGGING
             transition_id = list(self.PD_pn.transitions)[index]
-            print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "after both for loops")    
+            #print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "after both for loops")    
             
       
         
@@ -2827,29 +2827,39 @@ class sHFPN_GUI_APP:
         self.AD_pn.set_time_step(time_step = time_step_size)      
   
         #Set the Input Stochastic Parameter Values
-        for index,value in enumerate(self.AD_transitions_entry_box_dict):
+        for index,value in enumerate(self.transitions_entry_box_dict):
             str_index = str(index) #stringed number is the key of these dictionaries
-            SD_value = float(self.AD_transitions_entry_box_dict[str_index].get()) #float because entry box value is initially a string
+            SD_value = float(self.transitions_entry_box_dict[str_index].get()) #float because entry box value is initially a string
             transition_id = list(self.AD_pn.transitions)[index] #get the transition id (dict key) from a list of all the transitions in this dict.
-            self.AD_pn.transitions[transition_id].set_1st_stochastic_parameter(SD_value)
-            if self.AD_pn.transitions[transition_id].DiscreteFlag=="yes":
-                Delay_SD_Value = float(self.AD_transitions_entry_box_Discrete_SD[str_index].get())
-                self.AD_pn.transitions[transition_id].set_2nd_stochastic_parameter(Delay_SD_Value)
+            self.AD_pn.set_1st_stochastic_parameter(SD_value, transition_id)
+            if self.AD_pn.transitions[transition_id].DiscreteFlag=="yes": #DiscreteFlag flags discrete transitions
+                Delay_SD_Value = float(self.transitions_entry_box_Discrete_SD[str_index].get())
+                self.AD_pn.set_2nd_stochastic_parameter(Delay_SD_Value, transition_id)
 
         #Set the Collect Rate Analytics Decisions Consumption
-        for index,value in enumerate(self.AD_transitions_consumption_checkboxes_dict):
+        for index,value in enumerate(self.transitions_consumption_checkboxes_dict):
             str_index = str(index)
-            Integer_value = self.AD_consump_checkbox_variables_dict[str_index].get() # 1 means checked, 0 means not.
+            Integer_value = self.consump_checkbox_variables_dict[str_index].get() # 1 means checked, 0 means not.
             transition_id = list(self.AD_pn.transitions)[index]
-            self.AD_pn.transitions[transition_id].set_consumption_collect_decision(Integer_value)
-           
+            self.AD_pn.set_consumption_collect_decision(Integer_value,transition_id)
+         
+            
+        for index,value in enumerate(self.transitions_consumption_checkboxes_dict): #DEBUGGING
+            transition_id = list(self.AD_pn.transitions)[index]
+                       
+            
+    
         #Set the Collect Rate Analytics Decisions Production
-        for index,value in enumerate(self.AD_transitions_production_checkboxes_dict):
+        for index,value in enumerate(self.transitions_production_checkboxes_dict):
             str_index = str(index)
-            Integer_value = self.AD_produc_checkbox_variables_dict[str_index].get() # 1 means checked, 0 means not.
+            Integer_value = self.produc_checkbox_variables_dict[str_index].get() # 1 means checked, 0 means not.
             transition_id = list(self.AD_pn.transitions)[index]
-            self.AD_pn.transitions[transition_id].set_production_collect_decision(Integer_value)
-        
+            self.AD_pn.set_production_collect_decision(integer = Integer_value, transition_id=transition_id)
+         
+            
+        for index,value in enumerate(self.transitions_consumption_checkboxes_dict): #DEBUGGING
+            transition_id = list(self.AD_pn.transitions)[index]
+   
     
 
             
