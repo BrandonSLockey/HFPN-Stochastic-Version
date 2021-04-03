@@ -23,11 +23,11 @@ from PD_sHFPN_rate_functions import *
 from PD_sHFPN_firing_conditions import *
 from PD_sHFPN_inputs import *
 from visualisation import Analysis
-# from AD_parameters import *
-# from AD_initial_tokens import *
-# from AD_rate_functions import *
-# from AD_firing_conditions import *
-# from AD_sHFPN_inputs import *
+from AD_parameters import *
+from AD_initial_tokens import *
+from AD_rate_functions import *
+from AD_firing_conditions import *
+from AD_sHFPN_inputs import *
 
 #Import GUI
 import tkinter as tk
