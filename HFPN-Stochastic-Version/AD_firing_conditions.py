@@ -60,7 +60,7 @@ fc_t_Ab_dis1 = lambda a : a['p_Ab_S'] > 0
 fc_t_Ab_elon = lambda a : a['p_Ab_S'] > 0
 fc_t_Ab_fib = lambda a :  a['p_Ab_P'] > 0
 fc_t_Ab_M_frag = lambda a :  a['p_Ab_M'] > 0
-fc_t_Ab_M_phag = lambda a :  a['p_Ab_M'] > 0
+fc_t_Ab_P_phag = lambda a :  a['p_Ab_P'] > 0
 
 
 
