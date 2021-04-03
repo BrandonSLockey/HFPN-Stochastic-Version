@@ -23,11 +23,11 @@ from PD_sHFPN_rate_functions import *
 from PD_sHFPN_firing_conditions import *
 from PD_sHFPN_inputs import *
 from visualisation import Analysis
-from AD_parameters import *
-from AD_initial_tokens import *
-from AD_rate_functions import *
-from AD_firing_conditions import *
-from AD_sHFPN_inputs import *
+# from AD_parameters import *
+# from AD_initial_tokens import *
+# from AD_rate_functions import *
+# from AD_firing_conditions import *
+# from AD_sHFPN_inputs import *
 
 #Import GUI
 import tkinter as tk
@@ -94,16 +94,16 @@ class sHFPN_GUI_APP:
         self.PD_Discrete_Transitions()
         
         #Preload AD Places and Transitions
-        self.AD_Places()
-        self.AD_Continuous_Transitions()
-        self.AD_Discrete_Transitions()
+        # self.AD_Places()
+        # self.AD_Continuous_Transitions()
+        # self.AD_Discrete_Transitions()
         
         #Preload All GUI Pages
         self.PD_Inputs_Page()
         self.Run_sHFPN_Page()
         self.AD_Inputs_Page()
         self.PD_Transitions_Page()
-        self.AD_Transitions_Page()
+        # self.AD_Transitions_Page()
         self.Live_Rate_analytics_Page()
         self.Live_Graph()
         self.Live_Graph_Rates()
@@ -2577,7 +2577,7 @@ class sHFPN_GUI_APP:
             place_label =""
             plot_title = place_id
             desired_plotting_steps = int(self.desired_plotting_steps_entry_box.get())
-            t=np.arange(0,(desired_plotting_steps/(1/simulation_time_step))+simulation_time_step,simulation_time_step) #
+            t=np.arange(0,desired_plotting_steps*simulation_time_step+simulation_time_step,simulation_time_step) #(start,end,step) end in seconds. end = 1000 with ts=0.001 means you have 1000000 datapoints.
           
             #truncate t by 1
             
@@ -2621,7 +2621,7 @@ class sHFPN_GUI_APP:
             print('\n\nLoad-in Time:', execution_time)
             print("")    
             
-            simulation_time_step=analysis[File3].final_time_step
+            simulation_time_step=analysis[File3].time_step
             desired_plotting_steps=analysis[File3].final_time_step
             
             list_of_place_names = []
