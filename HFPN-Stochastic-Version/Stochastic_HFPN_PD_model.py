@@ -23,11 +23,11 @@ from PD_sHFPN_rate_functions import *
 from PD_sHFPN_firing_conditions import *
 from PD_sHFPN_inputs import *
 from visualisation import Analysis
-from AD_parameters import *
-from AD_initial_tokens import *
-from AD_rate_functions import *
-from AD_firing_conditions import *
-from AD_sHFPN_inputs import *
+# from AD_parameters import *
+# from AD_initial_tokens import *
+# from AD_rate_functions import *
+# from AD_firing_conditions import *
+# from AD_sHFPN_inputs import *
 
 #Import GUI
 import tkinter as tk
@@ -94,16 +94,16 @@ class sHFPN_GUI_APP:
         self.PD_Discrete_Transitions()
         
         #Preload AD Places and Transitions
-        self.AD_Places()
-        self.AD_Continuous_Transitions()
-        self.AD_Discrete_Transitions()
+        # self.AD_Places()
+        # self.AD_Continuous_Transitions()
+        # self.AD_Discrete_Transitions()
         
         #Preload All GUI Pages
         self.PD_Inputs_Page()
         self.Run_sHFPN_Page()
         self.AD_Inputs_Page()
         self.PD_Transitions_Page()
-        self.AD_Transitions_Page()
+        # self.AD_Transitions_Page()
         self.Live_Rate_analytics_Page()
         self.Live_Graph()
         self.Live_Graph_Rates()
@@ -1157,14 +1157,14 @@ class sHFPN_GUI_APP:
                             input_place_ids = ['p_chol_mito', 'p_ROS_mito'],
                             firing_condition = lambda a: a['p_chol_mito']>100000,
                             reaction_speed_function = lambda a: 0.0011088*a['p_chol_mito'],
-                            consumption_coefficients =[1,0],
+                            consumption_coefficients =[1,0], #[1,0], turn on
                             output_place_ids = ['p_chol_LE'],
-                            production_coefficients = [1],
+                            production_coefficients = [1],#[1], turn off
                             stochastic_parameters = [SD, cholSD],
-                            collect_rate_analytics = collect_rate_analytics,
+                            collect_rate_analytics = PD_collect_rate_analytics,
                             delay = function_for_MDV_delay) #lambda a: (1/chol_mp)*min(60,max((-24.34*np.log(a['p_ROS_mito'])+309.126)), 20)) #switch: lambda a: 60*(a['p_ROS_mito'] < 80000)+30*(a['p_ROS_mito']>80000)) 
                             
-   
+        
     def AD_parameters(self):
                 # multiplicative rate factors for increasing rates of slow modules
         self.AD_Abeta_multiplier = 100
@@ -2577,7 +2577,7 @@ class sHFPN_GUI_APP:
             place_label =""
             plot_title = place_id
             desired_plotting_steps = int(self.desired_plotting_steps_entry_box.get())
-            t=np.arange(0,(desired_plotting_steps/(1/simulation_time_step))+simulation_time_step,simulation_time_step) #
+            t=np.arange(0,desired_plotting_steps*simulation_time_step+simulation_time_step,simulation_time_step) #(start,end,step) end in seconds. end = 1000 with ts=0.001 means you have 1000000 datapoints.
           
             #truncate t by 1
             
@@ -2621,7 +2621,7 @@ class sHFPN_GUI_APP:
             print('\n\nLoad-in Time:', execution_time)
             print("")    
             
-            simulation_time_step=analysis[File3].final_time_step
+            simulation_time_step=analysis[File3].time_step
             desired_plotting_steps=analysis[File3].final_time_step
             
             list_of_place_names = []
@@ -2691,13 +2691,14 @@ class sHFPN_GUI_APP:
         it_p_LAMP2A = self.PD_LAMP2A_var.get()
         
         #Rewrite Place Inputs
-        self.PD_pn.add_place(it_p_LRRK2_mut, "p_LRRK2_mut","LRRK2 - mutated", continuous = True)
-        self.PD_pn.add_place(it_p_GBA1, "p_GBA1","GBA1", continuous = False)
-        self.PD_pn.add_place(it_p_VPS35, "p_VPS35", "VPS35", continuous = True)
-        self.PD_pn.add_place(it_p_DJ1, "p_DJ1","DJ1 mutant", continuous = True)
-        self.PD_pn.add_place(it_p_NPT200, place_id="p_NPT200", label = "Drug NPT200", continuous = True)
-        self.PD_pn.add_place(it_p_DNL151, place_id="p_DNL151", label = "Drug DNL151", continuous = True)
-        self.PD_pn.add_place(it_p_LAMP2A, place_id="p_LAMP2A", label = "Drug LAMP2A", continuous = True)        
+        self.PD_pn.set_place_tokens(value=it_p_LRRK2_mut, place_id="p_LRRK2_mut")
+        self.PD_pn.set_place_tokens(value=it_p_GBA1, place_id="p_GBA1")
+        self.PD_pn.set_place_tokens(value=it_p_VPS35, place_id="p_VPS35")
+        self.PD_pn.set_place_tokens(value=it_p_DJ1, place_id="p_DJ1")
+        self.PD_pn.set_place_tokens(value=it_p_NPT200, place_id="p_NPT200")
+        self.PD_pn.set_place_tokens(value=it_p_DNL151, place_id="p_DNL151")
+        self.PD_pn.set_place_tokens(value=it_p_LAMP2A, place_id="p_LAMP2A")
+   
         
         #Disable Run HFPN Button
         self.button_1.config(state=tk.DISABLED)
@@ -2707,32 +2708,51 @@ class sHFPN_GUI_APP:
         self.PD_pn.set_time_step(time_step = time_step_size) #unit = s/A.U. 
         ## Define places
 
+        
+  
+
         #Set the Input Stochastic Parameter Values
         for index,value in enumerate(self.transitions_entry_box_dict):
             str_index = str(index) #stringed number is the key of these dictionaries
             SD_value = float(self.transitions_entry_box_dict[str_index].get()) #float because entry box value is initially a string
             transition_id = list(self.PD_pn.transitions)[index] #get the transition id (dict key) from a list of all the transitions in this dict.
-            self.PD_pn.transitions[transition_id].set_1st_stochastic_parameter(SD_value)
-            if self.PD_pn.transitions[transition_id].DiscreteFlag=="yes":
+            self.PD_pn.set_1st_stochastic_parameter(SD_value, transition_id)
+            if self.PD_pn.transitions[transition_id].DiscreteFlag=="yes": #DiscreteFlag flags discrete transitions
                 Delay_SD_Value = float(self.transitions_entry_box_Discrete_SD[str_index].get())
-                self.PD_pn.transitions[transition_id].set_2nd_stochastic_parameter(Delay_SD_Value)
+                self.PD_pn.set_2nd_stochastic_parameter(Delay_SD_Value, transition_id)
 
         #Set the Collect Rate Analytics Decisions Consumption
         for index,value in enumerate(self.transitions_consumption_checkboxes_dict):
             str_index = str(index)
             Integer_value = self.consump_checkbox_variables_dict[str_index].get() # 1 means checked, 0 means not.
             transition_id = list(self.PD_pn.transitions)[index]
-            self.PD_pn.transitions[transition_id].set_consumption_collect_decision(Integer_value)
-           
+            self.PD_pn.set_consumption_collect_decision(Integer_value,transition_id)
+            print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "in cons for loop") 
+            
+        for index,value in enumerate(self.transitions_consumption_checkboxes_dict): #DEBUGGING
+            transition_id = list(self.PD_pn.transitions)[index]
+            print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "after cons for loops")             
+            
+        # for index,value in enumerate(self.transitions_consumption_checkboxes_dict): #DEBUGGING
+        #     transition_id = list(self.PD_pn.transitions)[index]
+        #     APPENDED_LIST = []
+            
+        #     self.PD_pn.transitions[transition_id].collect_rate_analytics = APPENDED_LIST
+        #     print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "after cons for loops")           
+            
         #Set the Collect Rate Analytics Decisions Production
         for index,value in enumerate(self.transitions_production_checkboxes_dict):
             str_index = str(index)
             Integer_value = self.produc_checkbox_variables_dict[str_index].get() # 1 means checked, 0 means not.
             transition_id = list(self.PD_pn.transitions)[index]
-            self.PD_pn.transitions[transition_id].set_production_collect_decision(Integer_value)
-        
-
-                            
+            self.PD_pn.set_production_collect_decision(integer = Integer_value, transition_id=transition_id)
+            print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "in prod for loop")
+            
+        for index,value in enumerate(self.transitions_consumption_checkboxes_dict): #DEBUGGING
+            transition_id = list(self.PD_pn.transitions)[index]
+            print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "after both for loops")    
+            
+      
         
         #TESTING ADDED TRANSITION FOR DEBUGGING PURPOSES
         # pn.add_transition_with_speed_function(#50
@@ -2787,9 +2807,9 @@ class sHFPN_GUI_APP:
         it_p_age = self.AD_Aged_var.get()
         
         #Rewrite Place Inputs
-        self.AD_pn.add_place(it_p_ApoE, 'p_ApoE', 'ApoE genotype', continuous = True) # gene, risk factor in AD
-        self.AD_pn.add_place(it_p_age, 'p_age', 'Age risk factor', continuous = True)
-        self.AD_pn.add_place(it_p_CD33, 'p_CD33', 'CD33 mutation', continuous = True) # 80 years old, risk factor in AD for BACE1 activity increase       
+        self.AD_pn.set_place_tokens(value=it_p_ApoE, place_id="p_ApoE") # gene, risk factor in AD
+        self.AD_pn.set_place_tokens(value=it_p_age, place_id="p_age")
+        self.AD_pn.set_place_tokens(value=it_p_CD33, place_id='p_CD33') # 80 years old, risk factor in AD for BACE1 activity increase       
         
         
         #Disable Run HFPN Button
