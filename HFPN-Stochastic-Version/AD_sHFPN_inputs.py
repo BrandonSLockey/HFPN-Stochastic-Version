@@ -4,7 +4,7 @@ number_runs = 1
 number_time_steps = 1000
 time_step_size = 0.001
 
-#To run model without Stochasticity, Set SD to 0.
+#To run model without Stochasticity, Set SD to 0. 0.1 means 10%
 
 cholSD = 0.1 # cholesterol module
 SD = 0.1
