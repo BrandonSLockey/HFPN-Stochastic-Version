@@ -55,7 +55,31 @@ def PD_r_t_SNCA_degr(a):
     return multiplier*(rate_healthy+rate_VPS35)*cholesterol*DJI*LAMP2A*speedup
 # Lewy bodies pathologies rates
 # PD_r_t_SNCA_degr = lambda a : (((((1-0.2*(a['p_LRRK2_mut']>0))*k_t_SNCA_degr*a['p_SNCA_act'])*(a['p_VPS35']==0) + ((1-0.2*(a['p_LRRK2_mut']>0))*k_t_SNCA_degr_VPS35*a['p_SNCA_act'])*(a['p_VPS35']>0)) * min( [1, max([6.25e-1,(m_t_SNCA_degr*(a["p_27OHchol_intra"]-PD_it_p_27OHchol_intra) + n_t_SNCA_degr)])]))*(1-0.4*a['p_DJ1']))*30
-PD_r_t_SNCA_aggr = lambda a : ((k_t_SNCA_aggr*a['p_SNCA_act'])*(a['p_ROS_mito']<80000)+(1.7*k_t_SNCA_aggr*a['p_SNCA_act'])*(a['p_ROS_mito']>80000) *  min( [1.13, max([1,(m_t_SNCA_aggr * a["p_tauP"] + n_t_SNCA_aggr)])]))*30*(1-0.6*(a['p_NPT200']==1))
+    
+
+# Maddy 
+    
+
+# PD_r_t_SNCA_aggr = lambda a : ((k_t_SNCA_aggr*a['p_SNCA_act'])*(a['p_ROS_mito']<80000)+(1.7*k_t_SNCA_aggr*a['p_SNCA_act'])*(a['p_ROS_mito']>80000) *  min( [1.13, max([1,(m_t_SNCA_aggr * a["p_tauP"] + n_t_SNCA_aggr)])]))*30*(1-0.6*(a['p_NPT200']==1))
+#This transition is a problem, not sure what to do about the min max stuff - the numbers may be way off and need tweaking, but not used to what the numbers roughly should be so brandon you might have to alter this!! Have currently just written a new rate function for aggregation, feel free to alter it to include the other places which affect it. ALSO transition 16 is currently commented out, need to think about how we can reintroduce it with the current model. 
+    
+SNCAagg_multiplier = 1000 #1000 in AD, might be lower in PD
+phagocytosis = 0.5 #please tune - should be around 0 M in the healthy case, and higher in disease state (will probably go exponential!)
+PD_kc = 1.94e-7
+PD_ko1 = 1.11e-7
+PD_no1 = 0.9
+PD_kplus = 0.0111
+PD_kminus = 0.0111/30 #this was estimated (in AD kminus is 1/30th of kplus)
+PD_kd1 = 6.66e-7
+    
+r_t_SNCA_nuc1 =  lambda a : SNCAagg_multiplier * PD_ko1 * a['p_SNCAconc']**PD_no1
+r_t_SNCA_dis1 =  lambda a : SNCAagg_multiplier * PD_kd1 * a['p_SNCA_S']
+r_t_SNCA_elon =  lambda a : SNCAagg_multiplier * PD_kc * a['p_SNCA_S']
+r_t_SNCA_fib =  lambda a : SNCAagg_multiplier * 2 * PD_kplus * a['p_SNCAconc'] * a['p_SNCA_P']
+r_t_SNCA_M_frag =  lambda a : SNCAagg_multiplier * PD_kminus * a['p_SNCA_M']
+r_t_SNCA_P_phag = lambda a : SNCAagg_multiplier * a['p_SNCA_P'] * phagocytosis  #Tuned in AD model. phagocytosis is 2% slower in aged case - maybe interesting to include?? 
+
+
 PD_r_t_SNCA_fibril = lambda a : k_t_SNCA_fibril*a['p_SNCA_olig']*30
 # PD_r_t_LB_ER_stress = lambda a : 1
 # PD_r_t_SREBP1 = lambda a : 1

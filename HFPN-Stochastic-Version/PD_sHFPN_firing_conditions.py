@@ -38,6 +38,16 @@ PD_fc_t_LB_ER_stress = lambda a : (a['p_LB']>10)*(a['p_GRP78']==0)
 PD_fc_t_SREBP1 = lambda a : a['p_GRP78']>0
 PD_fc_t_IRE = lambda a : 1
 
+#Maddy
+
+fc_t_SNCA_nuc1 = lambda a : a['p_SNCA_act']>0
+fc_t_SNCA_dis1 = lambda a : a['p_SNCA_S']>0
+fc_t_SNCA_elon = lambda a : a['p_SNCA_S'] > 0
+fc_t_SNCA_fib = lambda a : a['p_SNCA_P'] > 0
+fc_t_SNCA_M_frag = lambda a : a['p_SNCA_M'] > 0
+fc_t_SNCA_P_phag = lambda a : a['p_SNCA_P'] > 0
+
+
 # Energy metabolism firing conditions 
 
 PD_fc_t_mito_dysfunc = lambda a : a['p_ROS_mito']>0 #80000

@@ -486,6 +486,12 @@ class sHFPN_GUI_APP:
         self.PD_pn.add_place(PD_it_p_VPS35, "p_VPS35", "VPS35", continuous = True)
         self.PD_pn.add_place(PD_it_p_SNCA_inact, "p_SNCA_inact", "SNCA - inactive", continuous = True)
         self.PD_pn.add_place(PD_it_p_SNCA_olig, "p_SNCA_olig", "SNCA - Oligomerised", continuous = True)
+        self.PD_pn.add_place(PD_it_p_SNCA_S, "p_SNCA_S", "SNCA S", continuous = True)
+        self.PD_pn.add_place(PD_it_p_SNCA_P, "p_SNCA_P", "SNCA P", continuous = True)
+        self.PD_pn.add_place(PD_it_p_SNCA_M, "p_SNCA_M", "SNCA M", continuous = True)
+        self.PD_pn.add_place(PD_it_p_SNCAconc, "p_SNCAconc", "SNCAconc", continuous = True)
+        
+
         self.PD_pn.add_place(PD_it_p_LB, "p_LB", "Lewy body", continuous = True)
         self.PD_pn.add_place(PD_it_p_Fe2, "p_Fe2", "Fe2 iron pool", continuous = True)
         
@@ -722,17 +728,17 @@ class sHFPN_GUI_APP:
     
         # PD specific
     
-        self.PD_pn.add_transition_with_speed_function( #16
-                            transition_id = 't_SNCA_bind_ApoEchol_extra',
-                            label = 'Extracellular binding of SNCA to chol',
-                            input_place_ids = ['p_ApoEchol_extra','p_SNCA_act'],
-                            firing_condition = PD_fc_t_SNCA_bind_ApoEchol_extra,
-                            reaction_speed_function = PD_r_t_SNCA_bind_ApoEchol_extra,
-                            consumption_coefficients = [0,30], 
-                            output_place_ids = ['p_SNCA_olig'],         
-                            production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = PD_collect_rate_analytics)
+        # self.PD_pn.add_transition_with_speed_function( #16
+        #                     transition_id = 't_SNCA_bind_ApoEchol_extra',
+        #                     label = 'Extracellular binding of SNCA to chol',
+        #                     input_place_ids = ['p_ApoEchol_extra','p_SNCA_act'],
+        #                     firing_condition = PD_fc_t_SNCA_bind_ApoEchol_extra,
+        #                     reaction_speed_function = PD_r_t_SNCA_bind_ApoEchol_extra,
+        #                     consumption_coefficients = [0,30], 
+        #                     output_place_ids = ['p_SNCA_olig'],         
+        #                     production_coefficients = [1],
+        #                     stochastic_parameters = [SD],
+        #                     collect_rate_analytics = PD_collect_rate_analytics)
     
         self.PD_pn.add_transition_with_speed_function( #17
                             transition_id = 't_chol_LE_upreg',
@@ -854,39 +860,111 @@ class sHFPN_GUI_APP:
         self.PD_pn.add_transition_with_speed_function( #30
                             transition_id = 't_SNCA_degr',
                             label = 'SNCA degradation by CMA',
-                            input_place_ids = ['p_SNCA_act','p_VPS35','p_LRRK2_mut','p_27OHchol_intra','p_DJ1', 'p_DNL151', 'p_LAMP2A'],
+                            input_place_ids = ['p_SNCA_act', 'p_SNCAconc', 'p_VPS35','p_LRRK2_mut','p_27OHchol_intra','p_DJ1', 'p_DNL151', 'p_LAMP2A'],
                             firing_condition = PD_fc_t_SNCA_degr,
                             reaction_speed_function = PD_r_t_SNCA_degr,
-                            consumption_coefficients = [1,0,0,0,0,0,0], 
+                            consumption_coefficients = [1,conversion,0,0,0,0,0,0], 
                             output_place_ids = ['p_SNCA_inact'],         
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
                             collect_rate_analytics = PD_collect_rate_analytics) 
     
-        self.PD_pn.add_transition_with_speed_function(#31
-                            transition_id = 't_SNCA_aggr',
-                            label = 'SNCA aggregation',
-                            input_place_ids = ['p_SNCA_act','p_Ca_cyto','p_ROS_mito', 'p_tauP', 'p_NPT200'],
-                            firing_condition = PD_fc_t_SNCA_aggr,
-                            reaction_speed_function = PD_r_t_SNCA_aggr,
-                            consumption_coefficients = [30,0,0,0,0], #should be reviewed if Ca is consumed
-                            output_place_ids = ['p_SNCA_olig'],         
+        # self.PD_pn.add_transition_with_speed_function(#31
+        #                     transition_id = 't_SNCA_aggr',
+        #                     label = 'SNCA aggregation',
+        #                     input_place_ids = ['p_SNCA_act','p_Ca_cyto','p_ROS_mito', 'p_tauP', 'p_NPT200'],
+        #                     firing_condition = PD_fc_t_SNCA_aggr,
+        #                     reaction_speed_function = PD_r_t_SNCA_aggr,
+        #                     consumption_coefficients = [30,0,0,0,0], #should be reviewed if Ca is consumed
+        #                     output_place_ids = ['p_SNCA_olig'],         
+        #                     production_coefficients = [1],
+        #                     stochastic_parameters = [SD],
+        #                     collect_rate_analytics = PD_collect_rate_analytics) 
+    
+        # self.PD_pn.add_transition_with_speed_function(#32
+        #                     transition_id = 't_SNCA_fibril',
+        #                     label = 'SNCA fibrillation',
+        #                     input_place_ids = ['p_SNCA_olig'],
+        #                     firing_condition = PD_fc_t_SNCA_fibril,
+        #                     reaction_speed_function = PD_r_t_SNCA_fibril,
+        #                     consumption_coefficients = [100], 
+        #                     output_place_ids = ['p_LB'],         
+        #                     production_coefficients = [1],
+        #                     stochastic_parameters = [SD],
+        #                     collect_rate_analytics = PD_collect_rate_analytics) 
+        ##Maddy working 
+        
+        self.PD_pn.add_transition_with_speed_function(transition_id = 't_SNCA_nuc1',
+                            label                = "SNCA primary nucleation",
+                            input_place_ids       = ['p_SNCA_act', 'p_SNCAconc'],
+                            firing_condition = fc_t_SNCA_nuc1,
+                            reaction_speed_function = r_t_SNCA_nuc1,
+                            consumption_coefficients  = [1/conversion, 1], 
+                            output_place_ids       = ['p_SNCA_S'],
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = PD_collect_rate_analytics) 
+                            collect_rate_analytics = collect_rate_analytics)
+
+        
+        self.PD_pn.add_transition_with_speed_function(transition_id = 't_SNCA_dis1',
+                            label                = "SNCA dissociation1",
+                            input_place_ids       = ['p_SNCA_S'],
+                            firing_condition = fc_t_SNCA_dis1,
+                            reaction_speed_function = r_t_SNCA_dis1,
+                            consumption_coefficients  = [1], 
+                            output_place_ids       = ['p_SNCA_act', 'p_SNCAconc'],
+                            production_coefficients = [1/conversion, 1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
     
-        self.PD_pn.add_transition_with_speed_function(#32
-                            transition_id = 't_SNCA_fibril',
-                            label = 'SNCA fibrillation',
-                            input_place_ids = ['p_SNCA_olig'],
-                            firing_condition = PD_fc_t_SNCA_fibril,
-                            reaction_speed_function = PD_r_t_SNCA_fibril,
-                            consumption_coefficients = [100], 
-                            output_place_ids = ['p_LB'],         
+        self.PD_pn.add_transition_with_speed_function(transition_id = 't_SNCA_elon',
+                            label                = "SNCA elongation",
+                            input_place_ids       = ['p_SNCA_S'],
+                            firing_condition = fc_t_SNCA_elon,
+                            reaction_speed_function = r_t_SNCA_elon,
+                            consumption_coefficients  = [1], 
+                            output_place_ids       = ['p_SNCA_P'],
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = PD_collect_rate_analytics) 
+                            collect_rate_analytics = collect_rate_analytics)
+        
+        self.PD_pn.add_transition_with_speed_function(transition_id = 't_SNCA_fib',
+                            label                = "SNCA fibrillation",
+                            input_place_ids       = ['p_SNCA_P', 'p_SNCA_act', 'p_SNCAconc'],
+                            firing_condition = fc_t_SNCA_fib,
+                            reaction_speed_function = r_t_SNCA_fib,
+                            consumption_coefficients  = [0, 0, 0],
+                            output_place_ids       = ['p_SNCA_M'],
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
     
+        self.PD_pn.add_transition_with_speed_function(transition_id = 't_SNCA_M_frag',
+                            label                = "SNCA fibril fragmentation",
+                            input_place_ids       = ['p_SNCA_M'],
+                            firing_condition = fc_t_SNCA_M_frag,
+                            reaction_speed_function = r_t_SNCA_M_frag,
+                            consumption_coefficients  = [1], 
+                            output_place_ids       = ['p_SNCA_P'],
+                            production_coefficients = [1],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
+            
+        self.PD_pn.add_transition_with_speed_function(transition_id = 't_SNCA_P_phag',
+                            label                = "SNCA fibril phagocytosis",
+                            input_place_ids       = ['p_SNCA_P'],
+                            firing_condition = fc_t_SNCA_P_phag,
+                            reaction_speed_function = r_t_SNCA_P_phag,
+                            consumption_coefficients  = [1], 
+                            output_place_ids       = [],
+                            production_coefficients = [],
+                            stochastic_parameters = [SD],
+                            collect_rate_analytics = collect_rate_analytics)
+            
+        
+    ##End aggregation module 
+        
+        
         self.PD_pn.add_transition_with_speed_function(#33
                             transition_id = 't_IRE',
                             label = 'IRE',
@@ -894,8 +972,8 @@ class sHFPN_GUI_APP:
                             firing_condition = PD_fc_t_IRE,
                             reaction_speed_function = PD_r_t_IRE,
                             consumption_coefficients = [0], 
-                            output_place_ids = ['p_SNCA_act'],         
-                            production_coefficients = [1],
+                            output_place_ids = ['p_SNCA_act', 'p_SNCAconc'],         
+                            production_coefficients = [1, conversion],
                             stochastic_parameters = [SD],
                             collect_rate_analytics = PD_collect_rate_analytics) 
         

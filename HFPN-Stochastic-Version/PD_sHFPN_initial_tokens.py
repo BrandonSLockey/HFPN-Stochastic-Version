@@ -1,6 +1,8 @@
 from PD_sHFPN_parameters import *
 from PD_sHFPN_inputs import mp_ApoEchol, mp_27OHchol
 
+conversion = 3.963e-7
+
 # Cholesterol homeostasis intial token values
 # PD_it_p_chol_LE = chol_LE_threshold
 #PD_it_p_chol_LE = chol_LE_max for ER retraction (diseased)
@@ -30,8 +32,14 @@ PD_it_p_Ca_ER =1.8*1e9 #
 
 # Lewy bodies pathologies initial token values 
 PD_it_p_SNCA_act = 4.3383*1e8
+PD_it_p_SNCAconc = 4.3383*1e8*conversion 
+
 PD_it_p_SNCA_inact = 0
 PD_it_p_SNCA_olig = 0
+PD_it_p_SNCA_S = 0
+PD_it_p_SNCA_M = 0
+PD_it_p_SNCA_P = 0
+
 PD_it_p_LB = 0
 PD_it_p_Fe2 = 2*1e8
 
