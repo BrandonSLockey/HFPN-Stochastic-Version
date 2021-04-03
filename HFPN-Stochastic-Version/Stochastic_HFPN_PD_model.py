@@ -94,16 +94,16 @@ class sHFPN_GUI_APP:
         self.PD_Discrete_Transitions()
         
         #Preload AD Places and Transitions
-        # self.AD_Places()
-        # self.AD_Continuous_Transitions()
-        # self.AD_Discrete_Transitions()
+        self.AD_Places()
+        self.AD_Continuous_Transitions()
+        self.AD_Discrete_Transitions()
         
         #Preload All GUI Pages
         self.PD_Inputs_Page()
         self.Run_sHFPN_Page()
         self.AD_Inputs_Page()
         self.PD_Transitions_Page()
-        # self.AD_Transitions_Page()
+        self.AD_Transitions_Page()
         self.Live_Rate_analytics_Page()
         self.Live_Graph()
         self.Live_Graph_Rates()
@@ -2572,12 +2572,16 @@ class sHFPN_GUI_APP:
 
             
         
-        def GUI_plot(place_id, analysis, File, simulation_time_step, desired_plotting_steps):
+        def GUI_plot(place_id, analysis, File, simulation_time_step, desired_plotting_steps, max_time_step):
             token_storage = analysis[File].token_storage        
             place_label =""
             plot_title = place_id
             desired_plotting_steps = int(self.desired_plotting_steps_entry_box.get())
+            if desired_plotting_steps>max_time_step: #in case user inputs more timesteps than available
+                desired_plotting_steps = max_time_step
             t=np.arange(0,desired_plotting_steps*simulation_time_step+simulation_time_step,simulation_time_step) #(start,end,step) end in seconds. end = 1000 with ts=0.001 means you have 1000000 datapoints.
+
+                
           
             #truncate t by 1
             
@@ -2623,6 +2627,7 @@ class sHFPN_GUI_APP:
             
             simulation_time_step=analysis[File3].time_step
             desired_plotting_steps=analysis[File3].final_time_step
+            max_time_step = analysis[File3].final_time_step
             
             list_of_place_names = []
             for place in analysis[File3].place_ids:
@@ -2631,7 +2636,7 @@ class sHFPN_GUI_APP:
             tk.Button(self.frame_in_canvas_Analysis, text = "Places").grid(row=0, column=0, pady=10, padx=10)
             
             for index, place_id in enumerate(list_of_place_names):
-                tk.Button(self.frame_in_canvas_Analysis, cursor="cross", text=place_id, command=partial(GUI_plot, place_id, analysis, File3, simulation_time_step, desired_plotting_steps)).grid(row=index+1, column=0, pady=10, padx=10)#pass value as an argument to plot  
+                tk.Button(self.frame_in_canvas_Analysis, cursor="cross", text=place_id, command=partial(GUI_plot, place_id, analysis, File3, simulation_time_step, desired_plotting_steps, max_time_step)).grid(row=index+1, column=0, pady=10, padx=10)#pass value as an argument to plot  
                 self.canvas2.configure(scrollregion= self.canvas2.bbox("all"))
             self.button_2.config(text="Restart Session to Run Another Analysis", state=tk.DISABLED)
             
