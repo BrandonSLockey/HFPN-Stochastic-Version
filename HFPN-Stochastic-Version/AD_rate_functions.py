@@ -90,7 +90,7 @@ r_t_Ab_elon = lambda a : Abagg_multiplier * kc * a['p_Ab_S']
 r_t_Ab_fib = lambda a : Abagg_multiplier * 2 * kplus * a['p_Abconc'] * a['p_Ab_P']
 r_t_Ab_M_frag = lambda a : Abagg_multiplier * kminus * a['p_Ab_M']
 r_t_Ab_P_phag = lambda a : Abagg_multiplier * a['p_Ab_P'] * (0.085 -
-(0.0017*a['p_age']) - (0.005*a['p_CD33'])) #phagocytosis is 2% slower in aged case]
+(0.0017*a['p_age']) - (0.006*a['p_CD33'])) #phagocytosis is 2% slower in aged case]
 
 
 ##AB Michealis Menten Rate Functions
