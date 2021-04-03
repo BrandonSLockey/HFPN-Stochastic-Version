@@ -2807,7 +2807,6 @@ class sHFPN_GUI_APP:
         it_p_age = self.AD_Aged_var.get()
         
         #Rewrite Place Inputs
-        .set_place_tokens(value=it_p_ApoE, place_id="p_ApoE")
         self.AD_pn.set_place_tokens(value=it_p_ApoE, place_id="p_ApoE") # gene, risk factor in AD
         self.AD_pn.set_place_tokens(value=it_p_age, place_id="p_age")
         self.AD_pn.set_place_tokens(value=it_p_CD33, place_id='p_CD33') # 80 years old, risk factor in AD for BACE1 activity increase       
