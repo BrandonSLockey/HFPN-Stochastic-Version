@@ -3,6 +3,8 @@ import sys
 import random
 import numpy as np
 import pandas as pd
+import csv
+
 
 from datetime import datetime
 from sys import platform
@@ -2581,7 +2583,7 @@ class sHFPN_GUI_APP:
                 desired_plotting_steps = max_time_step
             t=np.arange(0,desired_plotting_steps*simulation_time_step+simulation_time_step,simulation_time_step) #(start,end,step) end in seconds. end = 1000 with ts=0.001 means you have 1000000 datapoints.
 
-                
+            t=t[0::int(self.nth_datapoint_entry_box.get())] #takes every nth data point. But still need to make sure the Axes are right somehow.                
           
             #truncate t by 1
             
@@ -2592,6 +2594,7 @@ class sHFPN_GUI_APP:
             line_width = 2.5
             
             data = analysis[File].mean_token_history_for_places([place_id])[0:desired_plotting_steps+1] 
+            data = data[0::int(self.nth_datapoint_entry_box.get())]
             #print(data[1600000]) #units in time_step
             #print(data[1800000])
         
@@ -2603,6 +2606,18 @@ class sHFPN_GUI_APP:
             ax.legend()
             Analysis.standardise_plot(ax, title = plot_title, xlabel = "Time (s)",ylabel = "Molecule count")
             plt.show()
+            
+            
+            if self.Export_var.get() ==1:
+                thename = "../saved-csvs/"+str(self.CSV_save_name.get())+".csv"
+                with open(thename, 'w', newline='') as csvfile:
+                    token_header = place_id+' Tokens'
+                    fieldnames = ['Time (s)', token_header]
+                    thewriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                    thewriter.writeheader()
+                    for time, token in zip(t,data):
+                        thewriter.writerow({'Time (s)':time, token_header:token[0]})
+                print("CSV Saved at " + thename)
             
         def run_Analysis(self):
             self.button_2.config(text="Please Wait, Loading...", state=tk.DISABLED)
@@ -2650,6 +2665,29 @@ class sHFPN_GUI_APP:
             
             self.root.geometry("801x660") #readjust size to make scrollbar visible
             
+            #Plot every nth datapoint
+            self.nth_datapoint_label = tk.Label(self.frame_in_canvas_Analysis, text = "Plot Every nth Data Point")
+            self.nth_datapoint_label.grid(row=1, column =1, pady=10,padx=10)
+            self.nth_datapoint_entry_box = tk.Entry(self.frame_in_canvas_Analysis)
+            self.nth_datapoint_entry_box.grid(row=1, column=2)
+            self.nth_datapoint_entry_box.insert(tk.END, 1)
+            
+            
+       
+   
+            #Export to CSV
+            self.Export_label = tk.Label(self.frame_in_canvas_Analysis, text="Export to CSV")
+            self.Export_label.grid(row=2, column=1, pady=10,padx=10)
+            self.Export_var = tk.IntVar()
+            self.Export_Checkbutton = tk.Checkbutton(self.frame_in_canvas_Analysis, variable=self.Export_var)
+            self.Export_Checkbutton.grid(row=2, column=2, pady=10, padx=10)
+            
+            #Export to CSV Save Name
+            self.CSV_save_name_label = tk.Label(self.frame_in_canvas_Analysis, text="CSV Save Name")
+            self.CSV_save_name_label.grid(row=3, column=1, pady=10, padx=10)
+            self.CSV_save_name = tk.Entry(self.frame_in_canvas_Analysis)
+            self.CSV_save_name.grid(row=3, column=2, pady=10, padx=10)
+            self.CSV_save_name.insert(tk.END, "CSV_Save_Name")
     
            
 
