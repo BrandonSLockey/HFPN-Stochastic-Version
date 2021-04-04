@@ -4,6 +4,7 @@ import random
 import numpy as np
 import pandas as pd
 import csv
+import time
 
 
 from datetime import datetime
@@ -2560,12 +2561,25 @@ class sHFPN_GUI_APP:
         self.run_save_name_entry = tk.Entry(self.frame5, width=50, bg="black", fg="violet", borderwidth="5")
         self.run_save_name_entry.pack()
         
+        def insert_run_name(self):
+            self.run_save_name_entry.delete(0, tk.END)
+            self.run_save_name_entry.insert(tk.END, self.saved_run_string)
+        
+        self.button_saved_run = tk.Button(self.frame5, text="Input Last Hovered Saved Run",state=tk.DISABLED, command=partial(insert_run_name, self))
+        self.button_saved_run.pack()
+        
+        
         def save_entry(self):
             "saves run_save_name entry"
-            self.run_save_name =self.run_save_name_entry.get()
-            self.button_2.config(state="normal", text="Run Analysis")
-            print(self.run_save_name)
-            self.button3.config(state=tk.DISABLED)
+            if self.run_save_name_entry.get() =="":
+                self.run_save_name_entry.config(bg="red")
+            else:
+                self.run_save_name =self.run_save_name_entry.get()
+                self.button_2.config(state="normal", text="Run Analysis")
+                print(self.run_save_name)
+                self.button3.config(state=tk.DISABLED)
+                self.run_save_name_entry.config(bg="black")
+                self.button_saved_run.config(state=tk.DISABLED)
             
         self.button3 = tk.Button(self.frame5, text="Enter run_save_name", command = partial(save_entry, self))
         self.button3.config(cursor="hand2")
@@ -2615,12 +2629,14 @@ class sHFPN_GUI_APP:
                     fieldnames = ['Time (s)', token_header]
                     thewriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
                     thewriter.writeheader()
-                    for time, token in zip(t,data):
-                        thewriter.writerow({'Time (s)':time, token_header:token[0]})
+                    for thetime, token in zip(t,data):
+                        thewriter.writerow({'Time (s)':thetime, token_header:token[0]})
                 print("CSV Saved at " + thename)
             
         def run_Analysis(self):
             self.button_2.config(text="Please Wait, Loading...", state=tk.DISABLED)
+            self.button_saved_run.forget()
+            self.button3.forget()
             run_save_name = self.run_save_name
             analysis = {}
             start_time = datetime.now()
@@ -2702,13 +2718,25 @@ class sHFPN_GUI_APP:
         self.frame6.grid(row=0,column=0,sticky="nsew")
         self.lbx = tk.Listbox(self.frame6)
         self.lbx.pack(fill=tk.BOTH, expand=1)
-        
+   
         if platform == 'darwin':
             for file in glob.glob("../saved-runs/*"):
+                file=file[14:len(file)-4]
                 self.lbx.insert(tk.END, file)  
+                
         if platform == 'win32':
             for file in glob.glob("..\saved-runs\*"):
+                file=file[14:len(file)-4]
                 self.lbx.insert(tk.END, file) 
+   
+       
+        def on_click_listbox(event):
+            index=self.lbx.curselection()
+            seltext=self.lbx.get(index)
+            self.saved_run_string = seltext
+            self.button_saved_run.config(state="normal")
+        self.lbx.bind('<ButtonRelease-1>', on_click_listbox)
+
                 
 
                 
