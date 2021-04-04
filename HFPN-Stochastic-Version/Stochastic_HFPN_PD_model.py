@@ -2638,11 +2638,14 @@ class sHFPN_GUI_APP:
                     for thetime, token in zip(t,data):
                         thewriter.writerow({'Time (s)':thetime, token_header:token[0]})
                 print("CSV Saved at " + thename)
+            self.csv_listbox.destroy()
+            self.csv_list_box_function() 
             
         def run_Analysis(self):
             self.button_2.config(text="Please Wait, Loading...", state=tk.DISABLED)
             self.button_saved_run.forget()
             self.button3.forget()
+            self.run_save_name_entry.forget()
             run_save_name = self.run_save_name
             analysis = {}
             start_time = datetime.now()
@@ -2675,13 +2678,23 @@ class sHFPN_GUI_APP:
             for index, place_id in enumerate(list_of_place_names):
                 tk.Button(self.frame_in_canvas_Analysis, cursor="cross", text=place_id, command=partial(GUI_plot, place_id, analysis, File3, simulation_time_step, desired_plotting_steps, max_time_step)).grid(row=index+1, column=0, pady=10, padx=10)#pass value as an argument to plot  
                 self.canvas2.configure(scrollregion= self.canvas2.bbox("all"))
+                
+                
             self.button_2.config(text="Restart Session to Run Another Analysis", state=tk.DISABLED)
+            
+            
+            #Saved Name Label
+            SD_font = tkfont.Font(family='Helvetica', size=10, weight="bold")
+            self.Label1321 = tk.Label(self.frame_in_canvas_Analysis, text="File Name:")
+            self.Label1321.grid(row=0, column=1, pady=10, padx=10)
+            self.Analysis_title_header_label = tk.Label(self.frame_in_canvas_Analysis, text= run_save_name, font=SD_font)
+            self.Analysis_title_header_label.grid(row=0, column=2, pady=10,padx=10)
             
             #Desired Plotting Steps
             self.desired_plotting_steps_label = tk.Label(self.frame_in_canvas_Analysis, text = "Desired Plotting Steps")
-            self.desired_plotting_steps_label.grid(row=0, column=1, pady=10,padx=10)
+            self.desired_plotting_steps_label.grid(row=1, column=1, pady=10,padx=10)
             self.desired_plotting_steps_entry_box = tk.Entry(self.frame_in_canvas_Analysis)
-            self.desired_plotting_steps_entry_box.grid(row=0,column=2)
+            self.desired_plotting_steps_entry_box.grid(row=1,column=2)
             self.desired_plotting_steps_entry_box.insert(tk.END, desired_plotting_steps)
             
             
@@ -2689,35 +2702,123 @@ class sHFPN_GUI_APP:
             
             #Plot every nth datapoint
             self.nth_datapoint_label = tk.Label(self.frame_in_canvas_Analysis, text = "Plot Every nth Data Point")
-            self.nth_datapoint_label.grid(row=1, column =1, pady=10,padx=10)
+            self.nth_datapoint_label.grid(row=2, column =1, pady=10,padx=10)
             self.nth_datapoint_entry_box = tk.Entry(self.frame_in_canvas_Analysis)
-            self.nth_datapoint_entry_box.grid(row=1, column=2)
+            self.nth_datapoint_entry_box.grid(row=2, column=2)
             self.nth_datapoint_entry_box.insert(tk.END, 1)
-            
-            
-       
-   
+  
             #Export to CSV
             self.Export_label = tk.Label(self.frame_in_canvas_Analysis, text="Export to CSV")
-            self.Export_label.grid(row=2, column=1, pady=10,padx=10)
+            self.Export_label.grid(row=3, column=1, pady=10,padx=10)
             self.Export_var = tk.IntVar()
             self.Export_Checkbutton = tk.Checkbutton(self.frame_in_canvas_Analysis, variable=self.Export_var)
-            self.Export_Checkbutton.grid(row=2, column=2, pady=10, padx=10)
+            self.Export_Checkbutton.grid(row=3, column=2, pady=10, padx=10)
             
             #Export to CSV Save Name
             self.CSV_save_name_label = tk.Label(self.frame_in_canvas_Analysis, text="CSV Save Name")
-            self.CSV_save_name_label.grid(row=3, column=1, pady=10, padx=10)
+            self.CSV_save_name_label.grid(row=4, column=1, pady=10, padx=10)
             self.CSV_save_name = tk.Entry(self.frame_in_canvas_Analysis)
-            self.CSV_save_name.grid(row=3, column=2, pady=10, padx=10)
+            self.CSV_save_name.grid(row=4, column=2, pady=10, padx=10)
             self.CSV_save_name.insert(tk.END, "CSV_Save_Name")
-    
-           
+            self.csv_list_box_function()
+            self.selection_list = []
+            def select_button_function(self):
+                
+                self.selection_list.append(self.csv_string)
+                self.selection_list = list(set(self.selection_list)) #make selection list unique
+                self.e4 = list(self.csv_listbox.get(0,tk.END))#get all items in listbox
+                self.update_truth_list()
+                print(self.truth_list)
+                self.green_listbox_selection()
+  
 
+                #listbox item/using index should bg="green", then a plot button, which reads all the selected csv files.
+                #store selected items to a list. so need to make a new function which reads multiple csv files, then plots it
+
+            def deselect_button_function(self):
+                self.selection_list.remove(self.csv_string)
+                self.update_truth_list()
+                self.green_listbox_selection()
+                print(self.selection_list)
+            self.select_button = tk.Button(self.frame_in_canvas_Analysis, text="Select", cursor="hand2", command=partial(select_button_function, self))
+            self.select_button.grid(row=6,column=1, padx=10, pady=10)
+            self.deselect_button = tk.Button(self.frame_in_canvas_Analysis, text="Deselect", cursor="hand2", command=partial(deselect_button_function, self))
+            self.deselect_button.grid(row=6,column=2,padx=10, pady=10)
+            
+            
+            
+            def on_click_listbox(event):
+                index=self.csv_listbox.curselection()
+                seltext=self.csv_listbox.get(index)
+                self.csv_string = seltext
+            
+            self.title_label = tk.Label(self.frame_in_canvas_Analysis, text="Plot Title")
+            self.title_label.grid(column=1, row =7, padx=10,pady=10)
+            self.title_entrybox = tk.Entry(self.frame_in_canvas_Analysis)
+            self.title_entrybox.grid(column=2, row=7, padx=10,pady=10)
+            self.xlabel_label = tk.Label(self.frame_in_canvas_Analysis, text="X Label")
+            self.xlabel_label.grid(column=1, row =8, padx=10,pady=10)
+            self.xlabel_entrybox = tk.Entry(self.frame_in_canvas_Analysis)
+            self.xlabel_entrybox.grid(column=2, row=8, padx=10,pady=10)    
+            self.ylabel_label = tk.Label(self.frame_in_canvas_Analysis, text="Y Label")
+            self.ylabel_label.grid(column=1, row =9, padx=10,pady=10)
+            self.ylabel_entrybox = tk.Entry(self.frame_in_canvas_Analysis)
+            self.ylabel_entrybox.grid(column=2, row=9, padx=10,pady=10)  
+            
+            def plot_csvs_function(self):
+                #read all csvs, second column
+                self.csv_dict={}
+                for index, the_csv in enumerate(self.selection_list):
+                    # with open(the_csv+".csv") as file:
+                    #     reader = csv.reader(file)
+                    #     count = 0
+                    #     for row in reader:
+                    #         print(row)
+                    #         if count>1:
+                    #             break
+                    #         count +=1
+                    self.csv_dict[index]=pd.read_csv("../saved-csvs/"+the_csv+".csv", usecols=[0,1])
+                print(self.csv_dict.keys())
+                the_title = self.title_entrybox.get()
+                xlabel = self.xlabel_entrybox.get()
+                ylabel = self.ylabel_entrybox.get()
+                plt.xlabel(xlabel)
+                plt.ylabel(ylabel)
+                #hold plot on
+                plt.title(the_title)
+                for thecsv,key in zip(self.selection_list, self.csv_dict.keys()):
+                    plt.plot(self.csv_dict[key].iloc[:,1], label=thecsv)
+                
+                plt.legend()
+                plt.show()   
+                    #make subplot and delete subplot after,
+                #store to numpy array
+                #plot
+                
+            self.Plot_csvs_button = tk.Button(self.frame_in_canvas_Analysis, text="Plot", cursor="hand2",command=partial(plot_csvs_function, self))
+            self.Plot_csvs_button.grid(row=5, column=2, padx=10, pady=10)
+            self.csv_listbox.bind('<ButtonRelease-1>', on_click_listbox)    
+            
+
+    
         self.button_2 = tk.Button(self.frame5, text="Please Enter Save Name", state=tk.DISABLED, command= threading.Thread(target = partial(run_Analysis,self)).start)
         self.button_2.config(cursor="hand2")
         self.button_2.pack(side=tk.TOP)
         self.make_scrollbar_Analysis()
-    
+    def csv_list_box_function(self):
+            #ListBox
+            self.csv_listbox = tk.Listbox(self.frame_in_canvas_Analysis)
+            self.csv_listbox.grid(row=5, column=1, pady=10, padx=10)
+            
+            if platform == 'darwin':
+                for file in glob.glob("../saved-csvs/*.csv"):
+                    file=file[14:len(file)-4]
+                    self.csv_listbox.insert(tk.END, file)  
+                    
+            if platform == 'win32':
+                for file in glob.glob("..\saved-csvs\*.csv"):
+                    file=file[14:len(file)-4]
+                    self.csv_listbox.insert(tk.END, file)            
     def show_saved_runs(self):
         self.frame6=tk.Frame(self.frame2)
         #self.frame6.pack(side="left", fill=tk.BOTH,expand=1)  
@@ -2735,17 +2836,32 @@ class sHFPN_GUI_APP:
                 file=file[14:len(file)-4]
                 self.lbx.insert(tk.END, file) 
    
+        def insert_run_name(self):
+            self.run_save_name_entry.delete(0, tk.END)
+            self.run_save_name_entry.insert(tk.END, self.saved_run_string)           
        
         def on_click_listbox(event):
             index=self.lbx.curselection()
             seltext=self.lbx.get(index)
             self.saved_run_string = seltext
             self.button_saved_run.config(state="normal")
+            self.button_saved_run.config(text="Input Last Hovered Saved Run",state="normal", command=partial(insert_run_name, self))
         self.lbx.bind('<ButtonRelease-1>', on_click_listbox)
 
-                
+    def green_listbox_selection(self):
+        for index, item in enumerate(self.truth_list):
+            if item == 1:
+                self.csv_listbox.itemconfig(index, bg="green", fg="white")
+            else:
+                self.csv_listbox.itemconfig(index, bg="white", fg="black")                
 
-                
+    def update_truth_list(self):
+       self.truth_list = []
+       for item in self.e4:
+           if item in self.selection_list:
+               self.truth_list.append(1)
+           else:
+               self.truth_list.append(0)               
    
 
     def run_sHFPN(self):
