@@ -2564,8 +2564,14 @@ class sHFPN_GUI_APP:
         def insert_run_name(self):
             self.run_save_name_entry.delete(0, tk.END)
             self.run_save_name_entry.insert(tk.END, self.saved_run_string)
+        def Go_to_saved_runs(self):
+            self.frame6.destroy()
+            self.show_saved_runs()
+            self.frame6.tkraise()
+            self.button_saved_run.config(text="Input Last Hovered Saved Run",state=tk.DISABLED, command=partial(insert_run_name, self))
         
-        self.button_saved_run = tk.Button(self.frame5, text="Input Last Hovered Saved Run",state=tk.DISABLED, command=partial(insert_run_name, self))
+        
+        self.button_saved_run = tk.Button(self.frame5, text="Go To Saved Runs", command=partial(Go_to_saved_runs, self))
         self.button_saved_run.pack()
         
         
