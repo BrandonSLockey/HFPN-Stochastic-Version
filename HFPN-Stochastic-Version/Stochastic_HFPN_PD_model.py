@@ -71,7 +71,7 @@ class sHFPN_GUI_APP:
         if platform == 'win32':
             self.root.iconbitmap(r'mngicon.ico')
         self.root.title("sHFPN GUI")
-        self.root.geometry("800x660")
+        self.root.geometry("800x680")
         self.Left_Sidebar()
         
     def Left_Sidebar(self):
