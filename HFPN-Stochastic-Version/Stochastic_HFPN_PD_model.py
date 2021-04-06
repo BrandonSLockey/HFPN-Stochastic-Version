@@ -556,7 +556,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = ["p_chol_ER"],
                         production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = PD_collect_rate_analytics)
+                        collect_rate_analytics = ["yes","no"])
     
         # Transport Cholesterol from LE to mito
         self.PD_pn.add_transition_with_speed_function( #4
@@ -569,7 +569,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = ["p_chol_mito"],
                         production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = PD_collect_rate_analytics)
+                        collect_rate_analytics = ["yes","no"])
     
         # Transport Cholesterol from LE to PM
         self.PD_pn.add_transition_with_speed_function( #5
@@ -582,7 +582,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = ["p_chol_PM"],
                         production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = PD_collect_rate_analytics)
+                        collect_rate_analytics = ["yes","no"])
     
         # Transport Cholesterol from PM to ER
         self.PD_pn.add_transition_with_speed_function( #6
@@ -608,7 +608,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = ["p_chol_PM"],
                         production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = PD_collect_rate_analytics)
+                        collect_rate_analytics = ["yes","no"])
     
         # Transport Cholesterol from ER to mito
         self.PD_pn.add_transition_with_speed_function( #8
@@ -621,7 +621,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = ["p_chol_mito"],
                         production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = PD_collect_rate_analytics)
+                        collect_rate_analytics = ["yes","no"])
     
         # Metabolisation of chol by CYP27A1
         self.PD_pn.add_transition_with_michaelis_menten( #9
@@ -1160,9 +1160,9 @@ class sHFPN_GUI_APP:
                             input_place_ids = ['p_chol_mito', 'p_ROS_mito'],
                             firing_condition = lambda a: a['p_chol_mito']>100000,
                             reaction_speed_function = lambda a: 0.0011088*a['p_chol_mito'],
-                            consumption_coefficients =[1,0], #[1,0], turn on
+                            consumption_coefficients =[0,0], #[1,0], turn on
                             output_place_ids = ['p_chol_LE'],
-                            production_coefficients = [1],#[1], turn off
+                            production_coefficients = [0],#[1], turn off
                             stochastic_parameters = [SD, cholSD],
                             collect_rate_analytics = PD_collect_rate_analytics,
                             delay = function_for_MDV_delay) #lambda a: (1/chol_mp)*min(60,max((-24.34*np.log(a['p_ROS_mito'])+309.126)), 20)) #switch: lambda a: 60*(a['p_ROS_mito'] < 80000)+30*(a['p_ROS_mito']>80000)) 
@@ -2640,6 +2640,7 @@ class sHFPN_GUI_APP:
                 print("CSV Saved at " + thename)
             self.csv_listbox.destroy()
             self.csv_list_box_function() 
+            self.update_truth_list()
             
         def run_Analysis(self):
             self.button_2.config(text="Please Wait, Loading...", state=tk.DISABLED)
@@ -2746,11 +2747,11 @@ class sHFPN_GUI_APP:
             self.deselect_button.grid(row=6,column=2,padx=10, pady=10)
             
             
-            
             def on_click_listbox(event):
                 index=self.csv_listbox.curselection()
                 seltext=self.csv_listbox.get(index)
-                self.csv_string = seltext
+                self.csv_string = seltext            
+
             
             self.title_label = tk.Label(self.frame_in_canvas_Analysis, text="Plot Title")
             self.title_label.grid(column=1, row =7, padx=10,pady=10)
@@ -2806,9 +2807,15 @@ class sHFPN_GUI_APP:
         self.button_2.pack(side=tk.TOP)
         self.make_scrollbar_Analysis()
     def csv_list_box_function(self):
+        
+            def on_click_listbox(event):
+                index=self.csv_listbox.curselection()
+                seltext=self.csv_listbox.get(index)
+                self.csv_string = seltext
             #ListBox
             self.csv_listbox = tk.Listbox(self.frame_in_canvas_Analysis)
             self.csv_listbox.grid(row=5, column=1, pady=10, padx=10)
+            self.csv_listbox.bind('<ButtonRelease-1>', on_click_listbox) 
             
             if platform == 'darwin':
                 for file in glob.glob("../saved-csvs/*.csv"):
@@ -2862,7 +2869,7 @@ class sHFPN_GUI_APP:
                self.truth_list.append(1)
            else:
                self.truth_list.append(0)               
-   
+
 
     def run_sHFPN(self):
         self.lb.itemconfig(7, fg="red")
