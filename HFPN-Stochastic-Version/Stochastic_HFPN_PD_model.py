@@ -26,11 +26,11 @@ from PD_sHFPN_rate_functions import *
 from PD_sHFPN_firing_conditions import *
 from PD_sHFPN_inputs import *
 from visualisation import Analysis
-from AD_parameters import *
-from AD_initial_tokens import *
-from AD_rate_functions import *
-from AD_firing_conditions import *
-from AD_sHFPN_inputs import *
+# from AD_parameters import *
+# from AD_initial_tokens import *
+# from AD_rate_functions import *
+# from AD_firing_conditions import *
+# from AD_sHFPN_inputs import *
 
 #Import GUI
 import tkinter as tk
@@ -83,7 +83,7 @@ class sHFPN_GUI_APP:
         self.lb.pack(side="left", fill=tk.BOTH)
         
         #***Add Different Channels***
-        self.lb.insert(tk.END,"", "PD Inputs","AD Inputs", "", "PD Transitions", "AD Transitions", "","Run sHFPN", "Rate Analytics", "Live-Plots", "Live-Rate Plots", "","Analysis", "Saved Runs", "", "About")
+        self.lb.insert(tk.END,"", "PD Inputs","AD Inputs", "", "PD Transitions", "AD Transitions", "","Run sHFPN", "Rate Analytics", "Live-Plots", "Live-Rate Plots", "","Analysis", "Saved Runs", "Saved CSVs", "", "About")
 
         #*** Make Main Frame that other frames will rest on:
         self.frame2= tk.Frame(self.root)
@@ -97,25 +97,23 @@ class sHFPN_GUI_APP:
         self.PD_Discrete_Transitions()
         
         #Preload AD Places and Transitions
-        self.AD_Places()
-        self.AD_Continuous_Transitions()
-        self.AD_Discrete_Transitions()
+        # self.AD_Places()
+        # self.AD_Continuous_Transitions()
+        # self.AD_Discrete_Transitions()
         
         #Preload All GUI Pages
         self.PD_Inputs_Page()
         self.Run_sHFPN_Page()
         self.AD_Inputs_Page()
         self.PD_Transitions_Page()
-        self.AD_Transitions_Page()
+        # self.AD_Transitions_Page()
         self.Live_Rate_analytics_Page()
         self.Live_Graph()
         self.Live_Graph_Rates()
         self.Analysis_page()
         self.show_saved_runs()
+        self.Saved_Csvs_page()
         self.About_Page()
-        
-        
-        
         
         #change the selectbackground of "empty" items to black
         # self.lb.itemconfig(0, selectbackground="black")
@@ -165,6 +163,9 @@ class sHFPN_GUI_APP:
                     self.frame6.destroy()
                     self.show_saved_runs()
                     self.frame6.tkraise()
+                    
+                if item_name == "Saved CSVs":
+                    self.frame11.tkraise()
                     
                 if item_name == "About":
                     self.frame7.tkraise()
@@ -530,7 +531,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = ["p_ApoEchol_EE"],
                         production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = PD_collect_rate_analytics)
+                        collect_rate_analytics = ["no","no"])
     
         # # Cleavage of cholesteryl esters
         self.PD_pn.add_transition_with_speed_function( #2
@@ -556,7 +557,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = ["p_chol_ER"],
                         production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = ["yes","no"])
+                        collect_rate_analytics = ["no","no"])
     
         # Transport Cholesterol from LE to mito
         self.PD_pn.add_transition_with_speed_function( #4
@@ -569,7 +570,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = ["p_chol_mito"],
                         production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = ["yes","no"])
+                        collect_rate_analytics = ["no","no"])
     
         # Transport Cholesterol from LE to PM
         self.PD_pn.add_transition_with_speed_function( #5
@@ -582,7 +583,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = ["p_chol_PM"],
                         production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = ["yes","no"])
+                        collect_rate_analytics = ["no","no"])
     
         # Transport Cholesterol from PM to ER
         self.PD_pn.add_transition_with_speed_function( #6
@@ -608,7 +609,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = ["p_chol_PM"],
                         production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = ["yes","no"])
+                        collect_rate_analytics = ["no","no"])
     
         # Transport Cholesterol from ER to mito
         self.PD_pn.add_transition_with_speed_function( #8
@@ -621,7 +622,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = ["p_chol_mito"],
                         production_coefficients         = [1],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = ["yes","no"])
+                        collect_rate_analytics = ["no","no"])
     
         # Metabolisation of chol by CYP27A1
         self.PD_pn.add_transition_with_michaelis_menten( #9
@@ -636,7 +637,7 @@ class sHFPN_GUI_APP:
                         production_coefficients         = [1],
                         vmax_scaling_function         = lambda a : chol_mp,
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = PD_collect_rate_analytics)
+                        collect_rate_analytics = ["no","no"])
     
         # Metabolism of chol by CYP11A1
         self.PD_pn.add_transition_with_michaelis_menten( #10
@@ -720,11 +721,11 @@ class sHFPN_GUI_APP:
                         output_place_ids             = [],
                         production_coefficients         = [],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = ["yes", "no"])
+                        collect_rate_analytics = ["no", "no"])
     
     
         # PD specific
-    
+        #This transition is proven false, it should be removed.
         self.PD_pn.add_transition_with_speed_function( #16
                             transition_id = 't_SNCA_bind_ApoEchol_extra',
                             label = 'Extracellular binding of SNCA to chol',
@@ -735,7 +736,7 @@ class sHFPN_GUI_APP:
                             output_place_ids = ['p_SNCA_olig'],         
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = PD_collect_rate_analytics)
+                            collect_rate_analytics = ["no","no"])
     
         self.PD_pn.add_transition_with_speed_function( #17
                             transition_id = 't_chol_LE_upreg',
@@ -761,7 +762,7 @@ class sHFPN_GUI_APP:
                             output_place_ids = ['p_Ca_cyto'],         
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) # Need to review this 
+                            collect_rate_analytics = ["no","yes"]) # Need to review this 
     
     
         self.PD_pn.add_transition_with_speed_function( #19
@@ -774,7 +775,7 @@ class sHFPN_GUI_APP:
                             output_place_ids = ['p_Ca_mito'],         
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect)
+                            collect_rate_analytics = ["no","yes"])
     
         self.PD_pn.add_transition_with_speed_function( #20
                             transition_id = 't_MAM',
@@ -786,7 +787,7 @@ class sHFPN_GUI_APP:
                             output_place_ids = ['p_Ca_mito'],         
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect)
+                            collect_rate_analytics = ["no","yes"])
     
         self.PD_pn.add_transition_with_speed_function( #21
                             transition_id = 't_RyR_IP3R',
@@ -798,7 +799,7 @@ class sHFPN_GUI_APP:
                             output_place_ids = ['p_Ca_cyto'],         
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
+                            collect_rate_analytics = ["no","yes"]) 
     
         self.PD_pn.add_transition_with_speed_function( #22
                             transition_id = 't_SERCA',
@@ -810,7 +811,7 @@ class sHFPN_GUI_APP:
                             output_place_ids = ['p_Ca_ER','p_ADP'],         
                             production_coefficients = [1,1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) # Need to review this
+                            collect_rate_analytics = ["no","yes"]) # Need to review this
     
         self.PD_pn.add_transition_with_speed_function( #23
                             transition_id = 't_NCX_PMCA',
@@ -822,7 +823,7 @@ class sHFPN_GUI_APP:
                             output_place_ids = [],         
                             production_coefficients = [],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect)
+                            collect_rate_analytics = ["yes","no"])
         
         self.PD_pn.add_transition_with_speed_function( #24
                             transition_id = 't_mNCLX',
@@ -834,7 +835,7 @@ class sHFPN_GUI_APP:
                             output_place_ids = ['p_Ca_cyto'],         
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = dont_collect) 
+                            collect_rate_analytics = ["no","yes"]) 
     
         # # Discrete on/off-switches calcium pacemaking
     
@@ -863,8 +864,8 @@ class sHFPN_GUI_APP:
                             consumption_coefficients = [1,0,0,0,0,0,0], 
                             output_place_ids = ['p_SNCA_inact'],         
                             production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = PD_collect_rate_analytics) 
+                            stochastic_parameters = [0],
+                            collect_rate_analytics = dont_collect) 
     
         self.PD_pn.add_transition_with_speed_function(#31
                             transition_id = 't_SNCA_aggr',
@@ -875,8 +876,8 @@ class sHFPN_GUI_APP:
                             consumption_coefficients = [30,0,0,0,0], #should be reviewed if Ca is consumed
                             output_place_ids = ['p_SNCA_olig'],         
                             production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = PD_collect_rate_analytics) 
+                            stochastic_parameters = [0],
+                            collect_rate_analytics = dont_collect) 
     
         self.PD_pn.add_transition_with_speed_function(#32
                             transition_id = 't_SNCA_fibril',
@@ -888,7 +889,7 @@ class sHFPN_GUI_APP:
                             output_place_ids = ['p_LB'],         
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = PD_collect_rate_analytics) 
+                            collect_rate_analytics = dont_collect) 
     
         self.PD_pn.add_transition_with_speed_function(#33
                             transition_id = 't_IRE',
@@ -899,8 +900,8 @@ class sHFPN_GUI_APP:
                             consumption_coefficients = [0], 
                             output_place_ids = ['p_SNCA_act'],         
                             production_coefficients = [1],
-                            stochastic_parameters = [SD],
-                            collect_rate_analytics = PD_collect_rate_analytics) 
+                            stochastic_parameters = [0],
+                            collect_rate_analytics = dont_collect) 
         
         # Energy metabolism
         self.PD_pn.add_transition_with_speed_function(#34
@@ -925,7 +926,7 @@ class sHFPN_GUI_APP:
                             output_place_ids = ['p_H2O_mito'],         
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = PD_collect_rate_analytics) 
+                            collect_rate_analytics = dont_collect) 
         # #Link of krebs to calcium homeostasis
         self.PD_pn.add_transition_with_speed_function(#36
                             transition_id = 't_krebs',
@@ -1158,15 +1159,28 @@ class sHFPN_GUI_APP:
                             transition_id = 't_MDV_Generation_basal',
                             label = "Mitochondrially Derived Vesicles production",
                             input_place_ids = ['p_chol_mito', 'p_ROS_mito'],
-                            firing_condition = lambda a: a['p_chol_mito']>100000,
-                            reaction_speed_function = lambda a: 0.0011088*a['p_chol_mito'],
+                            firing_condition = lambda a: a['p_chol_mito']>3.71e9,
+                            reaction_speed_function = lambda a: 0.0011088*a['p_chol_mito']*(1/3500)*1, #This is a fraction of a single mitochondrion, and must divide by no. of mitochondria (1/3500)
                             consumption_coefficients =[0,0], #[1,0], turn on
                             output_place_ids = ['p_chol_LE'],
                             production_coefficients = [0],#[1], turn off
                             stochastic_parameters = [SD, cholSD],
-                            collect_rate_analytics = PD_collect_rate_analytics,
-                            delay = function_for_MDV_delay) #lambda a: (1/chol_mp)*min(60,max((-24.34*np.log(a['p_ROS_mito'])+309.126)), 20)) #switch: lambda a: 60*(a['p_ROS_mito'] < 80000)+30*(a['p_ROS_mito']>80000)) 
+                            collect_rate_analytics = ["no","no"],
+                            delay = function_for_MDV_delay) #WARNING, DELAY IS CURRENTLY WRONG AND TOO SLOW, CHANGE TO 1/cholmp IN RATE FUNCTIONS
                             
+        
+        self.PD_pn.add_transition_with_speed_function(#51
+                    transition_id = 't_Mitophagy',
+                    label = "Mitochondria Cholesterol Transfer to Lysosomes",
+                    input_place_ids = ['p_chol_mito'],
+                    firing_condition = lambda a: a['p_chol_mito']>3.71e9,#Only fires if its higher than equilibrium value
+                    reaction_speed_function = lambda a: (1/3500)*a['p_chol_mito']*1,
+                    consumption_coefficients =[0], 
+                    output_place_ids = ['p_chol_LE'],
+                    production_coefficients = [0],
+                    stochastic_parameters = [SD, cholSD],
+                    collect_rate_analytics = ["no","no"],
+                    delay = 310/chol_mp) #1 Mitophagy event every 310 seconds, (Arias-Fuenzalida et al., 2019). However, mitophagy increases due to other events, and this needs to be modelled in the future.
         
     def AD_parameters(self):
                 # multiplicative rate factors for increasing rates of slow modules
@@ -2241,18 +2255,23 @@ class sHFPN_GUI_APP:
         
     def make_scrollbar_Analysis(self):
         self.canvas2 = tk.Canvas(self.frame5)
-        self.canvas2.pack(side="left", fill=tk.BOTH, expand=1)
+
         
         self.scrollbar2 = ttk.Scrollbar(self.frame5, orient=tk.VERTICAL, command =self.canvas2.yview)
-        self.scrollbar2.pack(side="left", fill=tk.Y)
+        self.scrollbar2.pack(side="right", fill=tk.Y)
+
+        self.scrollbarhori = ttk.Scrollbar(self.frame5, orient=tk.HORIZONTAL, command =self.canvas2.xview)
+        self.scrollbarhori.pack(side=tk.BOTTOM, fill=tk.X)
         
-        self.canvas2.configure(yscrollcommand=self.scrollbar2.set)
-        self.canvas2.bind('<Configure>', lambda e: self.canvas2.configure(scrollregion= self.canvas2.bbox("all")))
-        
+        self.canvas2.configure(yscrollcommand=self.scrollbar2.set, xscrollcommand=self.scrollbarhori.set)
+        self.canvas2.bind('<Configure>', lambda e: self.canvas2.configure(scrollregion= self.canvas2.bbox("all")))      
+        self.canvas2.pack(side="left", fill=tk.BOTH, expand=1)
         #Create another frame inside the canvas2
         self.frame_in_canvas_Analysis = tk.Frame(self.canvas2)
-        self.canvas2.create_window((0,0), window=self.frame_in_canvas_Analysis, anchor="nw")   
-    
+        self.canvas2.create_window((0,0), window=self.frame_in_canvas_Analysis, anchor="nw") 
+        self.frame_in_canvas_Analysis.config(background="grey42")
+        
+        
     def AD_make_scrollbar_Inputs_Page(self):
         self.AD_canvas3 = tk.Canvas(self.AD_frame3)
         self.AD_canvas3.pack(side="left", fill=tk.BOTH, expand=1)
@@ -2393,7 +2412,7 @@ class sHFPN_GUI_APP:
         self.Label_no_timesteps.grid(row=1,column=0)
         self.Label_no_timesteps_e = tk.Entry(self.frame_in_canvas_Inputs)
         self.Label_no_timesteps_e.grid(row=1,column=1)
-        self.Label_no_timesteps_e.insert(tk.END, "50000")
+        self.Label_no_timesteps_e.insert(tk.END, "6000000")
         self.Label_Help_no_timesteps = tk.Label(self.frame_in_canvas_Inputs, text="Only input increments of 1000")
         self.Label_Help_no_timesteps.grid(row=1, column=2)
         #*Timestep Size*
@@ -2558,6 +2577,7 @@ class sHFPN_GUI_APP:
         self.frame5=tk.Frame(self.frame2)
         #self.frame5.pack(side="left", fill=tk.BOTH,expand=1)
         self.frame5.grid(row=0,column=0,sticky="nsew")
+        self.frame5.config(bg="grey42")
         self.run_save_name_entry = tk.Entry(self.frame5, width=50, bg="black", fg="violet", borderwidth="5")
         self.run_save_name_entry.pack()
         
@@ -2594,37 +2614,75 @@ class sHFPN_GUI_APP:
 
             
         
-        def GUI_plot(place_id, analysis, File, simulation_time_step, desired_plotting_steps, max_time_step):
-            token_storage = analysis[File].token_storage        
+        def GUI_plot(place_id, analysis, File, simulation_time_step, desired_plotting_steps, max_time_step):  
             place_label =""
             plot_title = place_id
             desired_plotting_steps = int(self.desired_plotting_steps_entry_box.get())
+           
             if desired_plotting_steps>max_time_step: #in case user inputs more timesteps than available
                 desired_plotting_steps = max_time_step
+            if desired_plotting_steps %2==0: #if even, subtract 1, avoid errors.(only works if odd for some reason)
+                desired_plotting_steps = desired_plotting_steps-1
+                
+                
             t=np.arange(0,desired_plotting_steps*simulation_time_step+simulation_time_step,simulation_time_step) #(start,end,step) end in seconds. end = 1000 with ts=0.001 means you have 1000000 datapoints.
 
             t=t[0::int(self.nth_datapoint_entry_box.get())] #takes every nth data point. But still need to make sure the Axes are right somehow.                
           
             #truncate t by 1
-            
-            
           
             fig,ax=plt.subplots()
-            linestep = 0.3
-            line_width = 2.5
             
-            data = analysis[File].mean_token_history_for_places([place_id])[0:desired_plotting_steps+1] 
+            data = self.analysis[File].mean_token_history_for_places([place_id])[0:desired_plotting_steps+1] 
             data = data[0::int(self.nth_datapoint_entry_box.get())]
-            #print(data[1600000]) #units in time_step
-            #print(data[1800000])
-        
-            if place_label == "":
-                ax.plot(t, data, label = File,  color="black")
-            else:
-                ax.plot(t, data, label = File+' - '+place_label, color="black")
-            
-            ax.legend()
+            if self.Analysis_print_mean_value_var:
+                print("Mean: ", np.mean(data))        
+            option2 = self.Analysis_plot_rolling_only_var.get()
+            if option2==0:
+                if place_label == "":
+                    ax.plot(t, data, label = File,  color="black")
+                else:
+                    ax.plot(t, data, label = File+' - '+place_label, color="black")  
+                
+            self.Analysis_rolling_average_decision=self.Analysis_rolling_average.get()
+            da_window_size = int(self.Analysis_RAWS_entry.get())            
+            if self.Analysis_rolling_average_decision ==1:
+                data2 = data.ravel()
+                data2 = np.convolve(data2, np.ones(da_window_size), "valid")/da_window_size
+                an_array = np.empty(da_window_size-1)
+                an_array[:] = np.NaN
+                data2 = np.insert(data2, 0, an_array)
+                plt.plot(t, data2, color="red")         
+           
             Analysis.standardise_plot(ax, title = plot_title, xlabel = "Time (s)",ylabel = "Molecule count")
+
+            if self.Analysis_y_threshold_entry.get() != "":
+                plt.axhline(y=float(self.Analysis_y_threshold_entry.get()), linestyle='--', color ='red', label = self.Analysis_y_threshold_graph_label.get())      
+       
+            if self.Analysis_plotting_text_list_entry.get() == "":
+                ax.legend()
+            else:
+                L = ax.legend()
+                L.get_texts()[0].set_text(self.Analysis_plotting_text_list_entry.get())                        
+            
+            if self.Analysis_x_lim_entry.get() != "":
+                split_list = self.Analysis_x_lim_entry.get().split(", ")
+                x_lim_0 = float(split_list[0])
+                x_lim_1 = float(split_list[1])
+                plt.xlim([x_lim_0,x_lim_1])
+                
+            if self.Analysis_y_lim_entry.get() != "":
+                split_list = self.Analysis_y_lim_entry.get().split(", ")
+                y_lim_0 = float(split_list[0])
+                y_lim_1 = float(split_list[1])
+                plt.ylim([y_lim_0,y_lim_1])
+                
+            if self.Analysis_Plot_Title.get() != "":
+                plt.title(self.Analysis_Plot_Title.get())
+                
+            if self.Analysis_Plot_Y_Axis_Label_Entry.get() != "":
+                plt.ylabel(self.Analysis_Plot_Y_Axis_Label_Entry.get())
+            
             plt.show()
             
             
@@ -2641,6 +2699,91 @@ class sHFPN_GUI_APP:
             self.csv_listbox.destroy()
             self.csv_list_box_function() 
             self.update_truth_list()
+        def GUI_Plot_Rate(col, analysis, File, simulation_time_step, desired_plotting_steps, max_time_step, CONS_OR_PROD):
+            place_label =""
+            plot_title = col
+            desired_plotting_steps = int(self.desired_plotting_steps_entry_box.get())
+            if desired_plotting_steps>max_time_step: #in case user inputs more timesteps than available
+                desired_plotting_steps = max_time_step
+                
+            if desired_plotting_steps %2==0: #if even, subtract 1, avoid errors.(only works if odd for some reason)
+                desired_plotting_steps = desired_plotting_steps-1
+                
+            t=np.arange(0,desired_plotting_steps*simulation_time_step+simulation_time_step,simulation_time_step) #(start,end,step) end in seconds. end = 1000 with ts=0.001 means you have 1000000 datapoints.
+
+            t=t[0::int(self.nth_datapoint_entry_box.get())] #takes every nth data point. But still need to make sure the Axes are right somehow.                
+          
+            fig,ax=plt.subplots()
+            if CONS_OR_PROD == "Cons":
+                data = self.Analysis_dataframe_cons[[col]][0:desired_plotting_steps+1] 
+                data = data[0::int(self.nth_datapoint_entry_box.get())]
+                if self.Analysis_print_mean_value_var:
+                    print("Mean: ", np.mean(data))
+            if CONS_OR_PROD == "Prod":
+                data = self.Analysis_dataframe_prod[[col]][0:desired_plotting_steps+1] 
+                data = data[0::int(self.nth_datapoint_entry_box.get())]                
+                if self.Analysis_print_mean_value_var:
+                    print("Mean: ", np.mean(data))                
+                
+            self.Analysis_rolling_average_decision=self.Analysis_rolling_average.get()
+            da_window_size = int(self.Analysis_RAWS_entry.get())  
+            
+            option2 = self.Analysis_plot_rolling_only_var.get()
+            if option2==0:
+                if place_label == "":
+                    ax.plot(t, data, label = File,  color="black")
+                else:
+                    ax.plot(t, data, label = File+' - '+place_label, color="black")          
+            
+            if self.Analysis_rolling_average_decision ==1:
+                data2 = data.rolling(window=da_window_size).mean()
+                plt.plot(t, data2, color="red", label="Rolling Mean")         
+
+            Analysis.standardise_plot(ax, title = plot_title, xlabel = "Time (s)",ylabel = "Molecule count")
+            if self.Analysis_y_threshold_entry.get() != "":
+                plt.axhline(y=float(self.Analysis_y_threshold_entry.get()), linestyle='--', color ='red', label = self.Analysis_y_threshold_graph_label.get())            
+                
+            if self.Analysis_plotting_text_list_entry.get() == "":
+                ax.legend()
+            else:
+                L = ax.legend()
+                L.get_texts()[0].set_text(self.Analysis_plotting_text_list_entry.get())                     
+
+            if self.Analysis_x_lim_entry.get() != "":
+                split_list = self.Analysis_x_lim_entry.get().split(", ")
+                x_lim_0 = float(split_list[0])
+                x_lim_1 = float(split_list[1])
+                plt.xlim([x_lim_0,x_lim_1])
+                
+            if self.Analysis_y_lim_entry.get() != "":
+                split_list = self.Analysis_y_lim_entry.get().split(", ")
+                y_lim_0 = float(split_list[0])
+                y_lim_1 = float(split_list[1])
+                plt.ylim([y_lim_0,y_lim_1])                
+
+            if self.Analysis_Plot_Title.get() != "":
+                plt.title(self.Analysis_Plot_Title.get())
+                
+            if self.Analysis_Plot_Y_Axis_Label_Entry.get() != "":
+                plt.ylabel(self.Analysis_Plot_Y_Axis_Label_Entry.get())                
+            
+            plt.show()     
+            
+
+            if self.Export_var.get() ==1:
+                thename = "../saved-csvs/"+str(self.CSV_save_name.get())+".csv"
+                with open(thename, 'w', newline='') as csvfile:
+                    token_header = col+' Tokens'
+                    fieldnames = ['Time (s)', token_header]
+                    thewriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                    thewriter.writeheader()
+                    for thetime, token in zip(t,data.iloc[:,0]):
+                        thewriter.writerow({'Time (s)':thetime, token_header:token})
+                print("CSV Saved at " + thename)
+            self.csv_listbox.destroy()
+            self.csv_list_box_function() 
+            self.update_truth_list()            
+            
             
         def run_Analysis(self):
             self.button_2.config(text="Please Wait, Loading...", state=tk.DISABLED)
@@ -2648,7 +2791,7 @@ class sHFPN_GUI_APP:
             self.button3.forget()
             self.run_save_name_entry.forget()
             run_save_name = self.run_save_name
-            analysis = {}
+            self.analysis = {}
             start_time = datetime.now()
             
             
@@ -2660,148 +2803,198 @@ class sHFPN_GUI_APP:
             
             #analysis[File1] = Analysis.load_from_file(File1)
             #analysis[File2] = Analysis.load_from_file(File2)
-            analysis[File3] = Analysis.load_from_file(File3)
+            self.analysis[File3] = Analysis.load_from_file(File3)
             
             execution_time = datetime.now()-start_time
             print('\n\nLoad-in Time:', execution_time)
             print("")    
             
-            simulation_time_step=analysis[File3].time_step
-            desired_plotting_steps=analysis[File3].final_time_step
-            max_time_step = analysis[File3].final_time_step
+            simulation_time_step=self.analysis[File3].time_step
+            desired_plotting_steps=self.analysis[File3].final_time_step
+            max_time_step = self.analysis[File3].final_time_step
+            print(simulation_time_step)
             
             list_of_place_names = []
-            for place in analysis[File3].place_ids:
+            for place in self.analysis[File3].place_ids:
                 list_of_place_names.append(place)
             
-            tk.Button(self.frame_in_canvas_Analysis, text = "Places").grid(row=0, column=0, pady=10, padx=10)
+            tk.Button(self.frame_in_canvas_Analysis, text = "Places", bg="grey").grid(row=0, column=0, pady=10, padx=10)
             
+            #PLACE TOKENS
             for index, place_id in enumerate(list_of_place_names):
-                tk.Button(self.frame_in_canvas_Analysis, cursor="cross", text=place_id, command=partial(GUI_plot, place_id, analysis, File3, simulation_time_step, desired_plotting_steps, max_time_step)).grid(row=index+1, column=0, pady=10, padx=10)#pass value as an argument to plot  
+                tk.Button(self.frame_in_canvas_Analysis, cursor="cross", text=place_id, command=partial(GUI_plot, place_id, self.analysis, File3, simulation_time_step, desired_plotting_steps, max_time_step), bg="DodgerBlue3").grid(row=index+1, column=0, pady=10, padx=10)#pass value as an argument to plot  
                 self.canvas2.configure(scrollregion= self.canvas2.bbox("all"))
                 
+            #CONSUMPTION
+            tk.Button(self.frame_in_canvas_Analysis, text="Consumption Rate", bg="grey").grid(row=0, column=1, pady=10,padx=10)
+            self.Analysis_dataframe_cons = self.analysis[File3].df_for_rate_analytics_cons
+            CONS_OR_PROD = "Cons"
+            for index, col in enumerate(self.Analysis_dataframe_cons.columns):
+                tk.Button(self.frame_in_canvas_Analysis, cursor="cross", text=col, command=partial(GUI_Plot_Rate, col, self.analysis, File3, simulation_time_step, desired_plotting_steps, max_time_step, CONS_OR_PROD), bg="DodgerBlue3").grid(row=index+1, column=1,pady=10, padx=10)
                 
+            #Production
+            tk.Button(self.frame_in_canvas_Analysis, text="Production Rate", bg="grey").grid(row=0, column=2, pady=10,padx=10)
+            self.Analysis_dataframe_prod = self.analysis[File3].df_for_rate_analytics_prod
+            CONS_OR_PROD = "Prod"
+            for index, col in enumerate(self.Analysis_dataframe_prod.columns):
+                tk.Button(self.frame_in_canvas_Analysis, cursor="cross", text=col, command=partial(GUI_Plot_Rate, col, self.analysis, File3, simulation_time_step, desired_plotting_steps, max_time_step, CONS_OR_PROD), bg="DodgerBlue3").grid(row=index+1, column=2,pady=10, padx=10)                
+
             self.button_2.config(text="Restart Session to Run Another Analysis", state=tk.DISABLED)
             
             
             #Saved Name Label
             SD_font = tkfont.Font(family='Helvetica', size=10, weight="bold")
             self.Label1321 = tk.Label(self.frame_in_canvas_Analysis, text="File Name:")
-            self.Label1321.grid(row=0, column=1, pady=10, padx=10)
+            self.Label1321.grid(row=0, column=3, pady=10, padx=10)
             self.Analysis_title_header_label = tk.Label(self.frame_in_canvas_Analysis, text= run_save_name, font=SD_font)
-            self.Analysis_title_header_label.grid(row=0, column=2, pady=10,padx=10)
+            self.Analysis_title_header_label.grid(row=0, column=4, pady=10,padx=10)
             
             #Desired Plotting Steps
             self.desired_plotting_steps_label = tk.Label(self.frame_in_canvas_Analysis, text = "Desired Plotting Steps")
-            self.desired_plotting_steps_label.grid(row=1, column=1, pady=10,padx=10)
-            self.desired_plotting_steps_entry_box = tk.Entry(self.frame_in_canvas_Analysis)
-            self.desired_plotting_steps_entry_box.grid(row=1,column=2)
+            self.desired_plotting_steps_label.grid(row=1, column=3, pady=10,padx=10)
+            self.desired_plotting_steps_entry_box = tk.Entry(self.frame_in_canvas_Analysis, bg="DodgerBlue3")
+            self.desired_plotting_steps_entry_box.grid(row=1,column=4)
             self.desired_plotting_steps_entry_box.insert(tk.END, desired_plotting_steps)
             
             
-            self.root.geometry("801x660") #readjust size to make scrollbar visible
+            self.root.geometry("1250x660") #readjust size to make scrollbar visible
             
             #Plot every nth datapoint
             self.nth_datapoint_label = tk.Label(self.frame_in_canvas_Analysis, text = "Plot Every nth Data Point")
-            self.nth_datapoint_label.grid(row=2, column =1, pady=10,padx=10)
-            self.nth_datapoint_entry_box = tk.Entry(self.frame_in_canvas_Analysis)
-            self.nth_datapoint_entry_box.grid(row=2, column=2)
+            self.nth_datapoint_label.grid(row=2, column =3, pady=10,padx=10)
+            self.nth_datapoint_entry_box = tk.Entry(self.frame_in_canvas_Analysis, bg="DodgerBlue3")
+            self.nth_datapoint_entry_box.grid(row=2, column=4)
             self.nth_datapoint_entry_box.insert(tk.END, 1)
   
+            def Export_Enable_Disable(self):
+                if self.Export_Enable_Disable_decision == 0:
+                    self.CSV_save_name.config(state="normal")
+                    self.Export_Enable_Disable_decision = 1
+                else:
+                    self.CSV_save_name.config(state = tk.DISABLED)
+                    self.Export_Enable_Disable_decision = 0
+
+  
             #Export to CSV
+            self.Export_Enable_Disable_decision = 0 
             self.Export_label = tk.Label(self.frame_in_canvas_Analysis, text="Export to CSV")
-            self.Export_label.grid(row=3, column=1, pady=10,padx=10)
+            self.Export_label.grid(row=3, column=3, pady=10,padx=10)
             self.Export_var = tk.IntVar()
-            self.Export_Checkbutton = tk.Checkbutton(self.frame_in_canvas_Analysis, variable=self.Export_var)
-            self.Export_Checkbutton.grid(row=3, column=2, pady=10, padx=10)
+            self.Export_Checkbutton = tk.Checkbutton(self.frame_in_canvas_Analysis, variable=self.Export_var, command=partial(Export_Enable_Disable, self), fg="Black", selectcolor="grey42", relief=tk.GROOVE, highlightcolor="DodgerBlue3", bg="DodgerBlue3", activeforeground = "red", activebackground="red")
+            self.Export_Checkbutton.grid(row=3, column=4, pady=10, padx=10)
             
             #Export to CSV Save Name
             self.CSV_save_name_label = tk.Label(self.frame_in_canvas_Analysis, text="CSV Save Name")
-            self.CSV_save_name_label.grid(row=4, column=1, pady=10, padx=10)
-            self.CSV_save_name = tk.Entry(self.frame_in_canvas_Analysis)
-            self.CSV_save_name.grid(row=4, column=2, pady=10, padx=10)
+            self.CSV_save_name_label.grid(row=4, column=3, pady=10, padx=10)
+            self.CSV_save_name = tk.Entry(self.frame_in_canvas_Analysis, bg="DodgerBlue3")
+            self.CSV_save_name.grid(row=4, column=4, pady=10, padx=10)
             self.CSV_save_name.insert(tk.END, "CSV_Save_Name")
-            self.csv_list_box_function()
-            self.selection_list = []
-            def select_button_function(self):
-                
-                self.selection_list.append(self.csv_string)
-                self.selection_list = list(set(self.selection_list)) #make selection list unique
-                self.e4 = list(self.csv_listbox.get(0,tk.END))#get all items in listbox
-                self.update_truth_list()
-                print(self.truth_list)
-                self.green_listbox_selection()
-  
-
-                #listbox item/using index should bg="green", then a plot button, which reads all the selected csv files.
-                #store selected items to a list. so need to make a new function which reads multiple csv files, then plots it
-
-            def deselect_button_function(self):
-                self.selection_list.remove(self.csv_string)
-                self.update_truth_list()
-                self.green_listbox_selection()
-                print(self.selection_list)
-            self.select_button = tk.Button(self.frame_in_canvas_Analysis, text="Select", cursor="hand2", command=partial(select_button_function, self))
-            self.select_button.grid(row=6,column=1, padx=10, pady=10)
-            self.deselect_button = tk.Button(self.frame_in_canvas_Analysis, text="Deselect", cursor="hand2", command=partial(deselect_button_function, self))
-            self.deselect_button.grid(row=6,column=2,padx=10, pady=10)
-            
-            
+            self.CSV_save_name.config(state = tk.DISABLED)
+ 
             def on_click_listbox(event):
                 index=self.csv_listbox.curselection()
                 seltext=self.csv_listbox.get(index)
                 self.csv_string = seltext            
 
-            
-            self.title_label = tk.Label(self.frame_in_canvas_Analysis, text="Plot Title")
-            self.title_label.grid(column=1, row =7, padx=10,pady=10)
-            self.title_entrybox = tk.Entry(self.frame_in_canvas_Analysis)
-            self.title_entrybox.grid(column=2, row=7, padx=10,pady=10)
-            self.xlabel_label = tk.Label(self.frame_in_canvas_Analysis, text="X Label")
-            self.xlabel_label.grid(column=1, row =8, padx=10,pady=10)
-            self.xlabel_entrybox = tk.Entry(self.frame_in_canvas_Analysis)
-            self.xlabel_entrybox.grid(column=2, row=8, padx=10,pady=10)    
-            self.ylabel_label = tk.Label(self.frame_in_canvas_Analysis, text="Y Label")
-            self.ylabel_label.grid(column=1, row =9, padx=10,pady=10)
-            self.ylabel_entrybox = tk.Entry(self.frame_in_canvas_Analysis)
-            self.ylabel_entrybox.grid(column=2, row=9, padx=10,pady=10)  
-            
-            def plot_csvs_function(self):
-                #read all csvs, second column
-                self.csv_dict={}
-                for index, the_csv in enumerate(self.selection_list):
-                    # with open(the_csv+".csv") as file:
-                    #     reader = csv.reader(file)
-                    #     count = 0
-                    #     for row in reader:
-                    #         print(row)
-                    #         if count>1:
-                    #             break
-                    #         count +=1
-                    self.csv_dict[index]=pd.read_csv("../saved-csvs/"+the_csv+".csv", usecols=[0,1])
-                print(self.csv_dict.keys())
-                the_title = self.title_entrybox.get()
-                xlabel = self.xlabel_entrybox.get()
-                ylabel = self.ylabel_entrybox.get()
-                plt.xlabel(xlabel)
-                plt.ylabel(ylabel)
-                #hold plot on
-                plt.title(the_title)
-                for thecsv,key in zip(self.selection_list, self.csv_dict.keys()):
-                    plt.plot(self.csv_dict[key].iloc[:,1], label=thecsv)
+            #MDV button
+            def calculate_MDV_delay_function(self, analysis, File3):
+                test = self.analysis[File3].delay_list_MDVs
+                print(test)
+                print(np.mean(test))
                 
-                plt.legend()
-                plt.show()   
-                    #make subplot and delete subplot after,
-                #store to numpy array
-                #plot
+            self.MDV_button = tk.Button(self.frame_in_canvas_Analysis, text="Calculate MDV Delay", cursor="hand2", command=partial(calculate_MDV_delay_function, self, self.analysis, File3), bg="grey")
+            self.MDV_button.grid(row=5,column=3, padx=10,pady=10)
+            
+            def calculate_calcium_Delay_function(self,analysis,File3):
+                test = self.analysis[File3].delay_list_t_A
+                test2 =self.analysis[File3].delay_list_t_B
+                test3 = self.analysis[File3].delay_list_t_D
+                # print(test, test2, test3)
+                print("t_A:", np.mean(test),"t_B:", np.mean(test2),"t_D:", np.mean(test3))
                 
-            self.Plot_csvs_button = tk.Button(self.frame_in_canvas_Analysis, text="Plot", cursor="hand2",command=partial(plot_csvs_function, self))
-            self.Plot_csvs_button.grid(row=5, column=2, padx=10, pady=10)
-            self.csv_listbox.bind('<ButtonRelease-1>', on_click_listbox)    
+                print(f"File: {File3}")
+                place_id = 'p_on4'
+                self.calc_and_print_mean_sd_calcium(File3, place_id)
+                place_id = 'p_Ca_extra'
+                self.calc_and_print_mean_sd_calcium(File3, place_id)
+                place_id = 'p_on3'
+                self.calc_and_print_mean_sd_calcium(File3, place_id)        
+                print("Done")   
+                
+            self.Ca_button = tk.Button(self.frame_in_canvas_Analysis, text="Calculate Ca Delay", cursor="hand2", command=partial(calculate_calcium_Delay_function, self, self.analysis, File3), bg="grey")
+            self.Ca_button.grid(row=5,column=4, padx=10,pady=10)
+            
+            #Rolling Average
+            self.Analysis_Empty_Label111 = tk.Label(self.frame_in_canvas_Analysis, text="")
+            self.Analysis_Empty_Label111.grid(row=6,column=3, pady=10,padx=10)
+            def Analysis_Enable_Disable(self):
+                if self.Analysis_enabled==0:
+                    self.Analysis_plot_rolling_only_checkbutton.config(state="normal")
+                    self.Analysis_RAWS_entry.config(state="normal")
+                    self.Analysis_enabled=1
+                else:
+                    self.Analysis_plot_rolling_only_checkbutton.config(state=tk.DISABLED)
+                    self.Analysis_RAWS_entry.config(state=tk.DISABLED)
+                    self.Analysis_enabled=0
+                
+            self.Analysis_enabled=0
+            self.Analysis_Rolling_Header = tk.Label(self.frame_in_canvas_Analysis, text="Rolling Averages", font=self.SD_font)
+            self.Analysis_Rolling_Header.grid(row=7, column=3, padx=10,pady=10)
+            self.Analysis_rolling_average = tk.IntVar()
+            self.Analysis_rolling_average_checkbox = tk.Checkbutton(self.frame_in_canvas_Analysis, var=self.Analysis_rolling_average, text="Rolling Average?", command=partial(Analysis_Enable_Disable, self))
+            self.Analysis_rolling_average_checkbox.grid(row = 7, column=4, padx=10, pady=10)
+    
+            self.Analysis_plot_rolling_only_var = tk.IntVar()
+            self.Analysis_plot_rolling_only_checkbutton = tk.Checkbutton(self.frame_in_canvas_Analysis, var=self.Analysis_plot_rolling_only_var, text="Plot Rolling Average Only?", state=tk.DISABLED)
+            self.Analysis_plot_rolling_only_checkbutton.grid(row=7,column=5, padx=10,pady=10)
+            
+            self.Analysis_RAWS = tk.Label(self.frame_in_canvas_Analysis, text="Rolling Average Window Size")
+            self.Analysis_RAWS.grid(row=8, column=3, padx=10,pady=10)
+            self.Analysis_RAWS_entry = tk.Entry(self.frame_in_canvas_Analysis)
+            self.Analysis_RAWS_entry.insert(tk.END, 100)
+            self.Analysis_RAWS_entry.config(state=tk.DISABLED)
+            self.Analysis_RAWS_entry.grid(row=8, column=4, padx=10,pady=10)
+            
+            self.Label_Threshold_header = tk.Label(self.frame_in_canvas_Analysis, text="Add y threshold")
+            self.Label_Threshold_header.grid(row=9, column=3, padx=10,pady=10)
+            self.Analysis_y_threshold_entry = tk.Entry(self.frame_in_canvas_Analysis)
+            self.Analysis_y_threshold_entry.grid(row=9, column=4, padx=10, pady=10)
+            self.Label_Threshold_header2 = tk.Label(self.frame_in_canvas_Analysis, text="Threshold Label")
+            self.Label_Threshold_header2.grid(row=10, column=3, padx=10,pady=10)
+            self.Analysis_y_threshold_graph_label = tk.Entry(self.frame_in_canvas_Analysis)
+            self.Analysis_y_threshold_graph_label.grid(row=10, column=4, padx=10,pady=10)
+            
+            self.Analysis_plotting_text_list_label = tk.Label(self.frame_in_canvas_Analysis, text="Main Plot Legend Name")
+            self.Analysis_plotting_text_list_label.grid(row=11,column=3)
+            self.Analysis_plotting_text_list_entry = tk.Entry(self.frame_in_canvas_Analysis)
+            self.Analysis_plotting_text_list_entry.grid(row=11,column=4)
+            
+            self.Analysis_x_lim_label = tk.Label(self.frame_in_canvas_Analysis, text="X Axis Limits (E.g. Input 0, 100 ', ' Comma SPACE)")
+            self.Analysis_x_lim_label.grid(row=12, column=3)
+            self.Analysis_x_lim_entry = tk.Entry(self.frame_in_canvas_Analysis)
+            self.Analysis_x_lim_entry.grid(row=12, column=4)
+            self.Analysis_y_lim_label = tk.Label(self.frame_in_canvas_Analysis, text="Y Axis Limits (Separate with ', 'Comma SPACE)", relief=tk.RIDGE)
+            self.Analysis_y_lim_label.grid(row=13, column=3)
+            self.Analysis_y_lim_entry = tk.Entry(self.frame_in_canvas_Analysis)
+            self.Analysis_y_lim_entry.grid(row=13, column=4)    
+            self.Analysis_Plot_Title_label = tk.Label(self.frame_in_canvas_Analysis, text="Plot Title", relief=tk.RAISED)
+            self.Analysis_Plot_Title_label.grid(row=14, column=3)            
+            self.Analysis_Plot_Title = tk.Entry(self.frame_in_canvas_Analysis)
+            self.Analysis_Plot_Title.grid(row=14, column=4)
+            self.Analysis_Plot_Y_Axis_Label_Label = tk.Label(self.frame_in_canvas_Analysis, text="Y Axis Label", bg="grey42", relief=tk.GROOVE)
+            self.Analysis_Plot_Y_Axis_Label_Label.grid(row=15, column=3)
+            self.Analysis_Plot_Y_Axis_Label_Entry = tk.Entry(self.frame_in_canvas_Analysis, bg="DodgerBlue3", relief=tk.GROOVE)
+            self.Analysis_Plot_Y_Axis_Label_Entry.grid(row=15, column=4)
+            self.Analysis_print_mean_value_var = tk.BooleanVar()
+            self.Analysis_print_mean_value = tk.Checkbutton(self.frame_in_canvas_Analysis, var=self.Analysis_print_mean_value_var, text="Print Mean Value to Console?")
+            self.Analysis_print_mean_value.grid(row=16, column=4)
+            
             
 
-    
+
+
+
+        #Indent Corresponds to Analysis Page
         self.button_2 = tk.Button(self.frame5, text="Please Enter Save Name", state=tk.DISABLED, command= threading.Thread(target = partial(run_Analysis,self)).start)
         self.button_2.config(cursor="hand2")
         self.button_2.pack(side=tk.TOP)
@@ -2813,8 +3006,8 @@ class sHFPN_GUI_APP:
                 seltext=self.csv_listbox.get(index)
                 self.csv_string = seltext
             #ListBox
-            self.csv_listbox = tk.Listbox(self.frame_in_canvas_Analysis)
-            self.csv_listbox.grid(row=5, column=1, pady=10, padx=10)
+            self.csv_listbox = tk.Listbox(self.frame_in_canvas_CSV_Page)
+            self.csv_listbox.grid(row=0, column=0, pady=10, padx=10)
             self.csv_listbox.bind('<ButtonRelease-1>', on_click_listbox) 
             
             if platform == 'darwin':
@@ -2845,15 +3038,16 @@ class sHFPN_GUI_APP:
    
         def insert_run_name(self):
             self.run_save_name_entry.delete(0, tk.END)
-            self.run_save_name_entry.insert(tk.END, self.saved_run_string)           
-       
+            self.run_save_name_entry.insert(tk.END, self.saved_run_string)       
+            
         def on_click_listbox(event):
             index=self.lbx.curselection()
             seltext=self.lbx.get(index)
             self.saved_run_string = seltext
             self.button_saved_run.config(state="normal")
-            self.button_saved_run.config(text="Input Last Hovered Saved Run",state="normal", command=partial(insert_run_name, self))
-        self.lbx.bind('<ButtonRelease-1>', on_click_listbox)
+            self.button_saved_run.config(text="Input Last Hovered Saved Run",state="normal", command=partial(insert_run_name, self))        
+       
+        self.lbx.bind('<ButtonRelease-1>', on_click_listbox)   
 
     def green_listbox_selection(self):
         for index, item in enumerate(self.truth_list):
@@ -2870,6 +3064,428 @@ class sHFPN_GUI_APP:
            else:
                self.truth_list.append(0)               
 
+    def create_list_counting_zero_runs(self, normal_list):
+        """
+        so in calcium, there is an array of zeros and ones. This function counts the length of zeros the span the array, and appends it to a new list and returns the list
+        """
+        list_2 = []
+    
+        count = 0    
+        for index,number in enumerate(normal_list): 
+            if number == 0:
+                count = count+1
+            if number ==1 and normal_list[index-1]==0:
+                list_2.append(int(count))
+                count = 0
+            if number == 0 and index == (len(normal_list)-1): #So situations where we reach the end of the list and we are stuck with a zero are still counted.
+                list_2.append(int(count))
+        #Cut_off_the very first and last element of the list for safety reasons, to deal with potential truncated zero-runs lowering the mean.
+        list_2.pop(0)
+        list_2.pop()    
+    
+        return list_2
+    
+    def create_list_counting_one_runs(self, normal_list):
+        """
+        so in calcium, there is an array of zeros and ones. This function counts the length of zeros the span the array, and appends it to a new list and returns the list
+        """
+        list_2 = []
+    
+        count = 0    
+        for index,number in enumerate(normal_list): 
+            if number == 1:
+                count = count+1
+            if number ==0 and normal_list[index-1]==1:
+                list_2.append(int(count))
+                count = 0
+            if number == 1 and index == (len(normal_list)-1): #So situations where we reach the end of the list and we are stuck with a zero are still counted.
+                list_2.append(int(count))
+        #Cut_off_the very first and last element of the list for safety reasons, to deal with potential truncated zero-runs lowering the mean.
+        list_2.pop(0)
+        list_2.pop()    
+    
+        return list_2    
+    
+    
+
+    def calc_and_print_mean_sd_calcium(self, file, place_id):
+        """
+        This can take a long time if the list is huge (6million+ time steps).
+        data is in a two dimensional form and needs to be converted to a one dimensional list.
+        Calculates the Mean number of time steps until that transition contains a one token again and the SD for the place_id over the whole run
+        """
+        data = self.analysis[file].mean_token_history_for_places([place_id])[0:self.analysis[file].final_time_step+1] 
+        list_of_lists = data.tolist()
+        normal_list = [item for sublist in list_of_lists for item in sublist]    
+    
+        zero_runs_count_list = self.create_list_counting_zero_runs(normal_list)
+        one_runs_count_list = self.create_list_counting_one_runs(normal_list) 
+        mean1 = np.mean(zero_runs_count_list)
+        mean2 = np.mean(one_runs_count_list)
+        std1 = np.std(zero_runs_count_list)
+        std2= np.std(one_runs_count_list)
+        print(f"Mean Delay for {place_id}:", np.round(mean1, decimals =3), "timesteps", len(zero_runs_count_list), "counts")
+        print(f"SD for {place_id}: +/-", np.round(std1, decimals=3), "timesteps or", np.round(100*std1/mean1, decimals=3), "%") 
+        print("Max:", max(zero_runs_count_list), "Min:", min(zero_runs_count_list))
+        #print("The very first element was:", zero_runs_count_list[0]) 
+        #print("The very last element was: ", zero_runs_count_list[len(zero_runs_count_list)-1])     
+        print('')
+        print(f"Mean Time Active for {place_id}:", np.round(mean2, decimals =3), "timesteps", len(one_runs_count_list), "counts")
+        print(f"SD for {place_id}: +/-", np.round(std2, decimals=3), "timesteps or", np.round(100*std2/mean2, decimals=3), "%") 
+        print("Max:", max(one_runs_count_list), "Min:", min(one_runs_count_list))
+        print('')
+        print('#########################')
+
+    def make_scrollbar_CSV_Page(self):
+        self.canvas4 = tk.Canvas(self.frame11)
+        self.canvas4.pack(side="left", fill=tk.BOTH, expand=1)
+        self.scrollbar4 = ttk.Scrollbar(self.frame11, orient=tk.VERTICAL, command =self.canvas4.yview)
+        self.scrollbar4.pack(side="left", fill=tk.Y)
+        
+        self.canvas4.configure(yscrollcommand=self.scrollbar4.set)
+        self.canvas4.bind('<Configure>', lambda e: self.canvas4.configure(scrollregion= self.canvas4.bbox("all")))
+        
+        #Create another frame inside the canvas2
+        self.frame_in_canvas_CSV_Page = tk.Frame(self.canvas4)
+        self.canvas4.create_window((0,0), window=self.frame_in_canvas_CSV_Page, anchor="nw")   
+
+
+    def Saved_Csvs_page(self):
+        self.frame11 =tk.Frame(self.frame2)
+        self.frame11.grid(row=0,column=0,sticky="nsew")
+        self.make_scrollbar_CSV_Page()      
+        
+        self.csv_list_box_function()
+        self.selection_list = []        
+        
+        def plot_csvs_function(self):
+            #read all csvs, second column
+            self.csv_dict={}
+            print(self.selection_list, "selection list order")
+            option1= self.reverse_checkbutton_var.get()
+            if option1 == 1:
+                option1= True
+            else:
+                option1= False
+            self.selection_list = sorted(self.selection_list, reverse = option1)
+            for index, the_csv in enumerate(self.selection_list):
+                self.csv_dict[index]=pd.read_csv("../saved-csvs/"+the_csv+".csv", usecols=[0,1])
+            print(self.csv_dict.keys())
+            the_title = self.title_entrybox.get()
+            xlabel = self.xlabel_entrybox.get()
+            ylabel = self.ylabel_entrybox.get()
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel)
+            #hold plot on
+            plt.title(the_title)
+            self.rolling_average_decision=self.rolling_average.get()
+            da_window_size = int(self.RAWS_entry.get())
+            option2 = self.plot_rolling_only_var.get()
+            if option2==0:
+                for thecsv,key in zip(self.selection_list, self.csv_dict.keys()):
+                    plt.plot(self.csv_dict[key].iloc[:,0], self.csv_dict[key].iloc[:,1], label=thecsv)
+                
+            for thecsv,key in zip(self.selection_list, self.csv_dict.keys()): #So that rolling averages plot after and don't get covered up in the graph
+                if self.rolling_average_decision ==1:             
+                    plt.plot(self.csv_dict[key].iloc[:,0], self.csv_dict[key].iloc[:,1].rolling(window=da_window_size).mean(), label=thecsv)
+            self.csv_plotting_text_list=self.csv_plotting_text_list_entry.get()
+            
+            #Threshold axHline
+            if self.CSV_y_threshold_entry.get() != "":
+                plt.axhline(y=float(self.CSV_y_threshold_entry.get()), linestyle='--', color ='red', label = self.CSV_y_threshold_graph_label.get())             
+            
+            #Legend
+            if self.csv_plotting_text_list == "":
+                plt.legend()
+            else:
+                split_list = self.csv_plotting_text_list.split(", ")
+                L = plt.legend()
+                for index,text in enumerate(split_list):
+                    L.get_texts()[index].set_text(text)
+            
+            plt.show()   
+            
+            
+
+                        
+        
+        self.Plot_csvs_button = tk.Button(self.frame_in_canvas_CSV_Page, text="Plot", cursor="hand2",command=partial(plot_csvs_function, self))
+        self.Plot_csvs_button.grid(row=0, column=1, padx=10, pady=10)
+        self.reverse_checkbutton_var = tk.IntVar()
+        self.reverse_checkbutton = tk.Checkbutton(self.frame_in_canvas_CSV_Page, var=self.reverse_checkbutton_var, text="Reverse Plot Order?")
+        self.reverse_checkbutton.grid(row=0,column=2, padx=10,pady=10)        
+            
+        def on_click_listbox(event):
+            index=self.csv_listbox.curselection()
+            seltext=self.csv_listbox.get(index)
+            self.csv_string = seltext
+        #BACKself.button_saved_run.config(text="Input Last Hovered Saved Run",state="normal", command=partial(insert_run_name, self))
+
+        self.csv_listbox.bind('<ButtonRelease-1>', on_click_listbox)    
+        
+        #Rolling Average
+        self.Empty_Label111 = tk.Label(self.frame_in_canvas_CSV_Page, text="")
+        self.Empty_Label111.grid(row=7,column=0, pady=10,padx=10)
+        def Enable_Disable(self):
+            if self.enabled==0:
+                self.plot_rolling_only_checkbutton.config(state="normal")
+                self.RAWS_entry.config(state="normal")
+                self.RAWS_Legend_Entry.config(state="normal")
+                self.enabled=1
+            else:
+                self.plot_rolling_only_checkbutton.config(state=tk.DISABLED)
+                self.RAWS_entry.config(state=tk.DISABLED)
+                self.RAWS_Legend_Entry.config(state=tk.DISABLED)
+                self.enabled=0
+            
+        self.enabled=0
+        self.Rolling_Header = tk.Label(self.frame_in_canvas_CSV_Page, text="Rolling Averages", font=self.SD_font)
+        self.Rolling_Header.grid(row=8, column=0, padx=10,pady=10)
+        self.rolling_average = tk.IntVar()
+        self.rolling_average_checkbox = tk.Checkbutton(self.frame_in_canvas_CSV_Page, var=self.rolling_average, text="Rolling Average?", command=partial(Enable_Disable, self))
+        self.rolling_average_checkbox.grid(row = 8, column=1, padx=10, pady=10)
+
+        self.plot_rolling_only_var = tk.IntVar()
+        self.plot_rolling_only_checkbutton = tk.Checkbutton(self.frame_in_canvas_CSV_Page, var=self.plot_rolling_only_var, text="Plot Rolling Average Only?", state=tk.DISABLED)
+        self.plot_rolling_only_checkbutton.grid(row=8,column=2, padx=10,pady=10)
+        
+        self.RAWS = tk.Label(self.frame_in_canvas_CSV_Page, text="Rolling Average Window Size")
+        self.RAWS.grid(row=9, column=0, padx=10,pady=10)
+        self.RAWS_entry = tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.RAWS_entry.insert(tk.END, 100)
+        self.RAWS_entry.config(state=tk.DISABLED)
+        self.RAWS_entry.grid(row=9, column=1, padx=10,pady=10)
+        
+        self.CSV_Label_Threshold_header = tk.Label(self.frame_in_canvas_CSV_Page, text="Add y threshold")
+        self.CSV_Label_Threshold_header.grid(row=10, column=0, padx=10,pady=10)
+        self.CSV_y_threshold_entry = tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.CSV_y_threshold_entry.grid(row=10, column=1, padx=10, pady=10)
+        self.CSV_LabeL_Threshold_header_desc = tk.Label(self.frame_in_canvas_CSV_Page, text="Input Token Number")
+        self.CSV_LabeL_Threshold_header_desc.grid(row=10, column=2, padx=10, pady=10)
+        self.CSV_Label_Threshold_header2 = tk.Label(self.frame_in_canvas_CSV_Page, text="Threshold Label")
+        self.CSV_Label_Threshold_header2.grid(row=11, column=0, padx=10,pady=10)
+        self.CSV_y_threshold_graph_label = tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.CSV_y_threshold_graph_label.grid(row=11, column=1, padx=10,pady=10)
+        self.CSV_LabeL_Threshold_header2_desc = tk.Label(self.frame_in_canvas_CSV_Page, text="Input String")
+        self.CSV_LabeL_Threshold_header2_desc.grid(row=11, column=2, padx=10, pady=10)
+        
+        self.RAWS_Legend_Label = tk.Label(self.frame_in_canvas_CSV_Page, text="Rolling Average Legend")
+        self.RAWS_Legend_Label.grid(row=12, column=0, padx=10,pady=10)
+        self.RAWS_Legend_Entry = tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.RAWS_Legend_Entry.grid(row=12, column=1, padx=10,pady=10)        
+        self.RAWS_Legend_Entry.config(state=tk.DISABLED)
+        
+        
+        def select_button_function(self):
+            
+            self.selection_list.append(self.csv_string)
+            self.selection_list = list(set(self.selection_list)) #make selection list unique
+            self.e4 = list(self.csv_listbox.get(0,tk.END))#get all items in listbox
+            self.update_truth_list()
+            print(self.truth_list)
+            self.green_listbox_selection()
+  
+
+            #listbox item/using index should bg="green", then a plot button, which reads all the selected csv files.
+            #store selected items to a list. so need to make a new function which reads multiple csv files, then plots it
+
+        def deselect_button_function(self):
+            self.selection_list.remove(self.csv_string)
+            self.update_truth_list()
+            self.green_listbox_selection()
+            print(self.selection_list)
+        self.select_button = tk.Button(self.frame_in_canvas_CSV_Page, text="Select", cursor="hand2", command=partial(select_button_function, self))
+        self.select_button.grid(row=2,column=0, padx=10, pady=10)
+        self.deselect_button = tk.Button(self.frame_in_canvas_CSV_Page, text="Deselect", cursor="hand2", command=partial(deselect_button_function, self))
+        self.deselect_button.grid(row=2,column=1,padx=10, pady=10)        
+                
+        self.title_label = tk.Label(self.frame_in_canvas_CSV_Page, text="Plot Title")
+        self.title_label.grid(column=0, row =3, padx=10,pady=10)
+        self.title_entrybox = tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.title_entrybox.grid(column=1, row=3, padx=10,pady=10)
+        self.xlabel_label = tk.Label(self.frame_in_canvas_CSV_Page, text="X Label")
+        self.xlabel_label.grid(column=0, row =4, padx=10,pady=10)
+        self.xlabel_entrybox = tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.xlabel_entrybox.grid(column=1, row=4, padx=10,pady=10)    
+        self.ylabel_label = tk.Label(self.frame_in_canvas_CSV_Page, text="Y Label")
+        self.ylabel_label.grid(column=0, row =5, padx=10,pady=10)
+        self.ylabel_entrybox = tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.ylabel_entrybox.grid(column=1, row=5, padx=10,pady=10) 
+        #Legend Names
+        self.csv_plotting_text_list_label = tk.Label(self.frame_in_canvas_CSV_Page, text="Legend Names")
+        self.csv_plotting_text_list_label.grid(row=6,column=0)
+        self.csv_plotting_text_list_entry = tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.csv_plotting_text_list_entry.grid(row=6,column=1)
+        self.csv_plotting_text_help_label = tk.Label(self.frame_in_canvas_CSV_Page, text="Separate strings by ', '")
+        self.csv_plotting_text_help_label.grid(row=6,column=2)      
+
+        def twin_plot_function(self):
+            
+            #read all csvs, second column
+            self.csv_dict={}
+            print(self.selection_list, "selection list order")
+            #Reverse Plot Order
+            option1= self.reverse_checkbutton_var.get()
+            if option1 == 1:
+                option1= True
+            else:
+                option1= False
+            self.selection_list = sorted(self.selection_list, reverse = option1)
+            
+            #Save Csv Token Columns to dictionary
+            for index, the_csv in enumerate(self.selection_list):
+                self.csv_dict[index]=pd.read_csv("../saved-csvs/"+the_csv+".csv", usecols=[0,1])
+            print(self.csv_dict.keys())
+            
+            #Initialise Subplots
+            fig, ax1 = plt.subplots()
+            
+            #Get Plot Parameters
+            the_title = self.title_entrybox.get()
+            xlabel = self.xlabel_entrybox.get()
+            ylabel = self.ylabel_entrybox.get()
+
+            #Set Plot Parameters
+            ax1.set_xlabel(xlabel)
+            ax1.set_ylabel(ylabel)
+            ax1.title.set_text(the_title)
+            
+            #Plot Twin Y Axes
+            option2 = self.plot_rolling_only_var.get()
+            if option2==0:
+                #for thecsv,key in zip(self.selection_list, self.csv_dict.keys()):
+                ax2 = ax1.twinx()
+                
+                ax1.set_zorder(1)
+                ax2.set_zorder(2)
+                ax1.patch.set_visible(True)                
+                ax2.patch.set_visible(False)
+                ax2.grid(b=False)
+                
+                
+                
+                ax1.plot(self.csv_dict[0].iloc[:,0], self.csv_dict[0].iloc[:,1], label=self.selection_list[0], color='k')
+                ax2.plot(self.csv_dict[1].iloc[:,0], self.csv_dict[1].iloc[:,1], label=self.selection_list[1], color='tab:blue')
+                ax2.set_ylabel(self.second_ylabel.get())
+            if self.CSV_Twin_y_lim_entry.get() != "":
+                split_list = self.CSV_Twin_y_lim_entry.get().split(", ")
+                y_lim_0 = float(split_list[0])
+                y_lim_1 = float(split_list[1])
+                ax1.set_ylim([y_lim_0,y_lim_1])
+                
+            
+            if self.CSV_Twin_y_lim_entry2.get() != "":    
+                split_list2 = self.CSV_Twin_y_lim_entry2.get().split(", ")
+                y_lim2_0 = float(split_list2[0])
+                y_lim2_1 = float(split_list2[1])
+                ax2.set_ylim([y_lim2_0,y_lim2_1])        
+
+            if self.CSV_Twin_x_lim_entry.get() != "":
+                split_list = self.CSV_Twin_x_lim_entry.get().split(", ")
+                x_lim_0 = float(split_list[0])
+                x_lim_1 = float(split_list[1])
+                ax1.set_xlim([x_lim_0,x_lim_1])
+                
+            
+            if self.CSV_Twin_x_lim_entry2.get() != "":    
+                split_list2 = self.CSV_Twin_x_lim_entry2.get().split(", ")
+                x_lim2_0 = float(split_list2[0])
+                x_lim2_1 = float(split_list2[1])
+                ax2.set_xlim([x_lim2_0,x_lim2_1])                                       
+                
+            ax1.tick_params(axis="y", labelcolor='k')
+            ax2.tick_params(axis="y", labelcolor='tab:blue')
+
+            fig.tight_layout()
+            self.align_ticks = 0
+            if self.align_ticks == 1:  
+                minresax1 = 5
+                minresax2 = 5
+                
+                ax1ylims = ax1.get_ybound()
+                ax2ylims = ax2.get_ybound()
+                ax1factor = minresax1 * 6
+                ax2factor = minresax2 * 6
+                ax1.set_yticks(np.linspace(ax1ylims[0],
+                                           ax1ylims[1]+(ax1factor -
+                                           (ax1ylims[1]-ax1ylims[0]) % ax1factor) %
+                                           ax1factor,
+                                           7))
+                ax2.set_yticks(np.linspace(ax2ylims[0],
+                                           ax2ylims[1]+(ax2factor -
+                                           (ax2ylims[1]-ax2ylims[0]) % ax2factor) %
+                                           ax2factor,
+                                           7))            
+            
+ 
+            
+            # #Plot Rolling Average
+            # for thecsv,key in zip(self.selection_list, self.csv_dict.keys()): #So that rolling averages plot after and don't get covered up in the graph
+            #Rolling Average
+            self.rolling_average_decision=self.rolling_average.get()
+            da_window_size = int(self.RAWS_entry.get())            
+            if self.rolling_average_decision ==1:             
+                print(self.csv_dict[0].iloc[:,1])
+                ax1.plot(self.csv_dict[0].iloc[:,0], self.csv_dict[0].iloc[:,1].rolling(window=da_window_size).mean(), label=self.RAWS_Legend_Entry.get())
+            
+            
+            #Threshold axHline
+            if self.CSV_y_threshold_entry.get() != "":
+                if self.CSV_Threshold_To_TwinPlot_var:
+                    ax1.axhline(y=float(self.CSV_y_threshold_entry.get()), linestyle='--', color ='red', label = self.CSV_y_threshold_graph_label.get())         
+                else:
+                    ax2.axhline(y=float(self.CSV_y_threshold_entry.get()), linestyle='--', color ='red', label = self.CSV_y_threshold_graph_label.get())        
+            
+            #Twin Legend
+            self.csv_plotting_text_list=self.csv_plotting_text_list_entry.get()
+            if self.csv_plotting_text_list == "":
+                lines, labels = ax1.get_legend_handles_labels()
+                lines2, labels2 = ax2.get_legend_handles_labels()
+                ax2.legend(lines + lines2, labels + labels2, loc=2)
+            else:
+                split_list = self.csv_plotting_text_list.split(", ")
+                lines, labels = ax1.get_legend_handles_labels()
+                lines2, labels2 = ax2.get_legend_handles_labels()
+                labels[0] = split_list[0]
+                labels2[0] = split_list[1]
+                ax2.legend(lines + lines2, labels + labels2, loc=2)
+               
+                    
+
+
+            
+            plt.show()           
+        
+        self.Twin_plot_button = tk.Button(self.frame_in_canvas_CSV_Page, text="Twin Plot", command = partial(twin_plot_function, self))
+        self.Twin_plot_button.grid(row=0, column=3, padx=10,pady=10)
+        self.second_ylabel_Label = tk.Label(self.frame_in_canvas_CSV_Page, text="2nd Y Label")
+        self.second_ylabel_Label.grid(row=1, column=3, padx=10, pady=10)
+        self.second_ylabel = tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.second_ylabel.grid(row=1, column=4, padx=10, pady=10)
+        
+        self.CSV_Twin_y_lim_Label = tk.Label(self.frame_in_canvas_CSV_Page, text="YLimit 1")
+        self.CSV_Twin_y_lim_Label.grid(row=2, column=3, padx=10, pady=10)
+        self.CSV_Twin_y_lim_entry = tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.CSV_Twin_y_lim_entry.grid(row=2, column=4, padx=10, pady=10)
+        self.CSV_Twin_y_lim_Label2 = tk.Label(self.frame_in_canvas_CSV_Page, text="YLimit 2")
+        self.CSV_Twin_y_lim_Label2.grid(row=3, column=3, padx=10, pady=10)        
+        self.CSV_Twin_y_lim_entry2=tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.CSV_Twin_y_lim_entry2.grid(row=3, column=4, padx=10, pady=10)
+        
+        self.CSV_Twin_x_lim_Label = tk.Label(self.frame_in_canvas_CSV_Page, text="XLimit 1")
+        self.CSV_Twin_x_lim_Label.grid(row=4, column=3, padx=10, pady=10)
+        self.CSV_Twin_x_lim_entry = tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.CSV_Twin_x_lim_entry.grid(row=4, column=4, padx=10, pady=10)
+        self.CSV_Twin_x_lim_Label2 = tk.Label(self.frame_in_canvas_CSV_Page, text="XLimit 2")
+        self.CSV_Twin_x_lim_Label2.grid(row=5, column=3, padx=10, pady=10)        
+        self.CSV_Twin_x_lim_entry2=tk.Entry(self.frame_in_canvas_CSV_Page)
+        self.CSV_Twin_x_lim_entry2.grid(row=5, column=4, padx=10, pady=10)   
+        self.CSV_Threshold_To_TwinPlot_var = tk.BooleanVar()
+        self.CSV_Threshold_To_TwinPlot_Checkbutton = tk.Checkbutton(self.frame_in_canvas_CSV_Page, text="Add Threshold to Twin Plot?", var=self.CSV_Threshold_To_TwinPlot_var)
+        self.CSV_Threshold_To_TwinPlot_Checkbutton.grid(row=6, column=3)
+        
+        
+        
 
     def run_sHFPN(self):
         self.lb.itemconfig(7, fg="red")
@@ -2920,18 +3536,33 @@ class sHFPN_GUI_APP:
             if self.PD_pn.transitions[transition_id].DiscreteFlag=="yes": #DiscreteFlag flags discrete transitions
                 Delay_SD_Value = float(self.transitions_entry_box_Discrete_SD[str_index].get())
                 self.PD_pn.set_2nd_stochastic_parameter(Delay_SD_Value, transition_id)
+                
+        #debugging Stochastic Parameters
+        for index,value in enumerate(self.transitions_entry_box_dict):
+            str_index = str(index)             
+            transition_id = list(self.PD_pn.transitions)[index] 
+            print(self.PD_pn.transitions[transition_id].stochastic_parameters)
 
-        #Set the Collect Rate Analytics Decisions Consumption
+
+        # #BEFORE FOR LOOP
+        # for index,value in enumerate(self.transitions_consumption_checkboxes_dict):
+        #     transition_id = list(self.PD_pn.transitions)[index]
+        #     print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "before For Loop")
+        
+            
+        #FOR LOOP TO SET COLLECT #Set the Collect Rate Analytics Decisions Consumption
         for index,value in enumerate(self.transitions_consumption_checkboxes_dict):
             str_index = str(index)
             Integer_value = self.consump_checkbox_variables_dict[str_index].get() # 1 means checked, 0 means not.
+            #print(type(Integer_value))
             transition_id = list(self.PD_pn.transitions)[index]
             self.PD_pn.set_consumption_collect_decision(Integer_value,transition_id)
             #print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "in cons for loop") 
             
+        #AFTER FOR LOOP  
         for index,value in enumerate(self.transitions_consumption_checkboxes_dict): #DEBUGGING
             transition_id = list(self.PD_pn.transitions)[index]
-            #print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "after cons for loops")             
+            print(self.PD_pn.transitions[transition_id].collect_rate_analytics, "after cons for loops")             
             
         # for index,value in enumerate(self.transitions_consumption_checkboxes_dict): #DEBUGGING
         #     transition_id = list(self.PD_pn.transitions)[index]
@@ -3026,6 +3657,7 @@ class sHFPN_GUI_APP:
             str_index = str(index) #stringed number is the key of these dictionaries
             SD_value = float(self.transitions_entry_box_dict[str_index].get()) #float because entry box value is initially a string
             transition_id = list(self.AD_pn.transitions)[index] #get the transition id (dict key) from a list of all the transitions in this dict.
+            
             self.AD_pn.set_1st_stochastic_parameter(SD_value, transition_id)
             if self.AD_pn.transitions[transition_id].DiscreteFlag=="yes": #DiscreteFlag flags discrete transitions
                 Delay_SD_Value = float(self.transitions_entry_box_Discrete_SD[str_index].get())
