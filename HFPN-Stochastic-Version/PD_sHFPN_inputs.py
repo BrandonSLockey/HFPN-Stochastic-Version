@@ -17,15 +17,15 @@ mp_ApoEchol=1 #1 or 2
 # Number of runs and timesteps
 number_runs = 1
 number_time_steps = 20000
-time_step_size = 0.005
+time_step_size = 0.001
 
 #To run model without Stochasticity, Set SD to 0.
 
 #Should change SD to be sqrt(n) which is a better rule of thumb. maybe lambda function which takes number of place tokens, then you sqrt the SD.
 
-cholSD = 0.1 # cholesterol module
-SD = 0.1
-DelaySD = 0.1 #calcium clock and MDVs
+cholSD = 0.2 # cholesterol module
+SD = 0.2
+DelaySD = 0.2 #calcium clock and MDVs
 
 PD_collect_rate_analytics = ["no","no"] #first element consumption rate analytics, second element production rate analytics. i.e. ["no", "yes"], means don't collect consumption rate, but collect production rate analytics.
 dont_collect = ["no","no"]

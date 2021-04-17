@@ -463,7 +463,8 @@ class HFPN:
         if integer == 0:
             self.transitions[transition_id].collect_rate_analytics[0] = "no"
             print("0 activated")
-        if integer ==1:
+            print(self.transitions[transition_id].collect_rate_analytics, "IN PETRI NET")            
+        else:
             self.transitions[transition_id].collect_rate_analytics[0] = "yes"
             print("1 activated")
             print(self.transitions[transition_id].collect_rate_analytics, "IN PETRI NET")

@@ -2,7 +2,7 @@ from PD_sHFPN_parameters import *
 from PD_sHFPN_initial_tokens import *
 from PD_sHFPN_inputs import *
 import numpy as np
-
+                                                                                                                                                                            
 # Cholesterol homeostasis rates 
 # rate_constant * a['p_H2']**2 * a['p_O2']**1
 PD_r_t_chol_trans_ER_PM = lambda a :chol_mp*  k_t_chol_trans_ER_PM * a["p_chol_ER"]
@@ -22,7 +22,7 @@ PD_r_t_24OHchol_exocyto = lambda a : chol_mp* k_t_24OHchol_exocyto * a["p_24OHch
 PD_r_t_SNCA_bind_ApoEchol_extra = lambda a : k_t_SNCA_bind_ApoEchol_extra*a['p_SNCA_act']*a['p_ApoEchol_extra']
 
 def function_for_MDV_delay(get_input_tokens):
-    log = lambda b: (10/chol_mp)*min(60,max((-24.34*np.log(b)+309.126), 20))
+    log = lambda b: (chol_mp/chol_mp)*min(60,max((-24.34*np.log(b)+309.126), 20))#(10/chol_mp)*min(60,max((-24.34*np.log(b)+309.126), 20)) #delay is between 60 to 20 seconds. chol_mp is 300. (1/300, to match speed (much faster))
     tokens = lambda a: a['p_ROS_mito']
     return log(tokens(get_input_tokens))
 
