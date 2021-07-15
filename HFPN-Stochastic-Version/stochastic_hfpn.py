@@ -894,7 +894,13 @@ class HFPN:
         for index, place in enumerate(list_of_places_names1):
             tk.Button(GUI_App.frame_in_canvas, text=place, state=tk.DISABLED).grid(row=index+1, column=0, pady=10, padx=10)
             
-        
+        self.Initiate_Safe_Exit = False
+        def Safe_Exit_Protocol():
+            self.Initiate_Safe_Exit = True
+            
+        Exit_Button = tk.Button(GUI_App.frame_in_canvas, text="Safe Exit", command = partial(Safe_Exit_Protocol), bg="green", cursor="hand2")
+        Exit_Button.grid(row=0, column=5, pady=10, padx=10)
+
         #Define Live Graph
 
         GUI_App.f = Figure(figsize=(5,5), dpi=100)
@@ -1007,6 +1013,8 @@ class HFPN:
             index_str = str(index)
             token_produce_rate_buttons_dict[index_str]=tk.Button(GUI_App.PD_frame_in_rate_canvas, text=str(readable_value), cursor="hand2")
             token_produce_rate_buttons_dict[index_str].grid(row=index+1, column=3, pady=10,padx=10)        
+            
+        
         # *Pause_button
         
         self.Pause_value = "off"
@@ -1015,13 +1023,15 @@ class HFPN:
                 Pause_button.config(text="Paused!", bg="red")
                 Pause_button2.config(text="Paused!", bg="red")
                 self.Pause_value = "on"
-                Pickling_Button.config(state=tk.DISABLED)        
+                Pickling_Button.config(state=tk.DISABLED)   
+                Exit_Button.config(state=tk.DISABLED)        
             else:
                 Pause_button.config(text="Pause", bg="green")
                 Pause_button2.config(text="Pause", bg="green")
                 self.Pause_value = "off"
                 print("Unpaused!")
                 Pickling_Button.config(state="normal")   
+                Exit_Button.config(state="normal")
         Pause_button = tk.Button(GUI_App.frame_in_canvas, text="Pause", command = partial(pause), bg="green", cursor="hand2")
         Pause_button.grid(row=0, column=3,pady=10,padx=10)
         Pause_button2 = tk.Button(GUI_App.frame8, text="Pause", command = partial(pause), bg="green", cursor="hand2")
@@ -1039,13 +1049,11 @@ class HFPN:
         Pickling_Button.grid(row=0, column=4,pady=10,padx=10)
         
     
+        
 
         
         for t in range(number_time_steps):
             tokens, firings,list_of_tokens_transferred_for_each_transition_per_timestep_prod, list_of_tokens_transferred_for_each_transition_per_timestep_cons  = self.run_single_step()
-            
-            if t % 10000 == 0:
-                print("We are now at step:", t,flush=True)
                 
             # store current values at regular intervals
             if t % storage_interval == 0:
@@ -1058,6 +1066,14 @@ class HFPN:
                 single_run_firings[int(t/storage_interval)+1] = firings
                 df_for_rate_analytics_prod.loc[t+1:t+1,:] = flattened_list_prod
                 df_for_rate_analytics_cons.loc[t+1:t+1,:] = flattened_list_cons
+                
+                if t % 1000 == 0:
+                    if self.live_plot == "True":
+                        try:
+                            Plot_Live_Graph(self.plot_index, t)  
+                        except:
+                            print("NUMBER ERROR")
+                            pass
                 
                 #print(df_for_rate_analytics)
         # ***** GUI WIP ***** ===================
@@ -1073,6 +1089,9 @@ class HFPN:
                         FINAL_Time_step = t
                         break
         
+        
+        
+             
         #Update GUI every 1k steps.
             if t % 1000 ==0:
                 tokens_header_button.config(text="Timestep: " + str(t))
@@ -1086,8 +1105,9 @@ class HFPN:
                         readable_value = value
                     token_buttons_dict[index_str].config(text=str(readable_value), command=partial(Plot_Live_Graph,index,t))
                     #Button(second_frame, text=str(value)).grid(row=index+1, column=1, pady=10,padx=10)
-                if self.live_plot == "True":
-                    Plot_Live_Graph(self.plot_index, t)
+                    
+ 
+
                     
         #Update Live Graph every 1k steps. Works but I currently disable it - update is too slow. Can probably copy and paste more to force it to update faster.
             # if t % 1000 ==0:
@@ -1139,6 +1159,8 @@ class HFPN:
                 GUI_App.Live_Button.config(state=tk.DISABLED)
                 FINAL_Time_step = t
                     
+            # if GUI_App.Exit_Flag == True:
+            #     print("TESTLOLXD")
             #Premature Pickle
             if self.Pickle_Decision =="yes":
                 Pause_button.config(state=tk.DISABLED)
@@ -1147,40 +1169,27 @@ class HFPN:
                 GUI_App.Live_Button.config(state=tk.DISABLED)
                 FINAL_Time_step = t
                 break
-            
-            
+            if self.Initiate_Safe_Exit == True:
+                try:
+                    GUI_App.f.clear()
+                    plt.close(GUI_App.f)
+                    print("Success Clear and Close F")
+                except:
+                    print("Unsuccessful Clear and Close F")
+                    pass
+                try:               
+                    GUI_App.f_rates.clear()
+                    plt.close(GUI_App.f_rates)
+                    print("Success Clear and Close F_rates")
+                except:
+                    print("Unsuccessful Clear and Close F_rates")
+                    pass  
+                break
+        if self.Initiate_Safe_Exit == True:
+            GUI_App.safe_exit()
                 
-                
-                #root.update()
 
-                    
-
-           
-                # two = Label(root, text="Simulation Paused, exit window to continue", bg="blue", fg="white")
-                # two.pack(fill=X)
-
-
-
-                
-                
-                # GUI_tokens = single_run_tokens[t,]
-                # z = Label(root, text=list_of_place_names)
-       
-                # z.pack()
-                # a = Label(root, text=GUI_tokens)
-                # a.pack()
-                # b = Label(root, text="Firings for each Transition")
-                # b.pack()
-                # GUI_firings = single_run_firings[t,]
-                # c = Label(root, text=GUI_firings)
-                # c.pack()
-                # d = df_for_rate_analytics_prod
-                # e = Label(root, text = d)
-                # e.pack()
-                
-            
-             
-        # =====================================
+         
 
         # Determine how many times transition fired in single run
         single_run_total_firings = single_run_firings[-1,:]

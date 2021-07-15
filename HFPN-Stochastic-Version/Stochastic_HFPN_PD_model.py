@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 import csv
 import time
-
+import gc
+from IPython import get_ipython
 
 from datetime import datetime
 from sys import platform
@@ -40,7 +41,7 @@ import glob
 from PIL import ImageTk,Image 
 import webbrowser as webbrowser
 from tkinter import font as tkfont
-
+from tkinter import messagebox
 #Import Threading
 import threading
 
@@ -73,6 +74,7 @@ class sHFPN_GUI_APP:
         self.root.title("sHFPN GUI")
         self.root.geometry("800x680")
         self.Left_Sidebar()
+        self.Safe_Exit_Required = False
         
     def Left_Sidebar(self):
         self.frame1= tk.Frame(self.root, width=175)
@@ -721,7 +723,7 @@ class sHFPN_GUI_APP:
                         output_place_ids             = [],
                         production_coefficients         = [],
                         stochastic_parameters = [cholSD],
-                        collect_rate_analytics = ["no", "no"])
+                        collect_rate_analytics = ["yes", "no"])
     
     
         # PD specific
@@ -736,7 +738,7 @@ class sHFPN_GUI_APP:
                             output_place_ids = ['p_SNCA_olig'],         
                             production_coefficients = [1],
                             stochastic_parameters = [SD],
-                            collect_rate_analytics = ["no","no"])
+                            collect_rate_analytics = ["no","yes"])
     
         self.PD_pn.add_transition_with_speed_function( #17
                             transition_id = 't_chol_LE_upreg',
@@ -2315,29 +2317,11 @@ class sHFPN_GUI_APP:
         self.AD_Label_timestep_size_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
         self.AD_Label_timestep_size_e.grid(row=2,column=1)
         self.AD_Label_timestep_size_e.insert(tk.END, "0.001")
-        
-        # #*SD Header*
-        # self.SD_font = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic")
-        # self.Label_Header = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Adjust Transition Stochasticity Levels", font=self.SD_font)
-        # self.Label_Header.grid(row=3, column=1, pady=20)
-        
-        # #*CholSD*
-        # self.AD_Label_CholSD = tk.Label(self.AD_frame3_in_canvas_Inputs, text="CholSD (0 to 1)")
-        # self.AD_Label_CholSD.grid(row=4,column=0)
-        # self.AD_Label_CholSD_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
-        # self.AD_Label_CholSD_e.grid(row=4,column=1)
-        # self.AD_Label_CholSD_e.insert(tk.END, "0.1")       
-        
-        # #*Calcium Module SD*
-        # self.AD_Label_Calcium = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Calcium Module SD (0 to 1)")
-        # self.AD_Label_Calcium.grid(row=5,column=0)
-        # self.AD_Label_Calcium_e = tk.Entry(self.AD_frame3_in_canvas_Inputs)
-        # self.AD_Label_Calcium_e.grid(row=5,column=1)
-        # self.AD_Label_Calcium_e.insert(tk.END, "0.1")    
+         
         
         #*Mutations Header*
-        self.Mutations_Header = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic") 
-        self.Label_Header_Mutations = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Mutations and Risk Factors", font=self.Mutations_Header)
+        Mutations_Header = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic") 
+        self.Label_Header_Mutations = tk.Label(self.AD_frame3_in_canvas_Inputs, text="Mutations and Risk Factors", font= Mutations_Header)
         self.Label_Header_Mutations.grid(row=6, column=1)
         
         #*ApoE4 Mutation
@@ -2423,8 +2407,8 @@ class sHFPN_GUI_APP:
         self.Label_timestep_size_e.insert(tk.END, "0.001")
         
         #*SD Header*
-        self.SD_font = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic")
-        self.Label_Header = tk.Label(self.frame_in_canvas_Inputs, text="Adjust Transition Stochasticity Levels", font=self.SD_font)
+        SD_font = tkfont.Font(family='Helvetica', size=10, weight="bold", slant="italic")
+        self.Label_Header = tk.Label(self.frame_in_canvas_Inputs, text="Adjust Transition Stochasticity Levels", font=SD_font)
         self.Label_Header.grid(row=3, column=1, pady=20)
         
         #*CholSD*
@@ -2847,6 +2831,7 @@ class sHFPN_GUI_APP:
             self.Label1321 = tk.Label(self.frame_in_canvas_Analysis, text="File Name:")
             self.Label1321.grid(row=0, column=3, pady=10, padx=10)
             self.Analysis_title_header_label = tk.Label(self.frame_in_canvas_Analysis, text= run_save_name, font=SD_font)
+
             self.Analysis_title_header_label.grid(row=0, column=4, pady=10,padx=10)
             
             #Desired Plotting Steps
@@ -2938,7 +2923,8 @@ class sHFPN_GUI_APP:
                     self.Analysis_enabled=0
                 
             self.Analysis_enabled=0
-            self.Analysis_Rolling_Header = tk.Label(self.frame_in_canvas_Analysis, text="Rolling Averages", font=self.SD_font)
+            SD_font = tkfont.Font(family='Helvetica', size=10, weight="bold")
+            self.Analysis_Rolling_Header = tk.Label(self.frame_in_canvas_Analysis, text="Rolling Averages", font=SD_font)
             self.Analysis_Rolling_Header.grid(row=7, column=3, padx=10,pady=10)
             self.Analysis_rolling_average = tk.IntVar()
             self.Analysis_rolling_average_checkbox = tk.Checkbutton(self.frame_in_canvas_Analysis, var=self.Analysis_rolling_average, text="Rolling Average?", command=partial(Analysis_Enable_Disable, self))
@@ -3184,9 +3170,11 @@ class sHFPN_GUI_APP:
             if option2==0:
                 for thecsv,key in zip(self.selection_list, self.csv_dict.keys()):
                     plt.plot(self.csv_dict[key].iloc[:,0], self.csv_dict[key].iloc[:,1], label=thecsv)
+             
+                           
                 
             for thecsv,key in zip(self.selection_list, self.csv_dict.keys()): #So that rolling averages plot after and don't get covered up in the graph
-                if self.rolling_average_decision ==1:             
+                if self.rolling_average_decision ==1:     
                     plt.plot(self.csv_dict[key].iloc[:,0], self.csv_dict[key].iloc[:,1].rolling(window=da_window_size).mean(), label=thecsv)
             self.csv_plotting_text_list=self.csv_plotting_text_list_entry.get()
             
@@ -3196,12 +3184,24 @@ class sHFPN_GUI_APP:
             
             #Legend
             if self.csv_plotting_text_list == "":
-                plt.legend()
+                pass
             else:
                 split_list = self.csv_plotting_text_list.split(", ")
                 L = plt.legend()
                 for index,text in enumerate(split_list):
                     L.get_texts()[index].set_text(text)
+            
+            if self.CSV_Twin_y_lim_entry.get() != "":
+                split_list = self.CSV_Twin_y_lim_entry.get().split(", ")
+                y_lim_0 = float(split_list[0])
+                y_lim_1 = float(split_list[1])
+                plt.ylim(y_lim_0,y_lim_1)
+
+            if self.CSV_Twin_x_lim_entry.get() != "":
+                split_list = self.CSV_Twin_x_lim_entry.get().split(", ")
+                x_lim_0 = float(split_list[0])
+                x_lim_1 = float(split_list[1])
+                plt.xlim(x_lim_0,x_lim_1)
             
             plt.show()   
             
@@ -3239,7 +3239,11 @@ class sHFPN_GUI_APP:
                 self.enabled=0
             
         self.enabled=0
-        self.Rolling_Header = tk.Label(self.frame_in_canvas_CSV_Page, text="Rolling Averages", font=self.SD_font)
+        SD_font = tkfont.Font(family='Helvetica', size=10, weight="bold")
+        self.Rolling_Header = tk.Label(self.frame_in_canvas_CSV_Page, text="Rolling Averages", font=SD_font)
+  
+        
+        
         self.Rolling_Header.grid(row=8, column=0, padx=10,pady=10)
         self.rolling_average = tk.IntVar()
         self.rolling_average_checkbox = tk.Checkbutton(self.frame_in_canvas_CSV_Page, var=self.rolling_average, text="Rolling Average?", command=partial(Enable_Disable, self))
@@ -3270,9 +3274,9 @@ class sHFPN_GUI_APP:
         self.CSV_LabeL_Threshold_header2_desc.grid(row=11, column=2, padx=10, pady=10)
         
         self.RAWS_Legend_Label = tk.Label(self.frame_in_canvas_CSV_Page, text="Rolling Average Legend")
-        self.RAWS_Legend_Label.grid(row=12, column=0, padx=10,pady=10)
+        self.RAWS_Legend_Label.grid(row=12, column=3, padx=10,pady=10)
         self.RAWS_Legend_Entry = tk.Entry(self.frame_in_canvas_CSV_Page)
-        self.RAWS_Legend_Entry.grid(row=12, column=1, padx=10,pady=10)        
+        self.RAWS_Legend_Entry.grid(row=12, column=4, padx=10,pady=10)        
         self.RAWS_Legend_Entry.config(state=tk.DISABLED)
         
         
@@ -3425,7 +3429,6 @@ class sHFPN_GUI_APP:
             self.rolling_average_decision=self.rolling_average.get()
             da_window_size = int(self.RAWS_entry.get())            
             if self.rolling_average_decision ==1:             
-                print(self.csv_dict[0].iloc[:,1])
                 ax1.plot(self.csv_dict[0].iloc[:,0], self.csv_dict[0].iloc[:,1].rolling(window=da_window_size).mean(), label=self.RAWS_Legend_Entry.get())
             
             
@@ -3489,6 +3492,8 @@ class sHFPN_GUI_APP:
 
     def run_sHFPN(self):
         self.lb.itemconfig(7, fg="red")
+        self.Safe_Exit_Required = True
+        self.Safe_Exit_Now = False
         #Save Inputs from GUI
         run_save_name = self.HFPN_run_save_name
         number_time_steps = int(self.HFPN_number_of_timesteps)
@@ -3711,42 +3716,34 @@ class sHFPN_GUI_APP:
         execution_time = datetime.now()-start_time
         print('\n\nPickling Time:', execution_time) 
         self.AD_button_1.config(text="Restart Session to Re-run")
+        
+    def safe_exit(self):
+        self.root.update()
+        self.root.destroy()
+        sys.exit()
+      
              
 
 
  
-
+   
 
 
 
 def main():
-    #Initialise GUI
-    # root = Tk()
-    # root.title("sHFPN GUI")
-    # root.geometry("700x600")
-    
-    # main_frame = Frame(root)
-    # main_frame.pack(fill=BOTH, expand=1)
-    
-    # #GUI*****Make Menu*****
-    # menu = Menu(root)
-    # root.config(menu=menu)
-    # subMenu = Menu(menu)
-    # menu.add_cascade(label="File", menu=subMenu)
-    # subMenu.add_command(label="Inputs", command=partial(configure_inputs_file, root, main_frame))
-    # subMenu.add_separator()
-    
-
-
-
-    
-
-    
-    # button_2 = Button(root, text="Run Analysis", command=threading.Thread(target = partial(run_Analysis, run_save_name, root, main_frame, second_frame)).start)
-    # button_2.pack()
-    
     app = sHFPN_GUI_APP()
+    def on_closing():
+        if app.Safe_Exit_Required == True:
+            if messagebox.askokcancel("Quit", "Please Click Safe Exit Button"):
+                print("")
+        else:
+            app.root.destroy()
+    app.root.protocol("WM_DELETE_WINDOW", on_closing)
     app.root.mainloop()   
+    # del app
+    # gc.collect()
+    # get_ipython().magic('reset -sf')
+    print("Test")
     
     
 def configure_inputs_file(root, main_frame):

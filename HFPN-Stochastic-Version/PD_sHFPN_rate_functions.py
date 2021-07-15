@@ -42,7 +42,7 @@ PD_r_t_RyR_IP3R = lambda a : k_t_RyR_IP3R*a['p_Ca_ER'] #100 #Ca/s
 PD_r_t_SERCA = lambda a : k_t_SERCA_no_ATP*a['p_Ca_cyto']#Ca/s
 #WITH ATP
 # PD_r_t_SERCA = lambda a : k_t_SERCA*a['p_Ca_cyto']*a['p_ATP'] #Ca/s
-PD_r_t_NCX_PMCA = lambda a: (k_t_Ca_NCX_PMCA*a['p_Ca_cyto'])*(a['p_Ca_cyto']<=7.5*1e7)+ (k_t_Ca_NCX_PMCA/10*a['p_Ca_cyto'])*(a['p_Ca_cyto']>7.5*1e7)
+PD_r_t_NCX_PMCA = lambda a: (k_t_Ca_NCX_PMCA*a['p_Ca_cyto'])*(a['p_Ca_cyto'])#<=7.5*1e7)+ (k_t_Ca_NCX_PMCA/10*a['p_Ca_cyto'])*(a['p_Ca_cyto']>7.5*1e7)
 def PD_r_t_SNCA_degr(a):
     multiplier = 1 - 0.2*(a['p_LRRK2_mut']>0)+0.16*((a['p_LRRK2_mut']>0)*(a['p_DNL151']>0))
     rate_healthy = (k_t_SNCA_degr*a['p_SNCA_act'])*(a['p_VPS35']==0)
