@@ -2517,7 +2517,7 @@ class sHFPN_GUI_APP:
         self.Image_as_Label.config(image=self.About_Image)
         self.Image_as_Label.pack()
         self.BSL_font = tkfont.Font(family='Helvetica', size=7, slant="italic")
-        self.Label_BSL = tk.Label(self.frame7, text="Please email B.S. Lockey at bsl29@cam.ac.uk for issues.", font=self.BSL_font)
+        self.Label_BSL = tk.Label(self.frame7, text="Please email B.S. Lockey at brandonlockey@icloud.com for issues.", font=self.BSL_font)
         self.Label_BSL.pack()
 
     def Live_Graph(self):
